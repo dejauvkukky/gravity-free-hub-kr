@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <!-- Firebase needed for auth check -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+
+<body>
+    <script type="module">
+        import '../src/firebase.js';
+    </script>
+    <script src="src/auth.js"></script>
+    <script>
+        // Wait briefly for firebase to init then check
+        setTimeout(() => {
+            AuthService.checkAuth();
+        }, 500);
+    </script>
+</body>
+
+</html>

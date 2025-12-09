@@ -1,0 +1,46 @@
+name: Deploy Static Content
+
+on:
+  push:
+    branches: ["master", "main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      # Upload the entire repository (or specific folder)
+      # Since we have /public and root files, we upload root '.'
+      # User can configure Pages source directory in settings if needed, 
+      # but standard static deploy often uploads everything.
+      # Ideally we should move index.html to root for simple pages deploy?
+      # Current structure: /public/index.html -> root access needs /public/ in URL or redirect
+      # Let's clean up: Move /public contents to root for easier hosting?
+      # Or configure pages to serve from /public? GitHub Pages settings allow /root or /docs. 
+      # Strategy: Just upload everything, user accesses https://.../public/login.html or we move files.
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

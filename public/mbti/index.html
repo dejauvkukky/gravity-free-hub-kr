@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family MBTI</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../dashboard.html" class="logo">← 뒤로가기</a>
+            <span>Family MBTI</span>
+        </header>
+
+        <div class="p-4 flex-grow flex flex-col justify-center" id="quiz-screen">
+            <div style="background: #eee; height: 10px; border-radius: 5px; margin-bottom: 20px;">
+                <div id="progress-bar"
+                    style="background: var(--color-coral); height: 100%; width: 0%; border-radius: 5px; transition: width 0.3s;">
+                </div>
+            </div>
+
+            <h2 id="question-text" class="text-center" style="margin-bottom: 40px; font-size: 1.4rem;">질문이 여기에 나옵니다.
+            </h2>
+
+            <button class="btn btn-primary" style="margin-bottom: 12px;" onclick="answerQuestion('A')">답변 A</button>
+            <button class="btn btn-mint" onclick="answerQuestion('B')">답변 B</button>
+        </div>
+
+        <div class="p-4 hidden text-center" id="result-screen">
+            <h1 style="color: var(--color-coral);">당신의 유형은?</h1>
+            <div id="result-type" style="font-size: 3rem; font-weight: bold; margin: 20px 0;">INFP</div>
+            <p id="result-desc">설명이 여기에 나옵니다.</p>
+            <button class="btn btn-primary mt-4" onclick="location.href='../dashboard.html'">홈으로</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple Logic Code directly here for V1
+        const questions = [
+            { t: "휴일에 나는?", a: "집에서 쉬는게 최고야", b: "나가서 친구들을 만나야지", type: "IE" },
+            { t: "여행 계획을 짤 때?", a: "즉흥적으로!", b: "시간 단위로 철저하게", type: "JP" },
+            { t: "친구가 우울하다면?", a: "무슨 일 있어? (해결책)", b: "많이 힘들었겠다 ㅠㅠ (공감)", type: "TF" },
+            { t: "상상을 할 때?", a: "현실적인 상상", b: "일어나지 않을 법한 공상", type: "SN" },
+            // Add more questions for better accuracy... 4 simple ones for demo
+        ];
+
+        let currentQ = 0;
+        const scores = { I: 0, E: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('question-text').innerText = q.t;
+            document.querySelectorAll('button')[0].innerText = q.a; // Assume btn order
+            document.querySelectorAll('button')[1].innerText = q.b;
+
+            const pct = ((currentQ) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = pct + "%";
+        }
+
+        function answerQuestion(choice) {
+            const q = questions[currentQ];
+            // Simple mapping logic: answer A -> first char, B -> second char in type string? 
+            // Let's assume Question object structure needs improvement for real calculation
+            // For Demo V1: Even index(A) -> First Type, Odd(B) -> Second Type
+            const typeChars = q.type.split('');
+            if (choice === 'A') scores[typeChars[0]]++;
+            else scores[typeChars[1]]++;
+
+            currentQ++;
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            // Calculate Type
+            let result = "";
+            result += scores.E > scores.I ? "E" : "I";
+            result += scores.N > scores.S ? "N" : "S";
+            result += scores.F > scores.T ? "F" : "T";
+            result += scores.P > scores.J ? "P" : "J";
+
+            document.getElementById('result-type').innerText = result;
+            // TODO: Save to Firebase Here
+        }
+
+        loadQuestion();
+    </script>
+</body>
+
+</html>

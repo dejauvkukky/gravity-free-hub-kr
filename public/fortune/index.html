@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today Fortune</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../dashboard.html" class="logo">← 메인</a>
+            <span>오늘의 운세</span>
+        </header>
+
+        <div class="p-4 text-center" style="margin-top: 50px;">
+            <div style="font-size: 5rem; margin-bottom: 20px;">🔮</div>
+
+            <div class="card">
+                <h3 id="fortune-title" style="color: var(--color-mint);">오늘의 운세는?</h3>
+                <p id="fortune-text" style="font-size: 1.1rem; line-height: 1.6; margin-top: 20px;">
+                    운세를 확인하고 있습니다...
+                </p>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ddd;">
+                    <strong>오늘의 행운 컬러</strong>
+                    <div id="lucky-color"
+                        style="height: 30px; width: 30px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px; border: 1px solid #ccc;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fortune Logic (Daily Fixed Random)
+        const fortunes = [
+            "기분 좋은 일이 생길 거예요. 웃음으로 시작해보세요!",
+            "약간의 휴식이 필요한 날입니다. 따뜻한 차 한 잔 어때요?",
+            "가족과 대화하기 딱 좋은 날입니다. 저녁 식사를 함께하세요.",
+            "작은 행운이 따르는 날입니다. 복권을 사봐도 좋을지도?",
+            "계획했던 일이 술술 풀리는 날입니다. 자신감을 가지세요!"
+        ];
+        const colors = ["#FFDBDA", "#A0E7E5", "#FBE7C6", "#B4F8C8", "#D4F0F0"];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toDateString(); // "Wed Dec 09 2025"
+            // Use session user or generic key
+            const storageKey = `fortune_${today}`;
+
+            let data = localStorage.getItem(storageKey);
+
+            if (!data) {
+                // Generate New
+                const randIdx = Math.floor(Math.random() * fortunes.length);
+                const randCol = Math.floor(Math.random() * colors.length);
+                data = JSON.stringify({
+                    text: fortunes[randIdx],
+                    color: colors[randCol]
+                });
+                localStorage.setItem(storageKey, data);
+            }
+
+            const parsed = JSON.parse(data);
+            document.getElementById('fortune-text').innerText = parsed.text;
+            document.getElementById('lucky-color').style.backgroundColor = parsed.color;
+        });
+    </script>
+</body>
+
+</html>

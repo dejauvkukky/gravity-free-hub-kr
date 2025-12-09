@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Fun - 대시보드</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <a href="#" class="logo">Family Fun</a>
+            <button onclick="AuthService.logout()"
+                style="border:none; background:none; color:#666; font-size:0.9rem; cursor:pointer;">로그아웃</button>
+        </header>
+
+        <!-- Welcome Section -->
+        <div class="p-4" style="background-color: var(--color-lemon);">
+            <p style="margin: 0; font-size: 0.9rem; color: #666;" id="today-date">2023년 00월 00일</p>
+            <h2 style="margin: 8px 0 0 0; color: #333;"><span id="user-name">가족</span>님,<br>오늘도 행복하세요! 😊</h2>
+        </div>
+
+        <!-- Menu Grid -->
+        <div style="padding: 16px; display: grid; grid-template-columns: 1fr; gap: 8px;">
+
+            <!-- Card 1: MBTI -->
+            <div class="card" onclick="location.href='mbti/index.html'"
+                style="border-left: 5px solid var(--color-coral);">
+                <div class="card-title">🧩 가족 MBTI 테스트</div>
+                <div class="card-desc">우리 가족의 성격 유형을 알아보고 서로를 이해해봐요!</div>
+            </div>
+
+            <!-- Card 2: Fortune -->
+            <div class="card" onclick="location.href='fortune/index.html'"
+                style="border-left: 5px solid var(--color-mint);">
+                <div class="card-title">🍀 오늘의 가족 운세</div>
+                <div class="card-desc">오늘의 행운 컬러와 조언을 확인해보세요.</div>
+            </div>
+
+            <!-- Card 3: Preference -->
+            <div class="card" onclick="location.href='preference/index.html'"
+                style="border-left: 5px solid var(--color-lavender);">
+                <div class="card-title">⚖️ 취향 분석기</div>
+                <div class="card-desc">짜장 vs 짬뽕? 가족들의 취향 궁합을 알아볼까요?</div>
+            </div>
+
+        </div>
+
+        <div style="flex-grow: 1;"></div> <!-- Spacer -->
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import '../src/firebase.js'; // Init Firebase
+    </script>
+    <script src="../src/auth.js"></script>
+    <script>
+        // Init Check
+        AuthService.checkAuth();
+
+        // Set Date
+        const now = new Date();
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        document.getElementById('today-date').innerText =
+            `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+
+        // Convert Email to Display Name (Mock logic for now)
+        const email = sessionStorage.getItem('user_email') || '가족';
+        // Simple mapping based on known IDs if you want, or just use ID part
+        const namePart = email.split('@')[0];
+        document.getElementById('user-name').innerText = namePart;
+    </script>
+</body>
+
+</html>

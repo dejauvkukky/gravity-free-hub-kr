@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preference Analysis</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../dashboard.html" class="logo">← 메인</a>
+            <span>취향 분석기</span>
+        </header>
+
+        <div class="p-4">
+            <div id="survey-area">
+                <h2 class="text-center">둘 중 더 좋아하는 것은?</h2>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="vote(0)"
+                        style="height: 150px; font-size: 1.5rem;">짜장</button>
+                    <button class="btn btn-mint" onclick="vote(1)" style="height: 150px; font-size: 1.5rem;">짬뽕</button>
+                </div>
+            </div>
+
+            <div id="result-area" class="hidden">
+                <h2 class="text-center">분석 결과</h2>
+                <canvas id="myChart"></canvas>
+                <button class="btn btn-primary mt-4" onclick="location.href='../dashboard.html'">홈으로</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let step = 0;
+        // Demo: 1 Question
+        function vote(choice) {
+            // In real app, store choice to array, check next step
+            document.getElementById('survey-area').classList.add('hidden');
+            document.getElementById('result-area').classList.remove('hidden');
+            showChart();
+        }
+
+        function showChart() {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['일치', '불일치'],
+                    datasets: [{
+                        data: [70, 30], // Mock Data
+                        backgroundColor: ['#FFAEBC', '#e0e0e0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: '가족 평균 일치도' }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

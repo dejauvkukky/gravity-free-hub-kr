@@ -1,0 +1,144 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+:root {
+    /* Color Palette */
+    --color-mint: #A0E7E5;
+    --color-coral: #FFAEBC;
+    --color-lemon: #FBE7C6;
+    --color-lavender: #B4F8C8;
+
+    --text-primary: #333333;
+    --text-secondary: #666666;
+
+    --bg-color: #F9FAFB;
+    --card-bg: #FFFFFF;
+}
+
+body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+    /* Mobile-first container */
+    background-color: #fff;
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    padding: 20px;
+    background-color: var(--card-bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--color-coral);
+    text-decoration: none;
+}
+
+/* Card UI */
+.card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.card:active {
+    transform: scale(0.98);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.card-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Buttons */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--color-coral);
+    color: white;
+}
+
+.btn-mint {
+    background-color: var(--color-mint);
+    color: #333;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Input */
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    /* Important for padding */
+}
+
+/* Utils */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 16px;
+}
+
+.p-4 {
+    padding: 16px;
+}

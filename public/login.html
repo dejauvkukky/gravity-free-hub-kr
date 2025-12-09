@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Fun - 로그인</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+
+<body>
+    <div class="container" style="justify-content: center; background-color: var(--color-lemon);">
+
+        <div class="p-4 text-center">
+            <h1 style="color: var(--color-coral); font-size: 2.5rem; margin-bottom: 0;">Family Fun</h1>
+            <p style="color: #666; margin-top: 8px;">우리 가족만의 즐거운 공간</p>
+        </div>
+
+        <div class="card" style="margin: 24px;">
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="email" id="email" class="input-field" placeholder="이메일 (예: father@family.com)"
+                        required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" class="input-field" placeholder="비밀번호" required>
+                </div>
+                <button type="submit" class="btn btn-primary">로그인</button>
+            </form>
+            <p id="error-msg"
+                style="color: red; font-size: 0.9rem; margin-top: 10px; display: none; text-align: center;"></p>
+        </div>
+
+        <div class="text-center p-4">
+            <p style="font-size: 0.8rem; color: #888;">© Family Fun V1.0</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Load Firebase Config First -->
+    <script type="module">
+        import { auth } from '../src/firebase.js'; // This initializes firebase
+        // Make auth available globally for simple scripts
+        window.auth = auth;
+    </script>
+    <script src="../src/auth.js"></script>
+    <script>
+        // Init Check
+        AuthService.checkAuth();
+
+        const loginForm = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            errorMsg.style.display = 'none';
+            errorMsg.innerText = '로그인 중...';
+            errorMsg.style.display = 'block';
+            errorMsg.style.color = 'gray';
+
+            const result = await AuthService.login(email, password);
+
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errorMsg.style.color = 'red';
+                errorMsg.innerText = '로그인 실패: 이메일 또는 비밀번호를 확인하세요.';
+                console.error(result.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
