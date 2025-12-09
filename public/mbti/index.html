@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden MBTI</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=10">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=12">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -208,7 +208,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=10';
+        import { auth, db } from '../../src/firebase.js?v=12';
         import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=9';
 
         // Globals
@@ -237,7 +237,7 @@
             listEl.innerHTML = '';
 
             try {
-                const snapshot = await db.collection('mbti_results').get();
+                const snapshot = await db.collection('mbti_results_v2').get();
                 if (snapshot.empty) {
                     listEl.innerHTML = '<p class="text-center text-gray-400">아직 등록된 가족이 없습니다.<br>첫 번째 주인공이 되어보세요!</p>';
                     return;
@@ -264,8 +264,11 @@
                         const score = window.getCompatibility(myMbti, data.mbti);
                         const scoreColor = score >= 80 ? '#ef4444' : (score >= 50 ? '#d97706' : '#666');
                         scoreHtml = `
-                            <div style="font-weight:bold; font-size:1.2rem; color:${scoreColor}; line-height:1;">
-                                ${score}점 ${score >= 80 ? '❤️' : ''}
+                            <div style="text-align:right;">
+                                <span style="display:block; font-size:0.7rem; color:#aaa; margin-bottom:2px;">궁합점수</span>
+                                <div style="font-weight:bold; font-size:1.2rem; color:${scoreColor}; line-height:1;">
+                                    ${score}점 ${score >= 80 ? '❤️' : ''}
+                                </div>
                             </div>
                          `;
                     } else {
@@ -397,7 +400,7 @@
             mbti += (window.scores.J >= window.scores.P) ? "J" : "P";
 
             const user = window.auth.currentUser;
-            const userRef = window.db.collection('mbti_results').doc(user.uid);
+            const userRef = window.db.collection('mbti_results_v2').doc(user.uid);
 
             let nickname = sessionStorage.getItem('user_name');
             if (!nickname || nickname === 'null') {
@@ -466,7 +469,7 @@
             listEl.innerHTML = '불러오는 중...';
 
             try {
-                const doc = await window.db.collection('mbti_results').doc(uid).get();
+                const doc = await window.db.collection('mbti_results_v2').doc(uid).get();
                 if (doc.exists && doc.data().history) {
                     const history = doc.data().history;
                     // Sort by date desc
@@ -512,7 +515,7 @@
             const familyColors = [];
 
             try {
-                const snapshot = await window.db.collection('mbti_results').get();
+                const snapshot = await window.db.collection('mbti_results_v2').get();
                 if (snapshot.empty) {
                     listEl.innerHTML = '<p class="text-center text-gray-400">아직 다른 가족의 결과가 없네요.</p>';
                     return;
