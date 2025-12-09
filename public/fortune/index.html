@@ -85,15 +85,78 @@
             border-radius: 50%;
         }
 
-        .fortune-cookie-text {
-            font-style: italic;
+        /* Scratch Card Styles */
+        .scratch-wrapper {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .fortune-cookie-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fffbf0, #fff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
             text-align: center;
-            color: #555;
             font-size: 1.1rem;
-            line-height: 1.6;
-            padding: 10px;
-            border-left: 3px solid var(--color-secondary);
-            background: #fdfdfd;
+            color: #333;
+            font-weight: bold;
+            line-height: 1.4;
+            z-index: 1;
+            /* Below Canvas */
+        }
+
+        .fortune-cookie-content span {
+            word-break: keep-all;
+        }
+
+        canvas#scratchCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            /* Cover content */
+            cursor: pointer;
+        }
+
+        .scratch-hint {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            z-index: 3;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
         }
     </style>
 </head>
@@ -120,7 +183,6 @@
             <!-- TAB Navigation -->
             <div class="tab-container" id="tab-nav">
                 <button class="tab-btn active" onclick="switchTab('total')">📊 가족 종합</button>
-                <!-- Member tabs will be added dynamically -->
             </div>
 
             <!-- 1. Total View Section -->
@@ -163,14 +225,25 @@
                         <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지성</div>
                     </div>
                 </div>
+
+                <!-- Individual Scratch Card -->
+                <div class="fortune-card" style="background: linear-gradient(135deg, #fff, #fdfbf7);">
+                    <h3 class="card-title" style="text-align: center;">🥠 오늘의 포춘 쿠키 (긁어보세요!)</h3>
+
+                    <div class="scratch-wrapper" id="scratch-wrapper">
+                        <div class="fortune-cookie-content">
+                            <span id="fortune-msg">행운의 메시지를 확인하세요</span>
+                        </div>
+                        <canvas id="scratchCanvas"></canvas>
+                        <div class="scratch-hint" id="scratch-hint">👆 슥슥 긁어보세요!</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Common: Fortune Cookie -->
-            <div class="fortune-card" style="background: linear-gradient(135deg, #fff, #fdfbf7);">
-                <h3 class="card-title" style="text-align: center;">🥠 오늘의 포춘 쿠키</h3>
-                <div class="fortune-cookie-text" id="fortune-cookie-msg">
-                    "행복은 이미 당신 곁에 있습니다."
-                </div>
+            <!-- Shared Scratch Card Message for Total Tab (Hidden in Individual) -->
+            <div id="total-scratch-section" class="fortune-card"
+                style="background: linear-gradient(135deg, #fff, #fdfbf7);">
+                <p style="text-align: center; color:#888;">👆 <strong>개인별 탭</strong>에서 각자의 포춘 쿠키를 확인해보세요!</p>
             </div>
 
         </div>
@@ -180,7 +253,7 @@
         import { auth, db } from '../../src/firebase.js?v=6';
         import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
 
-        // Local Random Fortune Data
+        // Expanded Data (20+ Items)
         const fortuneCookies = [
             "작은 행복을 소중히 여기면 큰 행복이 찾아옵니다.",
             "오늘은 평소보다 조금 더 과감해져도 좋은 날입니다.",
@@ -191,30 +264,49 @@
             "가족과 함께하는 저녁 식사가 행운을 가져다 줄 것입니다.",
             "기회는 준비된 자에게 찾아옵니다. 오늘이 그 준비의 날입니다.",
             "걱정은 내려놓고 현재를 즐기세요.",
-            "감사하는 마음이 더 많은 감사할 일을 만들어냅니다."
+            "감사하는 마음이 더 많은 감사할 일을 만들어냅니다.",
+            "오래된 친구에게 연락하면 좋은 소식이 있을 것입니다.",
+            "지금 하고 있는 노력이 곧 결실을 맺을 것입니다.",
+            "변화는 두려운 것이 아니라 새로운 기회입니다.",
+            "나 자신을 사랑하는 것이 모든 성공의 시작입니다.",
+            "오늘은 평화롭고 안정적인 하루가 될 것입니다.",
+            "뜻밖의 선물을 받거나 좋은 제안을 받을 수 있습니다.",
+            "당신의 미소가 누군가의 하루를 밝혀줄 수 있습니다.",
+            "실수는 배움의 과정일 뿐입니다. 다시 도전하세요.",
+            "오늘은 계획했던 일을 시작하기에 아주 좋은 날입니다.",
+            "행운의 여신이 당신의 편에 서 있습니다."
         ];
 
         const dailyKeywords = [
-            "활기찬 에너지로 가득한 하루! 새로운 도전을 시작하기 좋습니다.",
-            "차분한 마음으로 내면을 돌아보기 좋은 날입니다. 명상을 추천해요.",
-            "예기치 않은 행운이 기다리고 있을지도 모릅니다. 주변을 잘 살펴보세요.",
-            "소통이 중요한 날입니다. 오해를 풀거나 대화를 시도해보세요.",
-            "창의력이 샘솟는 날! 아이디어를 메모해보세요.",
-            "건강 관리에 유의하세요. 스트레칭이나 가벼운 운동이 좋습니다.",
-            "재정적인 득이 있을 수 있습니다. 꼼꼼히 챙겨보세요.",
-            "사랑운이 상승세입니다. 소중한 사람과 시간을 보내세요."
+            "활기찬 에너지! 도전하기 좋은 날 🚀",
+            "차분한 명상이 필요한 힐링데이 🌿",
+            "예기치 않은 행운이 찾아올지도? 🍀",
+            "대화와 소통으로 오해를 푸는 날 🗣️",
+            "창의력이 샘솟는 아이디어 뱅크 💡",
+            "건강이 최우선! 가벼운 운동 필수 🏃",
+            "지갑 조심! 재정 관리가 필요한 날 💰",
+            "사랑이 꽃피는 로맨틱한 하루 ❤️",
+            "집중력이 최고조! 공부나 업무에 딱 📚",
+            "맛있는 음식으로 스트레스 타파 🍜",
+            "주변의 도움을 받아 해결되는 날 🤝",
+            "자신감을 가지고 리더십을 발휘하세요 🦁",
+            "작은 실수도 웃어넘기는 여유가 필요해요 😊",
+            "음악과 함께 감성을 충전해보세요 🎵",
+            "정리정돈으로 마음까지 상쾌하게 🧹",
+            "새로운 취미를 발견할 수도 있어요 🎨"
         ];
 
-        let membersData = []; // [{name, birthdate, ...}]
+        let membersData = [];
         let chartTotal = null;
         let chartInd = null;
+        let scratchCanvas = null;
+        let scratchCtx = null;
+        let isDrawing = false;
+        let currentScratchMember = null;
 
         // Init
         const today = new Date();
         document.getElementById('header-date').innerText = `${today.getMonth() + 1}월 ${today.getDate()}일`;
-
-        // Random Cookie
-        document.getElementById('fortune-cookie-msg').innerText = `"${fortuneCookies[today.getDate() % fortuneCookies.length]}"`;
 
         auth.onAuthStateChanged(user => {
             if (!user) {
@@ -224,23 +316,26 @@
             }
         });
 
+        // Simple seeded random function
+        function seededRandom(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            const x = Math.sin(hash) * 10000;
+            return x - Math.floor(x);
+        }
+
         async function loadFamilyData(user) {
             try {
-                // Static family data from users.js is more reliable for birthdates
-                // But we still want to know who is "registered" or display order?
-                // For this request, user explicitly asked for kukky, soony, joowon, raim
-                // We will use Object.keys(familyData) as the source of truth for the chart.
-
-                // However, we normally fetch 'mbti_results' to get dynamic names. 
-                // Let's mix them. Use familyData keys.
-
                 const names = Object.keys(familyData);
                 membersData = names.map(name => ({
                     name: name,
                     birthdate: familyData[name].birthdate
                 }));
 
-                // Initial Render (Total Tab)
                 renderTabs();
                 renderTotalChart();
 
@@ -261,42 +356,31 @@
                 const btn = document.createElement('button');
                 btn.className = 'tab-btn';
                 btn.innerText = m.name;
-                btn.onclick = () => switchTab(idx); // Use index as ID for individuals
+                btn.onclick = (e) => switchTab(idx, e);
                 container.appendChild(btn);
             });
         }
 
-        // Expose to window
-        window.switchTab = function (tabId) {
+        window.switchTab = function (tabId, event) {
             // UI Toggle
             const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach((b, i) => {
-                // Total is index 0 conceptually in button list if we querySelectorAll?
-                // Actually tabId 'total' is special.
+            btns.forEach(b => b.classList.remove('active'));
 
-                // Let's rely on text content matching or something simpler
-                // Re-implementation: just reset all, set clicked active
-                b.classList.remove('active');
-            });
-
-            // It's hard to map click directly to element without event, so let's cheat.
-            // We'll iterate and find which one was clicked? No, let's pass event or use simple logic.
-            // Simplified: Re-render tabs? No.
-
-            // Let's just find the button based on text logic or pass `this`?
-            // "window.switchTab" called from inline onclick doesn't pass `this` easily unless specified.
-            // Let's look at event.target
-            const clickedBtn = event.target;
-            clickedBtn.classList.add('active');
+            if (event) {
+                event.target.classList.add('active');
+            } else {
+                // Fallback or Initial
+            }
 
             if (tabId === 'total') {
                 document.getElementById('section-total').classList.remove('hidden');
                 document.getElementById('section-individual').classList.add('hidden');
-                // Ensure chart paints
+                document.getElementById('total-scratch-section').classList.remove('hidden'); // Show Guide
                 renderTotalChart();
             } else {
                 document.getElementById('section-total').classList.add('hidden');
                 document.getElementById('section-individual').classList.remove('hidden');
+                document.getElementById('total-scratch-section').classList.add('hidden'); // Hide Guide
                 renderIndividual(membersData[tabId]);
             }
         }
@@ -320,21 +404,17 @@
             const dataScores = [];
             const bgColors = [];
 
-            // Sort by score? Or fixed order? Fixed order is better for consistency.
-            // let's just use original order.
-
             membersData.forEach(m => {
                 if (!m.birthdate) return;
                 const bio = getBiorhythm(m.birthdate, new Date());
                 labels.push(m.name);
                 dataScores.push(bio.avg);
-                // Color based on score
-                if (bio.avg > 50) bgColors.push('#22c55e'); // Green
-                else if (bio.avg > 0) bgColors.push('#fbbf24'); // Yellow
-                else bgColors.push('#ef4444'); // Red
+
+                if (bio.avg > 50) bgColors.push('#22c55e');
+                else if (bio.avg > 0) bgColors.push('#fbbf24');
+                else bgColors.push('#ef4444');
             });
 
-            // Find max score for comment
             let maxScore = -100;
             let bestMember = "";
             dataScores.forEach((s, i) => {
@@ -373,28 +453,39 @@
 
             document.getElementById('ind-name-title').innerText = `${member.name}님의 운세`;
 
-            // 1. Text Info
+            // 1. Static Info (Zodiac)
             const z1 = getZodiac(member.birthdate);
             const z2 = getChineseZodiac(member.birthdate);
             document.getElementById('zodiac-text').innerText = `${z1} / ${z2}`;
 
-            // Simple hash for keyword
-            const dateVal = new Date().getDate();
-            const nameLen = member.name.length;
-            const keyIdx = (dateVal + nameLen) % dailyKeywords.length;
+            // 2. Daily Keyword (Seeded by Name + Date)
+            const dateStr = `${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+            const seed = member.name + dateStr;
+            const randVal = seededRandom(seed);
+
+            const keyIdx = Math.floor(randVal * dailyKeywords.length);
             document.getElementById('daily-keyword').innerText = dailyKeywords[keyIdx];
 
-            // 2. Chart
+            // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
+            const cookieSeed = seed + 'cookie';
+            const cookieRand = seededRandom(cookieSeed);
+            const cookieIdx = Math.floor(cookieRand * fortuneCookies.length);
+
+            document.getElementById('fortune-msg').innerText = `"${fortuneCookies[cookieIdx]}"`;
+
+            // 4. Scratch Canvas Reset
+            initScratchCanvas(member.name); // Reset scratch for this user
+
+            // 5. Bio Chart
             if (chartInd) chartInd.destroy();
 
             const labels = [];
             const dP = [], dE = [], dI = [];
-            const today = new Date();
+            const todayD = new Date();
 
-            // -3 to +3 days
             for (let i = -3; i <= 3; i++) {
-                const d = new Date(today);
-                d.setDate(today.getDate() + i);
+                const d = new Date(todayD);
+                d.setDate(todayD.getDate() + i);
                 labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
 
                 const bio = getBiorhythm(member.birthdate, d);
@@ -425,6 +516,84 @@
                 }
             });
         }
+
+        // --- Scratch Logic ---
+        function initScratchCanvas(memberName) {
+            // Need to check if user switched tab, scratch should be reset? 
+            // Yes, user wants "scratch card" experience effectively per member view.
+
+            const canvas = document.getElementById('scratchCanvas');
+            const parent = document.getElementById('scratch-wrapper');
+            const hint = document.getElementById('scratch-hint');
+
+            if (!canvas || !parent) return;
+
+            scratchCtx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = parent.offsetWidth;
+            canvas.height = parent.offsetHeight;
+
+            // Fill with gray/silver
+            scratchCtx.globalCompositeOperation = 'source-over';
+            scratchCtx.fillStyle = '#cccccc'; // silver
+            scratchCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Decoration text "Scratch Me"
+            scratchCtx.fillStyle = '#999';
+            scratchCtx.font = '20px sans-serif';
+            scratchCtx.textAlign = 'center';
+            scratchCtx.fillText("🍀 긁어서 행운 확인!", canvas.width / 2, canvas.height / 2);
+
+            // Reset Drawing State
+            isDrawing = false;
+            hint.style.display = 'block'; // Show hint again
+
+            // Event Listeners (ensure we don't duplicate if called multiple times)
+            // It's safer to recreate or remove old listeners, but for simplicity here we assume simple switching.
+            // Using 'on' properties to override previous handlers easily.
+
+            canvas.onmousedown = startScratch;
+            canvas.onmousemove = scratch;
+            canvas.onmouseup = endScratch;
+            canvas.onmouseleave = endScratch;
+
+            // Touch support
+            canvas.ontouchstart = (e) => { e.preventDefault(); startScratch(e.touches[0]); };
+            canvas.ontouchmove = (e) => { e.preventDefault(); scratch(e.touches[0]); };
+            canvas.ontouchend = endScratch;
+        }
+
+        function startScratch(e) {
+            isDrawing = true;
+            document.getElementById('scratch-hint').style.display = 'none'; // Hide hint once started
+            scratch(e);
+        }
+
+        function scratch(e) {
+            if (!isDrawing) return;
+
+            const canvas = document.getElementById('scratchCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            scratchCtx.globalCompositeOperation = 'destination-out';
+            scratchCtx.beginPath();
+            scratchCtx.arc(x, y, 20, 0, Math.PI * 2); // Brush size
+            scratchCtx.fill();
+        }
+
+        function endScratch() {
+            isDrawing = false;
+            // Check percent cleared? (Optional enhancement)
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Ideally resize canvas but that would clear it. Let's ignore for MVP.
+        });
+
     </script>
 </body>
 
