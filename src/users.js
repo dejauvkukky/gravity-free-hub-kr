@@ -1,27 +1,14 @@
 // Family Member Data for Fortune & Biorhythm
+// 이름(Name)을 키로 사용하여 매핑
 // 생년월일 형식: YYYY-MM-DD
 // gender: 'M' or 'F'
 
 export const familyData = {
-    // 예시 데이터 (실제 가족 정보로 수정 필요)
-    "test_uid_1": {
-        name: "아빠",
-        birthdate: "1980-01-01",
-        gender: "M",
-        slor: "solar" // 양력: solar, 음력: lunar
-    },
-    "test_uid_2": {
-        name: "엄마",
-        birthdate: "1982-05-05",
-        gender: "F",
-        slor: "solar"
-    },
-    "test_uid_3": {
-        name: "첫째",
-        birthdate: "2010-03-15",
-        gender: "M",
-        slor: "solar"
-    }
+    // 사용자 제공 데이터 (2025-12-09 Update)
+    "kukky": { name: "kukky", birthdate: "1976-11-22", gender: "M", slor: "solar" },
+    "soony": { name: "soony", birthdate: "1983-06-18", gender: "F", slor: "solar" },
+    "joowon": { name: "joowon", birthdate: "2011-01-26", gender: "M", slor: "solar" },
+    "raim": { name: "raim", birthdate: "2015-02-14", gender: "F", slor: "solar" }
 };
 
 export function getZodiac(dateStr) {
