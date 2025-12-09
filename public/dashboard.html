@@ -57,34 +57,38 @@
     </div>
 
     <!-- Scripts -->
+    <script src="../src/auth.js?v=3"></script>
     <script type="module">
-        import '../src/firebase.js?v=2'; // Init Firebase
-    </script>
-    <script src="../src/auth.js?v=2"></script>
-    <script>
-        // Init Check
+        import '../src/firebase.js?v=3'; // Ensures Firebase is initialized
+
+        // Logic executes after imports
+        // 1. Init Check
         AuthService.checkAuth();
 
-        // Set Date
+        // 2. Set Date
         const now = new Date();
         const days = ['일', '월', '화', '수', '목', '금', '토'];
         document.getElementById('today-date').innerText =
             `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
 
-        // User Name Logic
-        // 1. Try to get explicit name from session (saved during login/signup)
-        // 2. Fallback to email ID
-        const storedName = sessionStorage.getItem('user_name');
-        const email = sessionStorage.getItem('user_email');
+        // 3. User Name Logic (Robust)
+        // Wait for auth state to confirm user info if session is empty
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                const storedName = sessionStorage.getItem('user_name');
+                let displayName = '가족';
 
-        let displayName = '가족';
-        if (storedName && storedName !== 'null') {
-            displayName = storedName;
-        } else if (email) {
-            displayName = email.split('@')[0];
-        }
-
-        document.getElementById('user-name').innerText = displayName;
+                if (storedName && storedName !== 'null') {
+                    displayName = storedName;
+                } else if (user.email) {
+                    displayName = user.email.split('@')[0];
+                    // Update session for next time
+                    sessionStorage.setItem('user_email', user.email);
+                    sessionStorage.setItem('user_name', displayName);
+                }
+                document.getElementById('user-name').innerText = displayName;
+            }
+        });
     </script>
 </body>
 
