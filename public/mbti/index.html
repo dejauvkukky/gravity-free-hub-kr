@@ -1,136 +1,105 @@
 <!DOCTYPE html>
-<html lang="ko">
+background: #fff5f5;
+}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden MBTI</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=6">
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+.family-result-card {
+background: #f9f9f9;
+padding: 15px;
+border-radius: 12px;
+margin-bottom: 10px;
+cursor: pointer;
+transition: all 0.2s;
+border: 1px solid transparent;
+}
 
-    <style>
-        .option-btn {
-            display: block;
-            width: 100%;
-            padding: 20px;
-            margin-bottom: 12px;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            background: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-        }
+.family-result-card:hover {
+background: white;
+border-color: var(--color-coral);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
-        .option-btn:hover {
-            border-color: var(--color-coral);
-            background: #fff5f5;
-        }
+.family-result-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
 
-        .family-result-card {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
+.family-detail {
+display: none;
+margin-top: 15px;
+padding-top: 15px;
+border-top: 1px dashed #eee;
+font-size: 0.9rem;
+color: #555;
+line-height: 1.5;
+}
 
-        .family-result-card:hover {
-            background: white;
-            border-color: var(--color-coral);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+.family-result-card.expanded .family-detail {
+display: block;
+animation: fadeIn 0.3s ease;
+}
 
-        .family-result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+@keyframes fadeIn {
+from {
+opacity: 0;
+transform: translateY(-5px);
+}
 
-        .family-detail {
-            display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed #eee;
-            font-size: 0.9rem;
-            color: #555;
-            line-height: 1.5;
-        }
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
 
-        .family-result-card.expanded .family-detail {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
+.intro-card {
+background: white;
+border: 1px solid #eee;
+border-radius: 12px;
+padding: 15px;
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+gap: 15px;
+}
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .intro-card {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .match-card {
-            flex: 1;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            color: #fff;
-        }
-    </style>
+.match-card {
+flex: 1;
+padding: 15px;
+border-radius: 12px;
+text-align: center;
+color: #fff;
+}
+</style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <a href="../dashboard.html" class="logo">??Secret Garden</a>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
             <span>MBTI Test</span>
         </header>
 
         <!-- Loading -->
-        <div id="loading" class="p-4 text-center hidden">로딩�?..</div>
+        <div id="loading" class="p-4 text-center hidden">로딩중...</div>
 
         <!-- Intro Screen -->
         <div class="p-4 flex-grow flex flex-col" id="intro-screen">
             <div class="text-center" style="margin-bottom: 30px; margin-top: 20px;">
                 <h1 style="font-size: 2rem; color: var(--color-coral); margin-bottom: 10px;">Secret MBTI</h1>
-                <p style="color: #666;">?�로�???깊이 ?�해?�는 ?�간 ?�️</p>
+                <p style="color: #666;">서로를 더 깊이 이해하는 시간 ❤️</p>
             </div>
 
             <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">?��?�👩‍👧‍�?가족들??결과</h3>
+                <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">👨‍👩‍👧‍👦 가족들의 결과</h3>
                 <div id="family-intro-list">
                     <!-- Loaded dynamically -->
-                    <p style="text-align: center; color: #999; padding: 20px;">불러?�는 �?..</p>
+                    <p style="text-align: center; color: #999; padding: 20px;">불러오는 중...</p>
                 </div>
             </div>
 
             <div style="flex-grow: 1;"></div>
 
-            <button class="btn btn-primary" onclick="startQuiz()">?�스???�작?�기 (12문항)</button>
+            <button class="btn btn-primary" onclick="startQuiz()">테스트 시작하기 (12문항)</button>
         </div>
 
         <!-- Quiz Screen -->
@@ -144,11 +113,11 @@
             <div style="margin-bottom: 40px;">
                 <span style="color: var(--color-coral); font-weight: bold; display: block; margin-bottom: 8px;">Q<span
                         id="q-num">1</span></span>
-                <h2 id="question-text" style="font-size: 1.4rem; line-height: 1.4;">질문 ?�용</h2>
+                <h2 id="question-text" style="font-size: 1.4rem; line-height: 1.4;">질문 내용</h2>
             </div>
 
-            <button class="option-btn" id="btn-a" onclick="handleAnswer('a')">A ?��?</button>
-            <button class="option-btn" id="btn-b" onclick="handleAnswer('b')">B ?��?</button>
+            <button class="option-btn" id="btn-a" onclick="handleAnswer('a')">A 답변</button>
+            <button class="option-btn" id="btn-b" onclick="handleAnswer('b')">B 답변</button>
         </div>
 
         <!-- Result Screen -->
@@ -157,39 +126,39 @@
                 <img id="result-img" src="" alt="Character"
                     style="width: 120px; height: 120px; border-radius: 50%; background: #f0f0f0; margin-bottom: 15px; object-fit: cover;">
 
-                <p style="color: #666; margin-bottom: 4px; font-size: 0.9rem;">?�신???�격 ?�형?�</p>
+                <p style="color: #666; margin-bottom: 4px; font-size: 0.9rem;">당신의 성격 유형은</p>
                 <div id="result-type"
                     style="font-size: 3rem; font-weight: 800; color: var(--color-coral); line-height: 1;">TYPE</div>
                 <div id="result-name" style="font-size: 1.2rem; font-weight: bold; margin: 10px 0 20px 0; color: #333;">
-                    ?�형 ?�름</div>
+                    유형 이름</div>
 
                 <div class="card" style="margin: 0 0 20px 0; text-align: left;">
-                    <p id="result-desc" style="line-height: 1.6; color: #555;">?�명</p>
+                    <p id="result-desc" style="line-height: 1.6; color: #555;">설명</p>
                 </div>
 
                 <!-- Match Info -->
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <div class="match-card" style="background-color: #fca5a5;">
-                        <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">?�️ 찰떡 궁합</span>
+                        <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">❤️ 찰떡 궁합</span>
                         <strong id="match-best" style="font-size:1.2rem;">ENFP</strong>
                     </div>
                     <div class="match-card" style="background-color: #93c5fd;">
-                        <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">??조금 ?�든</span>
+                        <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">⚡ 조금 힘든</span>
                         <strong id="match-worst" style="font-size:1.2rem;">ESTJ</strong>
                     </div>
                 </div>
 
                 <div class="card"
                     style="margin: 0 0 20px 0; text-align: left; background-color: #f0fdf4; border: 1px solid #bbf7d0;">
-                    <h3 style="font-size: 1rem; color: #166534; margin-top: 0;">?�� 가족을 ?�한 ??/h3>
-                    <p id="result-tips" style="line-height: 1.6; color: #15803d; margin-bottom: 0;">???�용</p>
+                    <h3 style="font-size: 1rem; color: #166534; margin-top: 0;">💡 가족을 위한 팁</h3>
+                    <p id="result-tips" style="line-height: 1.6; color: #15803d; margin-bottom: 0;">팁 내용</p>
                 </div>
             </div>
 
             <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
 
             <div>
-                <h3 style="font-size: 1.2rem; margin-bottom: 16px;">?�� 가�?궁합 ??��</h3>
+                <h3 style="font-size: 1.2rem; margin-bottom: 16px;">📊 가족 궁합 랭킹</h3>
                 <div style="margin-bottom: 20px; height: 200px;">
                     <canvas id="familyChart"></canvas>
                 </div>
@@ -200,7 +169,7 @@
             </div>
 
             <button class="btn btn-primary mt-4" style="margin-bottom: 30px;"
-                onclick="location.href='../dashboard.html'">?�으�??�아가�?/button>
+                onclick="location.href='../dashboard.html'">홈으로 돌아가기</button>
             <div style="text-align: center; color: #ccc; font-size: 0.7rem; margin-bottom: 20px;">v1.5 (Fixed Missing
                 List & History Time)</div>
         </div>
@@ -208,7 +177,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=6';
+        import { auth, db } from '../../src/firebase.js';
         import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=9';
 
         // Globals
@@ -239,7 +208,7 @@
             try {
                 const snapshot = await db.collection('mbti_results').get();
                 if (snapshot.empty) {
-                    listEl.innerHTML = '<p class="text-center text-gray-400">?�직 ?�록??가족이 ?�습?�다.<br>�?번째 주인공이 ?�어보세??</p>';
+                    listEl.innerHTML = '<p class="text-center text-gray-400">아직 등록된 가족이 없습니다.<br>첫 번째 주인공이 되어보세요!</p>';
                     return;
                 }
 
@@ -252,7 +221,7 @@
                     if (data.history && data.history.length > 0) {
                         const historySorted = [...data.history].sort((a, b) => b.date.seconds - a.date.seconds);
                         historyHtml += '<div style="margin-bottom: 20px; border-top: 1px dashed #eee; padding-top: 15px;">';
-                        historyHtml += '<h4 style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">?�� MBTI 변천사</h4>';
+                        historyHtml += '<h4 style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">📜 MBTI 변천사</h4>';
                         historyHtml += '<ul style="list-style:none; padding:0; margin:0;">';
 
                         historySorted.forEach((rec, idx) => {
@@ -264,7 +233,7 @@
                                 <li style="display:flex; justify-content:space-between; padding: 6px 0; font-size: 0.85rem; align-items:center;">
                                     <span style="color:#888;">${dateStr}</span>
                                     <span style="font-weight:bold; color:${isLatest ? 'var(--color-coral)' : '#555'};">
-                                        ${rec.mbti} ${isLatest ? '<span style="font-size:0.6rem; background:var(--color-coral); color:white; padding:1px 5px; border-radius:8px; margin-left:4px;">?�재</span>' : ''}
+                                        ${rec.mbti} ${isLatest ? '<span style="font-size:0.6rem; background:var(--color-coral); color:white; padding:1px 5px; border-radius:8px; margin-left:4px;">현재</span>' : ''}
                                     </span>
                                 </li>
                             `;
@@ -289,32 +258,32 @@
                                     ${info.name}
                                 </div>
                             </div>
-                            <div style="margin-left:auto; color:#ccc; font-size:1.2rem;">??/div>
+                            <div style="margin-left:auto; color:#ccc; font-size:1.2rem;">⌄</div>
                         </div>
                         <div class="family-detail">
                             <p id="result-desc" style="line-height: 1.6; color: #555; margin-bottom: 20px;">${info.desc}</p>
                             
                             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                                 <div class="match-card" style="background-color: #fca5a5; padding: 10px; border-radius: 8px; flex: 1; text-align: center;">
-                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">?�️ 찰떡 궁합</span>
+                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">❤️ 찰떡 궁합</span>
                                     <strong style="font-size:1.1rem;">${info.matches.best}</strong>
                                 </div>
                                 <div class="match-card" style="background-color: #93c5fd; padding: 10px; border-radius: 8px; flex: 1; text-align: center;">
-                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">??조금 ?�든</span>
+                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">⚡ 조금 힘든</span>
                                     <strong style="font-size:1.1rem;">${info.matches.worst}</strong>
                                 </div>
                             </div>
 
                             ${historyHtml}
 
-                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">?�� ?? ${info.tips}</p>
+                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">💡 팁: ${info.tips}</p>
                         </div>
                     `;
                     listEl.appendChild(el);
                 });
             } catch (e) {
                 console.error(e);
-                listEl.innerHTML = '<p style="text-align:center; color:red;">?�이??로드 ?�패</p>';
+                listEl.innerHTML = '<p style="text-align:center; color:red;">데이터 로드 실패</p>';
             }
         }
 
@@ -427,14 +396,14 @@
                 const container = document.createElement('div');
                 container.id = 'history-section';
                 container.style.marginBottom = '30px';
-                container.innerHTML = '<h3 style="font-size: 1.2rem; margin-bottom: 16px;">?�� ?�의 MBTI 변천사</h3><div id="history-list" class="card" style="padding: 15px;"></div>';
+                container.innerHTML = '<h3 style="font-size: 1.2rem; margin-bottom: 16px;">📜 나의 MBTI 변천사</h3><div id="history-list" class="card" style="padding: 15px;"></div>';
 
                 const target = document.querySelector('hr'); // Insert above HR
                 target.parentNode.insertBefore(container, target);
             }
 
             const listEl = document.getElementById('history-list');
-            listEl.innerHTML = '불러?�는 �?..';
+            listEl.innerHTML = '불러오는 중...';
 
             try {
                 const doc = await window.db.collection('mbti_results').doc(uid).get();
@@ -445,7 +414,7 @@
 
                     let html = '';
                     if (history.length === 0) {
-                        html = '<p style="color:#999;">기록???�력???�습?�다.</p>';
+                        html = '<p style="color:#999;">기록된 이력이 없습니다.</p>';
                     } else {
                         html = '<ul style="list-style:none; padding:0; margin:0;">';
                         history.forEach((rec, idx) => {
@@ -457,7 +426,7 @@
                                 <li style="display:flex; justify-content:space-between; padding: 10px 0; border-bottom: 1px dashed #eee; align-items:center;">
                                     <span style="color:#666; font-size:0.9rem;">${dateStr}</span>
                                     <span style="font-weight:bold; color:${isLatest ? 'var(--color-coral)' : '#333'};">
-                                        ${rec.mbti} ${isLatest ? '<span style="font-size:0.7rem; background:var(--color-coral); color:white; padding:2px 6px; border-radius:10px; margin-left:5px;">?�재</span>' : ''}
+                                        ${rec.mbti} ${isLatest ? '<span style="font-size:0.7rem; background:var(--color-coral); color:white; padding:2px 6px; border-radius:10px; margin-left:5px;">현재</span>' : ''}
                                     </span>
                                 </li>
                             `;
@@ -466,7 +435,7 @@
                     }
                     listEl.innerHTML = html;
                 } else {
-                    listEl.innerHTML = '<p style="color:#999;">�?검?�시?�요! ?�이?��? ?�이�??�곳???�력???�시?�니??</p>';
+                    listEl.innerHTML = '<p style="color:#999;">첫 검사시네요! 데이터가 쌓이면 이곳에 이력이 표시됩니다.</p>';
                 }
             } catch (e) {
                 console.error("History load failed", e);
@@ -485,7 +454,7 @@
             try {
                 const snapshot = await window.db.collection('mbti_results').get();
                 if (snapshot.empty) {
-                    listEl.innerHTML = '<p class="text-center text-gray-400">?�직 ?�른 가족의 결과가 ?�네??</p>';
+                    listEl.innerHTML = '<p class="text-center text-gray-400">아직 다른 가족의 결과가 없네요.</p>';
                     return;
                 }
 
@@ -514,13 +483,13 @@
                                 <span style="color:#666; font-size:0.8rem;">(${data.mbti})</span>
                             </div>
                             <div style="font-weight:bold; color:${score >= 80 ? '#ef4444' : '#666'}">
-                                ${score}??${score >= 80 ? '?�️' : ''}
+                                ${score}점 ${score >= 80 ? '❤️' : ''}
                             </div>
                         </div>
                         <div class="family-detail">
                             <p><strong>${info.name}</strong></p>
                             <p>${info.desc}</p>
-                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">?�� ?? ${info.tips}</p>
+                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">💡 팁: ${info.tips}</p>
                         </div>
                     `;
                     listEl.appendChild(el);
@@ -529,7 +498,7 @@
                 if (familyNames.length > 0) {
                     renderChart(familyNames, familyScores, familyColors);
                 } else {
-                    listEl.innerHTML = '<p class="text-center text-gray-400">비교???�른 가�??�이?��? ?�습?�다.</p>';
+                    listEl.innerHTML = '<p class="text-center text-gray-400">비교할 다른 가족 데이터가 없습니다.</p>';
                 }
             } catch (e) {
                 console.error("Load family failed", e);
@@ -543,7 +512,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '궁합 ?�수',
+                        label: '궁합 점수',
                         data: data,
                         backgroundColor: colors,
                         borderRadius: 8
