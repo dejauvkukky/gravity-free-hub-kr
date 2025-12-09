@@ -6,6 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family MBTI</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            border-color: var(--color-coral);
+            background: #fff5f5;
+        }
+
+        .family-result-card {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -15,84 +51,212 @@
             <span>Family MBTI</span>
         </header>
 
+        <!-- Loading -->
+        <div id="loading" class="p-4 text-center hidden">로딩중...</div>
+
+        <!-- Quiz Screen -->
         <div class="p-4 flex-grow flex flex-col justify-center" id="quiz-screen">
-            <div style="background: #eee; height: 10px; border-radius: 5px; margin-bottom: 20px;">
+            <div style="background: #eee; height: 10px; border-radius: 5px; margin-bottom: 30px;">
                 <div id="progress-bar"
                     style="background: var(--color-coral); height: 100%; width: 0%; border-radius: 5px; transition: width 0.3s;">
                 </div>
             </div>
 
-            <h2 id="question-text" class="text-center" style="margin-bottom: 40px; font-size: 1.4rem;">질문이 여기에 나옵니다.
-            </h2>
+            <div style="margin-bottom: 40px;">
+                <span style="color: var(--color-coral); font-weight: bold; display: block; margin-bottom: 8px;">Q<span
+                        id="q-num">1</span></span>
+                <h2 id="question-text" style="font-size: 1.4rem; line-height: 1.4;">질문 내용</h2>
+            </div>
 
-            <button class="btn btn-primary" style="margin-bottom: 12px;" onclick="answerQuestion('A')">답변 A</button>
-            <button class="btn btn-mint" onclick="answerQuestion('B')">답변 B</button>
+            <button class="option-btn" id="btn-a" onclick="handleAnswer('a')">A 답변</button>
+            <button class="option-btn" id="btn-b" onclick="handleAnswer('b')">B 답변</button>
         </div>
 
-        <div class="p-4 hidden text-center" id="result-screen">
-            <h1 style="color: var(--color-coral);">당신의 유형은?</h1>
-            <div id="result-type" style="font-size: 3rem; font-weight: bold; margin: 20px 0;">INFP</div>
-            <p id="result-desc">설명이 여기에 나옵니다.</p>
-            <button class="btn btn-primary mt-4" onclick="location.href='../dashboard.html'">홈으로</button>
+        <!-- Result Screen -->
+        <div class="p-4 hidden" id="result-screen" style="overflow-y: auto;">
+            <div class="text-center" style="margin-top: 20px;">
+                <p style="color: #666; margin-bottom: 8px;">당신의 성격 유형은</p>
+                <div id="result-type"
+                    style="font-size: 3.5rem; font-weight: 800; color: var(--color-coral); line-height: 1;">TYPE</div>
+                <div id="result-name" style="font-size: 1.2rem; font-weight: bold; margin: 10px 0 20px 0; color: #333;">
+                    유형 이름</div>
+
+                <div class="card" style="margin: 0 0 20px 0; text-align: left;">
+                    <p id="result-desc" style="line-height: 1.6; color: #555;">설명</p>
+                </div>
+
+                <div class="card"
+                    style="margin: 0 0 20px 0; text-align: left; background-color: #f0fdf4; border: 1px solid #bbf7d0;">
+                    <h3 style="font-size: 1rem; color: #166534; margin-top: 0;">💡 가족을 위한 팁</h3>
+                    <p id="result-tips" style="line-height: 1.6; color: #15803d; margin-bottom: 0;">팁 내용</p>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 16px;">👨‍👩‍👧‍👦 우리 가족 MBTI 지도</h3>
+                <div id="family-list">
+                    <!-- Family List Items -->
+                    <p style="color:#aaa; text-align:center;">가족들의 결과를 불러오는 중...</p>
+                </div>
+            </div>
+
+            <button class="btn btn-primary mt-4" style="margin-bottom: 30px;"
+                onclick="location.href='../dashboard.html'">홈으로 돌아가기</button>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js';
+        import { questions, results } from '../../src/mbti_data.js';
+
+        // Globals
+        window.questions = questions;
+        window.results = results;
+        window.db = db;
+        window.auth = auth;
+        window.currentQ = 0;
+        window.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        // Initialization
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                // Not logged in handled by auth.js usually, but fallback
+                location.href = '../login.html';
+            } else {
+                initQuiz();
+            }
+        });
+    </script>
+
     <script>
-        // Simple Logic Code directly here for V1
-        const questions = [
-            { t: "휴일에 나는?", a: "집에서 쉬는게 최고야", b: "나가서 친구들을 만나야지", type: "IE" },
-            { t: "여행 계획을 짤 때?", a: "즉흥적으로!", b: "시간 단위로 철저하게", type: "JP" },
-            { t: "친구가 우울하다면?", a: "무슨 일 있어? (해결책)", b: "많이 힘들었겠다 ㅠㅠ (공감)", type: "TF" },
-            { t: "상상을 할 때?", a: "현실적인 상상", b: "일어나지 않을 법한 공상", type: "SN" },
-            // Add more questions for better accuracy... 4 simple ones for demo
-        ];
+        function initQuiz() {
+            renderQuestion();
+        }
 
-        let currentQ = 0;
-        const scores = { I: 0, E: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 };
-
-        function loadQuestion() {
-            const q = questions[currentQ];
+        function renderQuestion() {
+            const q = window.questions[window.currentQ];
+            document.getElementById('q-num').innerText = window.currentQ + 1;
             document.getElementById('question-text').innerText = q.t;
-            document.querySelectorAll('button')[0].innerText = q.a; // Assume btn order
-            document.querySelectorAll('button')[1].innerText = q.b;
+            document.getElementById('btn-a').innerText = q.a;
+            document.getElementById('btn-b').innerText = q.b;
 
-            const pct = ((currentQ) / questions.length) * 100;
+            const pct = ((window.currentQ) / window.questions.length) * 100;
             document.getElementById('progress-bar').style.width = pct + "%";
         }
 
-        function answerQuestion(choice) {
-            const q = questions[currentQ];
-            // Simple mapping logic: answer A -> first char, B -> second char in type string? 
-            // Let's assume Question object structure needs improvement for real calculation
-            // For Demo V1: Even index(A) -> First Type, Odd(B) -> Second Type
-            const typeChars = q.type.split('');
-            if (choice === 'A') scores[typeChars[0]]++;
-            else scores[typeChars[1]]++;
+        function handleAnswer(choice) {
+            const q = window.questions[window.currentQ];
 
-            currentQ++;
-            if (currentQ < questions.length) {
-                loadQuestion();
+            // Logic: Question has type e.g "EI". 
+            // In data.js: a -> first char (E), b -> second char (I) usually?
+            // Let's verify data structure:
+            // { id: 1, type: "EI", a: "E-like", b: "I-like" } -> Wait, data text implies mapping.
+            // Let's assume Option A corresponds to the FIRST char of type, Option B to SECOND.
+            // Ex: Type "EI", A -> E score, B -> I score.
+
+            const typeChars = q.type.split(''); // ['E', 'I']
+            if (choice === 'a') window.scores[typeChars[0]]++; // A -> First char
+            else window.scores[typeChars[1]]++; // B -> Second char
+
+            window.currentQ++;
+            if (window.currentQ < window.questions.length) {
+                renderQuestion();
             } else {
-                showResult();
+                finishQuiz();
             }
         }
 
-        function showResult() {
+        async function finishQuiz() {
             document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('loading').classList.remove('hidden');
 
-            // Calculate Type
-            let result = "";
-            result += scores.E > scores.I ? "E" : "I";
-            result += scores.N > scores.S ? "N" : "S";
-            result += scores.F > scores.T ? "F" : "T";
-            result += scores.P > scores.J ? "P" : "J";
+            // 1. Calculate Type
+            let mbti = "";
+            mbti += window.scores.E > window.scores.I ? "E" : (window.scores.E < window.scores.I ? "I" : "E"); // Tie breaker E
+            mbti += window.scores.N > window.scores.S ? "N" : (window.scores.N < window.scores.S ? "S" : "N"); // Tie breaker N (Intuition usually rarer?) let's strict check
+            // Actually standard tie breaking is tricky. Let's simple > check.
+            mbti = "";
+            mbti += (window.scores.E >= window.scores.I) ? "E" : "I";
+            mbti += (window.scores.S >= window.scores.N) ? "S" : "N";
+            mbti += (window.scores.T >= window.scores.F) ? "T" : "F";
+            mbti += (window.scores.J >= window.scores.P) ? "J" : "P";
 
-            document.getElementById('result-type').innerText = result;
-            // TODO: Save to Firebase Here
+            // 2. Save to Firestore
+            const user = window.auth.currentUser;
+            const userRef = window.db.collection('mbti_results').doc(user.uid);
+
+            // Get nickname from email
+            const nickname = user.email.split('@')[0];
+
+            try {
+                await userRef.set({
+                    uid: user.uid,
+                    email: user.email,
+                    name: nickname,
+                    mbti: mbti,
+                    timestamp: new Date()
+                });
+            } catch (e) {
+                console.error("Save failed", e);
+                alert("결과 저장 실패 (권한 문제일 수 있음): " + e.message);
+            }
+
+            // 3. Show Result
+            showResultScreen(mbti);
         }
 
-        loadQuestion();
+        async function showResultScreen(myMbti) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const info = window.results[myMbti];
+            document.getElementById('result-type').innerText = myMbti;
+            document.getElementById('result-name').innerText = info.name;
+            document.getElementById('result-desc').innerText = info.desc;
+            document.getElementById('result-tips').innerText = info.tips;
+
+            // 4. Load Family Results
+            loadFamilyResults();
+        }
+
+        async function loadFamilyResults() {
+            const listEl = document.getElementById('family-list');
+            listEl.innerHTML = '';
+
+            try {
+                const snapshot = await window.db.collection('mbti_results').get();
+
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-center text-gray-400">아직 다른 가족의 결과가 없네요.</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const isMe = (window.auth.currentUser.uid === data.uid);
+
+                    const el = document.createElement('div');
+                    el.className = 'family-result-card';
+                    if (isMe) el.style.border = '2px solid var(--color-coral)'; // Highlight me
+
+                    el.innerHTML = `
+                        <div>
+                            <span style="font-weight:bold; font-size:1rem; margin-right:6px;">${data.name}</span>
+                            ${isMe ? '<span style="font-size:0.8rem; color:var(--color-coral);">(나)</span>' : ''}
+                        </div>
+                        <div style="font-weight:800; font-size:1.1rem; color:#333;">${data.mbti}</div>
+                    `;
+                    listEl.appendChild(el);
+                });
+
+            } catch (e) {
+                console.error("Load family failed", e);
+                listEl.innerHTML = '<p style="color:red">가족 정보를 불러오지 못했습니다.</p>';
+            }
+        }
     </script>
 </body>
 
