@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden - 오늘의 운세</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=5">
+    <title>Secret Garden - ?�늘???�세</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=6">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -87,11 +88,11 @@
 <body>
     <div class="container">
         <header>
-            <a href="../dashboard.html" class="logo">← Secret Garden</a>
-            <span>오늘의 운세</span>
+            <a href="../dashboard.html" class="logo">??Secret Garden</a>
+            <span>?�늘???�세</span>
         </header>
 
-        <div id="loading" class="p-4 text-center">로딩중...</div>
+        <div id="loading" class="p-4 text-center">로딩�?..</div>
 
         <div id="content" class="p-4 hidden">
             <!-- User Selector -->
@@ -102,62 +103,373 @@
 
             <!-- Birthdate Setup (If missing) -->
             <div id="setup-section" class="fortune-card hidden">
-                <h3 class="card-title">🎂 생일 등록이 필요해요</h3>
-                <p class="card-desc" style="margin-bottom: 15px;">정확한 운세 확인을 위해 생년월일을 알려주세요.</p>
+                <h3 class="card-title">?�� ?�일 ?�록???�요?�요</h3>
+                <p class="card-desc" style="margin-bottom: 15px;">?�확???�세 ?�인???�해 ?�년?�일???�려주세??</p>
                 <div class="input-group">
                     <input type="date" id="birthdate-input" class="input-field">
                 </div>
-                <button class="btn btn-primary" onclick="saveBirthdate()">저장하고 운세 보기</button>
+                <button class="btn btn-primary" onclick="saveBirthdate()">?�?�하�??�세 보기</button>
             </div>
 
             <!-- Fortune Display -->
             <div id="fortune-section" class="hidden">
                 <div class="text-center" style="margin-bottom: 20px;">
                     <h2 id="user-greeting" style="font-size: 1.5rem; color: var(--color-primary); margin-bottom: 5px;">
-                        안녕하세요!</h2>
+                        ?�녕?�세??</h2>
                     <p id="today-date" style="color: #666; font-size: 0.9rem;"></p>
                 </div>
 
                 <!-- Zodiac Info -->
                 <div class="fortune-card">
                     <div class="fortune-header">
-                        <span class="card-title" style="margin:0;">🌠 별자리 & 띠</span>
-                        <span id="zodiac-text" class="zodiac-badge">물병자리 / 용띠</span>
+                        <span class="card-title" style="margin:0;">?�� 별자�?& ??/span>
+                        <span id="zodiac-text" class="zodiac-badge">물병?�리 / ?�띠</span>
                     </div>
                     <p style="color: #555; line-height: 1.5; font-size: 0.95rem;">
-                        오늘의 기운을 확인해보세요.
+                        ?�늘??기운???�인?�보?�요.
                     </p>
                 </div>
 
                 <!-- Biorhythm -->
                 <div class="fortune-card">
-                    <h3 class="card-title">🧬 오늘의 바이오리듬</h3>
+                    <h3 class="card-title">?�� ?�늘??바이?�리??/h3>
                     <div style="height: 200px; position: relative;">
                         <canvas id="bioChart"></canvas>
                     </div>
                     <div class="bio-legend">
-                        <div class="legend-item"><span class="dot" style="background:#22c55e"></span>신체</div>
+                        <div class="legend-item"><span class="dot" style="background:#22c55e"></span>?�체</div>
                         <div class="legend-item"><span class="dot" style="background:#ef4444"></span>감성</div>
-                        <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지성</div>
+                        <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지??/div>
                     </div>
                     <p id="bio-comment"
                         style="margin-top: 15px; font-size: 0.9rem; color: #555; text-align: center; background: #f0fdf4; padding: 10px; border-radius: 8px;">
-                        컨디션 분석 중...
+                        컨디??분석 �?..
                     </p>
                 </div>
 
                 <!-- External Links -->
-                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: #333;">🔮 자세한 운세 보러가기</h3>
+                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: #333;">?�� ?�세???�세 보러가�?/h3>
 
-                <a href="https://m.search.naver.com/search.naver?query=오늘의운세" target="_blank" class="link-btn">
-                    <span>네이버 오늘의 운세</span>
+                <a href="https://m.search.naver.com/search.naver?query=?�늘?�운?? target="_blank" class="link-btn">
+                    <span>?�이�??�늘???�세</span>
                     <span style="color:#ccc">Example ></span>
                 </a>
-                <a href="https://m.search.daum.net/search?w=tot&q=오늘의운세" target="_blank" class="link-btn">
-                    <span>다음 운세</span>
+                <a href="https://m.search.daum.net/search?w=tot&q=?�늘?�운se" target="_blank" class="link-btn">
+                    <span>?�음 ?�세</span>
                     <span style="color:#ccc">Go ></span>
                 </a>
                 <a href="https://shinhan.haezone.com/inSaju.asp?bType=A104" target="_blank" class="link-btn">
-                    <span>신한생명 무료운세</span>
+                    <span>?�한?�명 무료?�세</span>
                     <span style="color:#ccc">Go ></span>
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js?v=6?v=6';
+        import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6?v=6';
+
+        let currentUserData = null;
+        let bioChart = null;
+
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                location.href = '../login.html';
+            } else {
+                initFortune(user);
+            }
+        });
+
+        async function initFortune(user) {
+            document.getElementById('loading').classList.remove('hidden');
+            const today = new Date();
+            document.getElementById('today-date').innerText = `${today.getFullYear()}??${today.getMonth() + 1}??${today.getDate()}??;
+
+            // Load Family List from MBTI Results
+            try {
+                const snapshot = await db.collection('mbti_results').get();
+                const selector = document.getElementById('family-selector');
+
+                let myData = null;
+                const members = [];
+
+                // Clear selector
+                selector.innerHTML = '';
+
+                if (snapshot.empty) {
+                    selector.innerHTML = '<p style="font-size:0.9rem; color:#666;">?�록??가�??�보가 ?�습?�다. MBTI ?�스?��? 먼�? 진행?�주?�요.</p>';
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('content').classList.remove('hidden');
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.uid = doc.id; // Store Doc ID
+                    members.push(data);
+
+                    const btn = document.createElement('button');
+                    btn.innerText = data.name;
+                    btn.style.cssText = `
+                        padding: 8px 16px; 
+                        border-radius: 20px; 
+                        border: 1px solid #eee; 
+                        background: white; 
+                        margin-right: 8px; 
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        transition: all 0.2s;
+                    `;
+                    btn.onclick = () => selectMember(data, btn);
+                    selector.appendChild(btn);
+
+                    if (user.uid === data.uid) {
+                        myData = data;
+                    }
+                });
+
+                // Render Content or Empty State
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+
+                if (members.length === 0) {
+                    selector.innerHTML = '<p style="font-size:0.9rem; color:#666;">?�록??가�??�보가 ?�습?�다. MBTI ?�스?��? 먼�? 진행?�주?�요.</p>';
+                    return;
+                }
+
+                if (myData) {
+                    // Click my button
+                    // Find button with my name
+                    const buttons = selector.children;
+                    for (let btn of buttons) {
+                        if (btn.innerText === myData.name) {
+                            btn.click();
+                            break;
+                        }
+                    }
+                } else {
+                    // If myData is not found, select the first available member
+                    if (selector.children.length > 0) {
+                        selector.children[0].click();
+                    } else {
+                        // Fallback if no members at all (should be caught by snapshot.empty check, but good for robustness)
+                        document.getElementById('user-greeting').innerText = '가�??�보�?찾을 ???�습?�다.';
+                        document.getElementById('setup-section').classList.remove('hidden');
+                        document.getElementById('fortune-section').classList.add('hidden');
+                    }
+                }
+
+            } catch (e) {
+                console.error("Error loading family data:", e);
+                document.getElementById('loading').innerText = '?�이??로딩 �??�류가 발생?�습?�다.';
+                document.getElementById('loading').classList.remove('hidden'); // Ensure loading message is visible
+                document.getElementById('content').classList.add('hidden'); // Hide content if error
+                // Optionally, display a more user-friendly error message on the page
+                document.getElementById('family-selector').innerHTML = '<p style="color:red;">가�??�보�?불러?�는???�패?�습?�다. ?�시 ?�도?�주?�요.</p>';
+            }
+        }
+
+        async function selectMember(memberData, clickedButton) {
+            currentUserData = memberData;
+
+            // Update button styles
+            const buttons = document.getElementById('family-selector').children;
+            for (let btn of buttons) {
+                btn.style.background = 'white';
+                btn.style.borderColor = '#eee';
+                btn.style.color = '#333';
+            }
+            clickedButton.style.background = 'var(--color-primary)';
+            clickedButton.style.borderColor = 'var(--color-primary)';
+            clickedButton.style.color = 'white';
+
+            document.getElementById('user-greeting').innerText = `${currentUserData.name}?�의 ?�세`;
+
+            if (!currentUserData.birthdate) {
+                document.getElementById('setup-section').classList.remove('hidden');
+                document.getElementById('fortune-section').classList.add('hidden');
+                document.getElementById('birthdate-input').value = '';
+            } else {
+                document.getElementById('setup-section').classList.add('hidden');
+                document.getElementById('fortune-section').classList.remove('hidden');
+                displayFortune(currentUserData.birthdate);
+            }
+        }
+
+        async function saveBirthdate() {
+            const birthdate = document.getElementById('birthdate-input').value;
+            if (!birthdate) {
+                alert('?�년?�일???�력?�주?�요.');
+                return;
+            }
+
+            try {
+                await db.collection('mbti_results').doc(currentUserData.uid).update({
+                    birthdate: birthdate
+                });
+                currentUserData.birthdate = birthdate; // Update local data
+                selectMember(currentUserData, document.querySelector(`#family-selector button:contains("${currentUserData.name}")`)); // Re-render fortune
+            } catch (e) {
+                console.error("Error saving birthdate:", e);
+                alert('?�년?�일 ?�?�에 ?�패?�습?�다: ' + e.message);
+            }
+        }
+
+        function displayFortune(birthdateString) {
+            const birthdate = new Date(birthdateString);
+            const today = new Date();
+
+            // Zodiac
+            document.getElementById('zodiac-text').innerText =
+                `${getZodiac(birthdate.getMonth() + 1, birthdate.getDate())} / ${getChineseZodiac(birthdate.getFullYear())}??;
+
+            // Biorhythm
+            drawBiorhythmChart(birthdate, today);
+        }
+
+        function calculateBiorhythm(birthdate, targetDate) {
+            const diffTime = Math.abs(targetDate - birthdate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            const physical = Math.sin((2 * Math.PI * diffDays) / 23);
+            const emotional = Math.sin((2 * Math.PI * diffDays) / 28);
+            const intellectual = Math.sin((2 * Math.PI * diffDays) / 33);
+
+            return { physical, emotional, intellectual };
+        }
+
+        function getBiorhythmComment(physical, emotional, intellectual) {
+            let comment = "?�늘??컨디?��? ";
+            const thresholds = { high: 0.7, mid: 0.3, low: -0.3 };
+            const states = {
+                physical: { high: "?�체 ?�력???�치�?, mid: "?�체 컨디?�이 ?�정?�이�?, low: "?�체 ?�너지가 ?�소 ??��" },
+                emotional: { high: "감정?�으�?긍정?�이�?, mid: "감정 ?�태가 ?�온?�고", low: "감정 기복???�을 ???�고" },
+                intellectual: { high: "지???�력???�어??, mid: "?�고?�이 명료?�며", low: "집중?�이 ?�?�될 ???�습?�다." }
+            };
+
+            const getLevel = (value) => {
+                if (value > thresholds.high) return 'high';
+                if (value > thresholds.low) return 'mid';
+                return 'low';
+            };
+
+            comment += states.physical[getLevel(physical)] + ", ";
+            comment += states.emotional[getLevel(emotional)] + ", ";
+            comment += states.intellectual[getLevel(intellectual)];
+
+            comment = comment.replace(/,([^,]*)$/, ' $1'); // Remove last comma
+            return comment;
+        }
+
+        function drawBiorhythmChart(birthdate, today) {
+            const labels = [];
+            const physicalData = [];
+            const emotionalData = [];
+            const intellectualData = [];
+
+            for (let i = -3; i <= 3; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
+
+                const bio = calculateBiorhythm(birthdate, date);
+                physicalData.push(bio.physical * 100); // Scale for better visualization
+                emotionalData.push(bio.emotional * 100);
+                intellectualData.push(bio.intellectual * 100);
+            }
+
+            const todayBio = calculateBiorhythm(birthdate, today);
+            document.getElementById('bio-comment').innerText = getBiorhythmComment(todayBio.physical, todayBio.emotional, todayBio.intellectual);
+
+            const ctx = document.getElementById('bioChart').getContext('2d');
+
+            if (bioChart) {
+                bioChart.destroy();
+            }
+
+            bioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '?�체',
+                        data: physicalData,
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: (context) => context.dataIndex === 3 ? 5 : 3, // Highlight today
+                        pointBackgroundColor: (context) => context.dataIndex === 3 ? '#22c55e' : 'white',
+                        pointBorderColor: (context) => context.dataIndex === 3 ? '#22c55e' : '#22c55e',
+                    }, {
+                        label: '감성',
+                        data: emotionalData,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: (context) => context.dataIndex === 3 ? 5 : 3,
+                        pointBackgroundColor: (context) => context.dataIndex === 3 ? '#ef4444' : 'white',
+                        pointBorderColor: (context) => context.dataIndex === 3 ? '#ef4444' : '#ef4444',
+                    }, {
+                        label: '지??,
+                        data: intellectualData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: (context) => context.dataIndex === 3 ? 5 : 3,
+                        pointBackgroundColor: (context) => context.dataIndex === 3 ? '#3b82f6' : 'white',
+                        pointBorderColor: (context) => context.dataIndex === 3 ? '#3b82f6' : '#3b82f6',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false // We'll use custom legend
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(1) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            min: -100,
+                            max: 100,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: (context) => context.tick.value === 0 ? '#ccc' : 'rgba(0,0,0,0.05)',
+                                lineWidth: (context) => context.tick.value === 0 ? 2 : 1,
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

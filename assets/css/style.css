@@ -1,30 +1,37 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
 :root {
-    /* Secret Garden Theme Variables */
-    --color-primary: #2c3e50;
-    /* Navy */
-    --color-accent: #ff7675;
-    /* Coral */
-    --color-secondary: #fdfbf7;
-    /* Beige */
+    /* Secret Garden New Theme Variables */
+    --color-primary: #7ED6C1;
+    /* Mint (Main) */
+    --color-secondary: #2C3A47;
+    /* Charcoal Gray (Sub) */
+    --color-point: #FFFFFF;
+    /* White (Point) */
 
-    /* Legacy & Functional mappings */
-    --color-coral: var(--color-accent);
-    --color-lemon: var(--color-secondary);
+    /* Functional mappings */
+    --color-bg: #fdfbf7;
+    --card-bg: var(--color-point);
+
+    /* Header specific */
+    --color-header-bg: var(--color-secondary);
+    --color-header-text: var(--color-primary);
+
+    /* Legacy mappings */
+    --color-accent: var(--color-primary);
+    --color-coral: #FF7675;
+    --color-lemon: var(--color-bg);
     --color-mint: #A0E7E5;
-    /* Sub accent */
+    /* Keep for legacy reference */
 
     /* Global Styles */
     --text-primary: #333333;
     --text-secondary: #666666;
-    --bg-color: var(--color-secondary);
-    --card-bg: #ffffff;
 }
 
 body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-    background-color: var(--bg-color);
+    background-color: var(--color-bg);
     color: var(--text-primary);
     margin: 0;
     padding: 0;
@@ -36,7 +43,6 @@ body {
 .container {
     width: 100%;
     max-width: 480px;
-    /* Mobile-first container */
     background-color: #fff;
     min-height: 100vh;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
@@ -48,8 +54,7 @@ body {
 /* Header */
 header {
     padding: 20px;
-    background-color: var(--color-primary);
-    /* Navy Header */
+    background-color: var(--color-header-bg);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -57,14 +62,13 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: white;
+    color: var(--color-header-text);
 }
 
 .logo {
     font-size: 1.2rem;
     font-weight: 800;
-    color: #fff;
-    /* White Text */
+    color: var(--color-header-text);
     text-decoration: none;
     letter-spacing: -0.5px;
 }
@@ -111,13 +115,14 @@ header {
 
 .btn-primary {
     background-color: var(--color-primary);
-    /* Navy Button */
     color: white;
+    /* 텍스트는 흰색이 잘 보일지, 차콜이 잘 보일지 고려. 민트 배경엔 차콜이 나을 수도 있으나 일단 White */
+    color: var(--color-secondary);
+    /* 민트 배경엔 진한 텍스트가 가독성 좋음 */
 }
 
 .btn-mint {
     background-color: var(--color-accent);
-    /* Coral Button */
     color: white;
 }
 
@@ -137,7 +142,6 @@ header {
     border-radius: 12px;
     font-size: 1rem;
     box-sizing: border-box;
-    /* Important for padding */
 }
 
 /* Utils */

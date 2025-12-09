@@ -12,13 +12,13 @@
 <body>
     <div class="container">
         <header>
-            <a href="../dashboard.html" class="logo">← 메인</a>
-            <span>취향 분석기</span>
+            <a href="../dashboard.html" class="logo">??메인</a>
+            <span>취향 분석�?/span>
         </header>
 
         <div class="p-4">
             <div id="survey-area">
-                <h2 class="text-center">둘 중 더 좋아하는 것은?</h2>
+                <h2 class="text-center">??�???좋아?�는 것�??</h2>
                 <div style="display: flex; gap: 10px; margin-top: 30px;">
                     <button class="btn btn-primary" onclick="vote(0)"
                         style="height: 150px; font-size: 1.5rem;">짜장</button>
@@ -29,7 +29,7 @@
             <div id="result-area" class="hidden">
                 <h2 class="text-center">분석 결과</h2>
                 <canvas id="myChart"></canvas>
-                <button class="btn btn-primary mt-4" onclick="location.href='../dashboard.html'">홈으로</button>
+                <button class="btn btn-primary mt-4" onclick="location.href='../dashboard.html'">?�으�?/button>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['일치', '불일치'],
+                    labels: ['?�치', '불일�?],
                     datasets: [{
                         data: [70, 30], // Mock Data
                         backgroundColor: ['#FFAEBC', '#e0e0e0']
@@ -59,7 +59,7 @@
                     responsive: true,
                     plugins: {
                         legend: { position: 'bottom' },
-                        title: { display: true, text: '가족 평균 일치도' }
+                        title: { display: true, text: '가�??�균 ?�치?? }
                     }
                 }
             });

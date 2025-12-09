@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden - 대시보드</title>
+    <title>Secret Garden - ?�?�보??/title>
     <link rel="stylesheet" href="../assets/css/style.css?v=2">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -18,13 +18,13 @@
         <header>
             <a href="#" class="logo">Secret Garden</a>
             <button onclick="AuthService.logout()"
-                style="border:none; background:none; color:#666; font-size:0.9rem; cursor:pointer;">로그아웃</button>
+                style="border:none; background:none; color:#666; font-size:0.9rem; cursor:pointer;">로그?�웃</button>
         </header>
 
         <!-- Welcome Section -->
         <div class="p-4" style="background-color: var(--color-lemon);">
-            <p style="margin: 0; font-size: 0.9rem; color: #666;" id="today-date">2023년 00월 00일</p>
-            <h2 style="margin: 8px 0 0 0; color: #333;"><span id="user-name">가족</span>님,<br>오늘도 행복하세요! 😊</h2>
+            <p style="margin: 0; font-size: 0.9rem; color: #666;" id="today-date">2023??00??00??/p>
+            <h2 style="margin: 8px 0 0 0; color: #333;"><span id="user-name">가�?/span>??<br>?�늘???�복?�세?? ?��</h2>
         </div>
 
         <!-- Menu Grid -->
@@ -33,22 +33,22 @@
             <!-- Card 1: MBTI -->
             <div class="card" onclick="location.href='mbti/index.html'"
                 style="border-left: 5px solid var(--color-coral);">
-                <div class="card-title">🧩 가족 MBTI 테스트</div>
-                <div class="card-desc">우리 가족의 성격 유형을 알아보고 서로를 이해해봐요!</div>
+                <div class="card-title">?�� 가�?MBTI ?�스??/div>
+                <div class="card-desc">?�리 가족의 ?�격 ?�형???�아보고 ?�로�??�해?�봐??</div>
             </div>
 
             <!-- Card 2: Fortune -->
             <div class="card" onclick="location.href='fortune/index.html'"
                 style="border-left: 5px solid var(--color-mint);">
-                <div class="card-title">🍀 오늘의 가족 운세</div>
-                <div class="card-desc">오늘의 행운 컬러와 조언을 확인해보세요.</div>
+                <div class="card-title">?? ?�늘??가�??�세</div>
+                <div class="card-desc">?�늘???�운 컬러?� 조언???�인?�보?�요.</div>
             </div>
 
             <!-- Card 3: Preference -->
             <div class="card" onclick="location.href='preference/index.html'"
                 style="border-left: 5px solid var(--color-lavender);">
-                <div class="card-title">⚖️ 취향 분석기</div>
-                <div class="card-desc">짜장 vs 짬뽕? 가족들의 취향 궁합을 알아볼까요?</div>
+                <div class="card-title">?�️ 취향 분석�?/div>
+                <div class="card-desc">짜장 vs 짬뽕? 가족들??취향 궁합???�아볼까??</div>
             </div>
 
         </div>
@@ -59,7 +59,7 @@
     <!-- Scripts -->
     <script src="../src/auth.js?v=3"></script>
     <script type="module">
-        import '../src/firebase.js?v=3'; // Ensures Firebase is initialized
+        import '../src/firebase.js?v=6?v=3'; // Ensures Firebase is initialized
 
         // Logic executes after imports
         // 1. Init Check
@@ -67,16 +67,16 @@
 
         // 2. Set Date
         const now = new Date();
-        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const days = ['??, '??, '??, '??, '�?, '�?, '??];
         document.getElementById('today-date').innerText =
-            `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+            `${now.getFullYear()}??${now.getMonth() + 1}??${now.getDate()}??(${days[now.getDay()]})`;
 
         // 3. User Name Logic (Robust)
         // Wait for auth state to confirm user info if session is empty
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 const storedName = sessionStorage.getItem('user_name');
-                let displayName = '가족';
+                let displayName = '가�?;
 
                 if (storedName && storedName !== 'null') {
                     displayName = storedName;
