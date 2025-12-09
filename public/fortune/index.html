@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden - 오늘의 운세</title>
+    <title>Secret Garden - 오늘의 운세 & 바이오리듬</title>
     <link rel="stylesheet" href="../../assets/css/style.css?v=6">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -39,27 +39,30 @@
             font-weight: bold;
         }
 
-        .link-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            text-align: left;
-            text-decoration: none;
-            color: #333;
-            transition: all 0.2s;
+        .tab-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
         }
 
-        .link-btn:hover {
-            background: white;
-            border-color: var(--color-accent);
-            transform: translateX(5px);
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #666;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
         }
 
         .bio-legend {
@@ -81,6 +84,17 @@
             height: 10px;
             border-radius: 50%;
         }
+
+        .fortune-cookie-text {
+            font-style: italic;
+            text-align: center;
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 10px;
+            border-left: 3px solid var(--color-secondary);
+            background: #fdfdfd;
+        }
     </style>
 </head>
 
@@ -88,80 +102,77 @@
     <div class="container">
         <header>
             <a href="../dashboard.html" class="logo">← Secret Garden</a>
-            <span>오늘의 운세</span>
+            <span>운세 & 바이오리듬</span>
         </header>
 
-        <div id="loading" class="p-4 text-center">로딩중...</div>
+        <div id="loading" class="p-4 text-center">데이터 로딩중...</div>
 
+        <!-- Main Content (Hidden until loaded) -->
         <div id="content" class="p-4 hidden">
-            <!-- User Selector -->
-            <div style="margin-bottom: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 10px;"
-                id="family-selector">
-                <!-- Dynamically populated -->
+
+            <div class="text-center" style="margin-bottom: 20px;">
+                <h2 style="font-size: 1.3rem; color: var(--color-primary); margin-bottom: 5px;">
+                    <span id="header-date"></span>의 운세
+                </h2>
+                <p style="color: #666; font-size: 0.9rem;">우리 가족의 오늘 컨디션은?</p>
             </div>
 
-            <!-- Birthdate Setup (If missing) -->
-            <div id="setup-section" class="fortune-card hidden">
-                <h3 class="card-title">🎂 생일 등록이 필요해요</h3>
-                <p class="card-desc" style="margin-bottom: 15px;">정확한 운세 확인을 위해 생년월일을 알려주세요.</p>
-                <div class="input-group">
-                    <input type="date" id="birthdate-input" class="input-field">
-                </div>
-                <button class="btn btn-primary" onclick="saveBirthdate()">저장하고 운세 보기</button>
+            <!-- TAB Navigation -->
+            <div class="tab-container" id="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('total')">📊 가족 종합</button>
+                <!-- Member tabs will be added dynamically -->
             </div>
 
-            <!-- Fortune Display -->
-            <div id="fortune-section" class="hidden">
-                <div class="text-center" style="margin-bottom: 20px;">
-                    <h2 id="user-greeting" style="font-size: 1.5rem; color: var(--color-primary); margin-bottom: 5px;">
-                        안녕하세요!</h2>
-                    <p id="today-date" style="color: #666; font-size: 0.9rem;"></p>
+            <!-- 1. Total View Section -->
+            <div id="section-total">
+                <div class="fortune-card">
+                    <h3 class="card-title">📈 가족 컨디션 랭킹</h3>
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:15px;">오늘의 신체/감성/지성 평균 점수입니다.</p>
+                    <div style="height: 250px;">
+                        <canvas id="totalChart"></canvas>
+                    </div>
+                    <div class="text-center mt-3" id="total-comment" style="font-size:0.9rem; color:#333;">
+                        분석 중...
+                    </div>
                 </div>
+            </div>
 
-                <!-- Zodiac Info -->
+            <!-- 2. Individual View Section -->
+            <div id="section-individual" class="hidden">
+                <!-- Data for specific user -->
                 <div class="fortune-card">
                     <div class="fortune-header">
-                        <span class="card-title" style="margin:0;">🌠 별자리 & 띠</span>
-                        <span id="zodiac-text" class="zodiac-badge">물병자리 / 용띠</span>
+                        <span class="card-title" style="margin:0;" id="ind-name-title">멤버 이름</span>
+                        <span id="zodiac-text" class="zodiac-badge">별자리 / 띠</span>
                     </div>
-                    <p style="color: #555; line-height: 1.5; font-size: 0.95rem;">
-                        오늘의 기운을 확인해보세요.
-                    </p>
-                </div>
 
-                <!-- Biorhythm -->
-                <div class="fortune-card">
-                    <h3 class="card-title">🧬 오늘의 바이오리듬</h3>
+                    <!-- Text Fortune -->
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--color-secondary);">🌟 오늘의 키워드
+                        </h4>
+                        <p id="daily-keyword" style="font-size: 0.9rem; color: #555; margin-bottom: 0;">로딩 중...</p>
+                    </div>
+
+                    <h3 class="card-title">🧬 바이오리듬 상세</h3>
                     <div style="height: 200px; position: relative;">
-                        <canvas id="bioChart"></canvas>
+                        <canvas id="indChart"></canvas>
                     </div>
                     <div class="bio-legend">
                         <div class="legend-item"><span class="dot" style="background:#22c55e"></span>신체</div>
                         <div class="legend-item"><span class="dot" style="background:#ef4444"></span>감성</div>
                         <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지성</div>
                     </div>
-                    <p id="bio-comment"
-                        style="margin-top: 15px; font-size: 0.9rem; color: #555; text-align: center; background: #f0fdf4; padding: 10px; border-radius: 8px;">
-                        컨디션 분석 중...
-                    </p>
                 </div>
-
-                <!-- External Links -->
-                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: #333;">🔮 자세한 운세 보러가기</h3>
-
-                <a href="https://m.search.naver.com/search.naver?query=오늘의운세" target="_blank" class="link-btn">
-                    <span>네이버 오늘의 운세</span>
-                    <span style="color:#ccc">Example ></span>
-                </a>
-                <a href="https://m.search.daum.net/search?w=tot&q=오늘의운세" target="_blank" class="link-btn">
-                    <span>다음 운세</span>
-                    <span style="color:#ccc">Go ></span>
-                </a>
-                <a href="https://shinhan.haezone.com/inSaju.asp?bType=A104" target="_blank" class="link-btn">
-                    <span>신한생명 무료운세</span>
-                    <span style="color:#ccc">Go ></span>
-                </a>
             </div>
+
+            <!-- Common: Fortune Cookie -->
+            <div class="fortune-card" style="background: linear-gradient(135deg, #fff, #fdfbf7);">
+                <h3 class="card-title" style="text-align: center;">🥠 오늘의 포춘 쿠키</h3>
+                <div class="fortune-cookie-text" id="fortune-cookie-msg">
+                    "행복은 이미 당신 곁에 있습니다."
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -169,181 +180,238 @@
         import { auth, db } from '../../src/firebase.js?v=6';
         import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
 
-        let currentUserData = null;
-        let bioChart = null;
+        // Local Random Fortune Data
+        const fortuneCookies = [
+            "작은 행복을 소중히 여기면 큰 행복이 찾아옵니다.",
+            "오늘은 평소보다 조금 더 과감해져도 좋은 날입니다.",
+            "웃음은 가장 강력한 에너지입니다. 많이 웃으세요!",
+            "주변 사람들에게 따뜻한 말 한마디를 건네보세요. 기적이 일어납니다.",
+            "잠시 휴식을 취하는 것도 훌륭한 전략입니다.",
+            "당신의 직감을 믿으세요. 해답은 당신 안에 있습니다.",
+            "가족과 함께하는 저녁 식사가 행운을 가져다 줄 것입니다.",
+            "기회는 준비된 자에게 찾아옵니다. 오늘이 그 준비의 날입니다.",
+            "걱정은 내려놓고 현재를 즐기세요.",
+            "감사하는 마음이 더 많은 감사할 일을 만들어냅니다."
+        ];
+
+        const dailyKeywords = [
+            "활기찬 에너지로 가득한 하루! 새로운 도전을 시작하기 좋습니다.",
+            "차분한 마음으로 내면을 돌아보기 좋은 날입니다. 명상을 추천해요.",
+            "예기치 않은 행운이 기다리고 있을지도 모릅니다. 주변을 잘 살펴보세요.",
+            "소통이 중요한 날입니다. 오해를 풀거나 대화를 시도해보세요.",
+            "창의력이 샘솟는 날! 아이디어를 메모해보세요.",
+            "건강 관리에 유의하세요. 스트레칭이나 가벼운 운동이 좋습니다.",
+            "재정적인 득이 있을 수 있습니다. 꼼꼼히 챙겨보세요.",
+            "사랑운이 상승세입니다. 소중한 사람과 시간을 보내세요."
+        ];
+
+        let membersData = []; // [{name, birthdate, ...}]
+        let chartTotal = null;
+        let chartInd = null;
+
+        // Init
+        const today = new Date();
+        document.getElementById('header-date').innerText = `${today.getMonth() + 1}월 ${today.getDate()}일`;
+
+        // Random Cookie
+        document.getElementById('fortune-cookie-msg').innerText = `"${fortuneCookies[today.getDate() % fortuneCookies.length]}"`;
 
         auth.onAuthStateChanged(user => {
             if (!user) {
                 location.href = '../login.html';
             } else {
-                initFortune(user);
+                loadFamilyData(user);
             }
         });
 
-        async function initFortune(user) {
-            document.getElementById('loading').classList.remove('hidden');
-            const today = new Date();
-            document.getElementById('today-date').innerText = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
-
-            // Load Family List from MBTI Results
+        async function loadFamilyData(user) {
             try {
-                const snapshot = await db.collection('mbti_results').get();
-                const selector = document.getElementById('family-selector');
+                // Static family data from users.js is more reliable for birthdates
+                // But we still want to know who is "registered" or display order?
+                // For this request, user explicitly asked for kukky, soony, joowon, raim
+                // We will use Object.keys(familyData) as the source of truth for the chart.
 
-                let myData = null;
-                const members = [];
+                // However, we normally fetch 'mbti_results' to get dynamic names. 
+                // Let's mix them. Use familyData keys.
 
-                // Clear selector
-                selector.innerHTML = '';
+                const names = Object.keys(familyData);
+                membersData = names.map(name => ({
+                    name: name,
+                    birthdate: familyData[name].birthdate
+                }));
 
-                if (snapshot.empty) {
-                    selector.innerHTML = '<p style="font-size:0.9rem; color:#666;">등록된 가족 정보가 없습니다. MBTI 테스트를 먼저 진행해주세요.</p>';
-                    document.getElementById('loading').classList.add('hidden');
-                    document.getElementById('content').classList.remove('hidden');
-                    return;
-                }
+                // Initial Render (Total Tab)
+                renderTabs();
+                renderTotalChart();
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    data.uid = doc.id; // Store Doc ID
-                    members.push(data);
-
-                    const btn = document.createElement('button');
-                    btn.innerText = data.name;
-                    btn.style.cssText = `
-                        padding: 8px 16px; 
-                        border-radius: 20px; 
-                        border: 1px solid #eee; 
-                        background: white; 
-                        margin-right: 8px; 
-                        cursor: pointer;
-                        font-size: 0.9rem;
-                        transition: all 0.2s;
-                    `;
-                    btn.onclick = () => selectMember(data, btn);
-                    selector.appendChild(btn);
-
-                    if (user.uid === data.uid) {
-                        myData = data;
-                    }
-                });
-
-                // Render Content or Empty State
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('content').classList.remove('hidden');
 
-                if (members.length === 0) {
-                    selector.innerHTML = '<p style="font-size:0.9rem; color:#666;">등록된 가족 정보가 없습니다. MBTI 테스트를 먼저 진행해주세요.</p>';
-                    return;
-                }
-
-                if (myData) {
-                    // Click my button
-                    // Find button with my name
-                    const buttons = selector.children;
-                    for (let btn of buttons) {
-                        if (btn.innerText === myData.name) {
-                            btn.click();
-                            break;
-                        }
-                    }
-                } else {
-                    // Select first if not found me
-                    if (selector.children.length > 0) selector.children[0].click();
-                }
-
             } catch (e) {
                 console.error(e);
-                document.getElementById('loading').innerText = '오류가 발생했습니다.';
-                // Fallback to error alert
-                alert('데이터를 불러오는데 실패했습니다.');
+                alert("데이터 로딩 실패");
             }
         }
 
-        // Expose to window for button onclick
-        window.selectMember = function (data, btnElement) {
-            // Update UI Selection
-            const buttons = document.getElementById('family-selector').children;
-            for (let btn of buttons) {
-                btn.style.background = 'white';
-                btn.style.color = '#333';
-                btn.style.borderColor = '#eee';
-            }
-            btnElement.style.background = 'var(--color-primary)';
-            btnElement.style.color = 'white';
-            btnElement.style.borderColor = 'var(--color-primary)';
+        function renderTabs() {
+            const container = document.getElementById('tab-nav');
+            // Keep the static 'Total' tab, add others
 
-            currentUserData = data;
+            membersData.forEach((m, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn';
+                btn.innerText = m.name;
+                btn.onclick = () => switchTab(idx); // Use index as ID for individuals
+                container.appendChild(btn);
+            });
+        }
 
-            // Map to Pre-defined Family Data
-            const staticInfo = familyData[data.name];
+        // Expose to window
+        window.switchTab = function (tabId) {
+            // UI Toggle
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach((b, i) => {
+                // Total is index 0 conceptually in button list if we querySelectorAll?
+                // Actually tabId 'total' is special.
 
-            if (staticInfo && staticInfo.birthdate) {
-                document.getElementById('user-greeting').innerText = `${data.name}님의 오늘 운세`;
-                document.getElementById('setup-section').classList.add('hidden');
-                document.getElementById('fortune-section').classList.remove('hidden');
-                renderFortune(staticInfo.birthdate);
+                // Let's rely on text content matching or something simpler
+                // Re-implementation: just reset all, set clicked active
+                b.classList.remove('active');
+            });
+
+            // It's hard to map click directly to element without event, so let's cheat.
+            // We'll iterate and find which one was clicked? No, let's pass event or use simple logic.
+            // Simplified: Re-render tabs? No.
+
+            // Let's just find the button based on text logic or pass `this`?
+            // "window.switchTab" called from inline onclick doesn't pass `this` easily unless specified.
+            // Let's look at event.target
+            const clickedBtn = event.target;
+            clickedBtn.classList.add('active');
+
+            if (tabId === 'total') {
+                document.getElementById('section-total').classList.remove('hidden');
+                document.getElementById('section-individual').classList.add('hidden');
+                // Ensure chart paints
+                renderTotalChart();
             } else {
-                document.getElementById('user-greeting').innerText = `${data.name}님의 정보가 없습니다.`;
-                document.getElementById('setup-section').classList.remove('hidden');
-                document.getElementById('fortune-section').classList.add('hidden');
-                // Inform user
-                document.querySelector('#setup-section .card-desc').innerText =
-                    `'src/users.js' 파일에 '${data.name}'에 대한 정보가 설정되지 않았습니다.`;
-                document.getElementById('birthdate-input').classList.add('hidden');
-                document.querySelector('#setup-section button').classList.add('hidden');
+                document.getElementById('section-total').classList.add('hidden');
+                document.getElementById('section-individual').classList.remove('hidden');
+                renderIndividual(membersData[tabId]);
             }
         }
 
-        window.saveBirthdate = function () {
-            // Deprecated/Hidden logic, but kept for safety if needed
-            alert('설정 파일(users.js)을 확인해주세요.');
+        function getBiorhythm(birthStr, targetDate) {
+            const birth = new Date(birthStr);
+            const diffTime = targetDate - birth;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            const phys = Math.sin(2 * Math.PI * diffDays / 23) * 100;
+            const emo = Math.sin(2 * Math.PI * diffDays / 28) * 100;
+            const intel = Math.sin(2 * Math.PI * diffDays / 33) * 100;
+
+            return { phys, emo, intel, avg: (phys + emo + intel) / 3 };
         }
 
-        function renderFortune(birthdateStr) {
-            // Zodiac
-            const z1 = getZodiac(birthdateStr);
-            const z2 = getChineseZodiac(birthdateStr);
+        function renderTotalChart() {
+            if (chartTotal) chartTotal.destroy();
+
+            const labels = [];
+            const dataScores = [];
+            const bgColors = [];
+
+            // Sort by score? Or fixed order? Fixed order is better for consistency.
+            // let's just use original order.
+
+            membersData.forEach(m => {
+                if (!m.birthdate) return;
+                const bio = getBiorhythm(m.birthdate, new Date());
+                labels.push(m.name);
+                dataScores.push(bio.avg);
+                // Color based on score
+                if (bio.avg > 50) bgColors.push('#22c55e'); // Green
+                else if (bio.avg > 0) bgColors.push('#fbbf24'); // Yellow
+                else bgColors.push('#ef4444'); // Red
+            });
+
+            // Find max score for comment
+            let maxScore = -100;
+            let bestMember = "";
+            dataScores.forEach((s, i) => {
+                if (s > maxScore) { maxScore = s; bestMember = labels[i]; }
+            });
+
+            document.getElementById('total-comment').innerText =
+                `오늘 컨디션 왕은 👑 ${bestMember}님! (${Math.round(maxScore)}점)`;
+
+            const ctx = document.getElementById('totalChart').getContext('2d');
+            chartTotal = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '종합 컨디션 점수',
+                        data: dataScores,
+                        backgroundColor: bgColors,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: -100, max: 100, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderIndividual(member) {
+            if (!member || !member.birthdate) return;
+
+            document.getElementById('ind-name-title').innerText = `${member.name}님의 운세`;
+
+            // 1. Text Info
+            const z1 = getZodiac(member.birthdate);
+            const z2 = getChineseZodiac(member.birthdate);
             document.getElementById('zodiac-text').innerText = `${z1} / ${z2}`;
 
-            // Biorhythm
-            drawBiorhythm(birthdateStr);
-        }
+            // Simple hash for keyword
+            const dateVal = new Date().getDate();
+            const nameLen = member.name.length;
+            const keyIdx = (dateVal + nameLen) % dailyKeywords.length;
+            document.getElementById('daily-keyword').innerText = dailyKeywords[keyIdx];
 
-        function drawBiorhythm(birthdateStr) {
-            const birth = new Date(birthdateStr);
-            const today = new Date();
+            // 2. Chart
+            if (chartInd) chartInd.destroy();
+
             const labels = [];
-            const dataPhys = [];
-            const dataEmo = [];
-            const dataIntel = [];
+            const dP = [], dE = [], dI = [];
+            const today = new Date();
 
-            // Show +/- 3 days
+            // -3 to +3 days
             for (let i = -3; i <= 3; i++) {
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
-
-                const diffTime = d - birth;
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
                 labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
 
-                dataPhys.push(Math.sin(2 * Math.PI * diffDays / 23) * 100);
-                dataEmo.push(Math.sin(2 * Math.PI * diffDays / 28) * 100);
-                dataIntel.push(Math.sin(2 * Math.PI * diffDays / 33) * 100);
+                const bio = getBiorhythm(member.birthdate, d);
+                dP.push(bio.phys);
+                dE.push(bio.emo);
+                dI.push(bio.intel);
             }
 
-            const ctx = document.getElementById('bioChart').getContext('2d');
-            if (bioChart) bioChart.destroy();
-
-            bioChart = new Chart(ctx, {
+            const ctx = document.getElementById('indChart').getContext('2d');
+            chartInd = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: '신체', data: dataPhys, borderColor: '#22c55e', tension: 0.4, pointRadius: 3 },
-                        { label: '감성', data: dataEmo, borderColor: '#ef4444', tension: 0.4, pointRadius: 3 },
-                        { label: '지성', data: dataIntel, borderColor: '#3b82f6', tension: 0.4, pointRadius: 3 }
+                        { label: '신체', data: dP, borderColor: '#22c55e', tension: 0.4, pointRadius: 3 },
+                        { label: '감성', data: dE, borderColor: '#ef4444', tension: 0.4, pointRadius: 3 },
+                        { label: '지성', data: dI, borderColor: '#3b82f6', tension: 0.4, pointRadius: 3 }
                     ]
                 },
                 options: {
@@ -356,20 +424,6 @@
                     plugins: { legend: { display: false } }
                 }
             });
-
-            // Comment
-            const p = dataPhys[3];
-            const e = dataEmo[3];
-            const i = dataIntel[3];
-            const avg = (p + e + i) / 3;
-
-            let comment = "오늘은 ";
-            if (avg > 50) comment += "컨디션이 최상이에요! 🤩";
-            else if (avg > 0) comment += "전반적으로 무난한 하루에요. 😊";
-            else if (avg > -50) comment += "조금 처질 수 있어요. ☕";
-            else comment += "에너지 충전이 필요해요. 🔋";
-
-            document.getElementById('bio-comment').innerText = comment;
         }
     </script>
 </body>
