@@ -1,7 +1,7 @@
 // MBTI Data & Logic
 // 36 Questions Pool (9 per type pair)
 
-const questionPool = {
+export const questions = {
     EI: [
         { t: "오랜만에 찾아온 휴일, 당신의 선택은?", a: "친구들과 만나 밖에서 신나게 논다", b: "집에서 넷플릭스 보며 뒹굴거린다" },
         { t: "새로운 모임에 나갔을 때 나는?", a: "먼저 다가가서 인사하고 대화를 주도한다", b: "누가 말을 걸어줄 때까지 조용히 있는다" },
@@ -29,12 +29,6 @@ const questionPool = {
         { t: "내가 실수를 했을 때 듣고 싶은 말은?", a: "다음엔 이렇게 하면 돼. (명확한 피드백)", b: "괜찮아, 그럴 수도 있지. (따뜻한 위로)" },
         { t: "의사결정을 내릴 때 나는?", a: "논리와 사실에 근거하여 판단", b: "나와 타인의 감정을 고려하여 판단" },
         { t: "친구가 머리를 이상하게 잘랐다.", a: "음, 조금 짧아진 것 같은데? (솔직)", b: "오~ 변화를 줬구나! 신선하다! (선의의 거짓말)" },
-        { t: "드라마를 볼 때 눈물을 흘리는 이유는?", a: "주인공이 불쌍해서... (감정 이입)", b: "슬픈 장면 나오네 (하품)" }, // Note: A/B positioning swapped in logic usually, stick to A=T, B=F pattern if used? Wait. 
-        // Let's check logic: handleAnswer: a->1st char, b->2nd char. 
-        // TF: A -> T, B -> F. 
-        // Q4: A(Soljik, T) vs B(Lie, F). OK.
-        // Q5: A(Cry, F) vs B(Yawn, T). SWAPPED. NEED FIX.
-        // Let's fix Q5 text order.
         { t: "슬픈 영화를 볼 때 나는?", a: "영화는 영화일 뿐, 분석하며 본다", b: "주인공에게 몰입해서 눈물 콧물 쏟는다" },
         { t: "친구가 차사고가 났다고 전화가 왔다.", a: "보험 불렀어? 다친 데는? (상황 파악)", b: "괜찮아? 많이 놀랐겠다 ㅠㅠ (걱정)" },
         { t: "누군가 나를 비판했을 때", a: "타당한 지적이라면 수용하고 고친다", b: "마상(마음의 상처) 입고 하루 종일 우울하다" },
@@ -60,7 +54,7 @@ export function generateQuiz() {
     const categories = ['EI', 'SN', 'TF', 'JP'];
 
     categories.forEach(cat => {
-        const pool = [...questionPool[cat]]; // Copy
+        const pool = [...questions[cat]]; // Copy
         // Shuffle and pick 3
         const selected = pool.sort(() => 0.5 - Math.random()).slice(0, 3);
         // Add type info to each question for scoring logic
@@ -77,113 +71,113 @@ export function generateQuiz() {
 export const results = {
     "ISTJ": {
         name: "청렴결백한 논리주의자",
-        desc: "책임감이 강하고 현실적이며 매사에 철저합니다.",
-        tips: "변화를 두려워 말아요. 가족의 감정도 챙겨주세요!",
+        desc: "한 번 맡은 일은 끝까지 책임지는 든든한 가장 스타일! 꼼꼼하고 현실적이라 집안의 규칙을 잘 세우고 지킵니다. 하지만 가끔은 너무 진지해서 '노잼' 소리를 들을 수도 있어요.",
+        tips: "가족들이 가끔 계획 없이 굴어도 '그럴 수도 있지~' 하고 넘어가 주는 여유를 가져보세요. 깜짝 파티나 즉흥 여행도 즐겨봅시다!",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISTJ",
         matches: { best: "ESFP", worst: "ENFJ" }
     },
     "ISFJ": {
         name: "용감한 수호자",
-        desc: "차분하고 헌신적이며 침착하게 주변 사람을 챙깁니다.",
-        tips: "남만 챙기지 말고 본인도 챙기세요. 거절하는 법을 배워봐요.",
+        desc: "가족의 평화를 위해 묵묵히 헌신하는 천사표! 생일, 기념일을 기가 막히게 기억하고 챙겨줍니다. 남을 배려하느라 정작 본인의 속마음은 꾹꾹 눌러담는 경우가 많아요.",
+        tips: "가족들에게 서운한 게 있으면 참지 말고 말해보세요. 당신이 행복해야 가족들도 진정으로 행복할 수 있답니다.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISFJ",
         matches: { best: "ESFP", worst: "ENTP" }
     },
     "INFJ": {
         name: "통찰력 있는 선지자",
-        desc: "사람에 대한 통찰력이 뛰어나고 깊은 영감을 줍니다.",
-        tips: "속마음을 가족에게 조금만 더 표현해보세요.",
+        desc: "말하지 않아도 가족의 기분을 귀신같이 알아채는 눈치 100단! 깊은 속내와 따뜻한 마음을 가졌지만, 혼자만의 시간이 꼭 필요한 집돌이/집순이 기질이 있어요.",
+        tips: "가족들에게는 당신의 복잡한 머릿속을 조금 보여줘도 괜찮아요. 고민이 있다면 혼자 앓지 말고 털어놓아 보세요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INFJ",
         matches: { best: "ENFP", worst: "ESTJ" }
     },
     "INTJ": {
         name: "용의주도한 전략가",
-        desc: "상상력이 풍부하며 철두철미한 계획을 세웁니다.",
-        tips: "가족의 사소한 실수에도 너그러워질 필요가 있어요.",
+        desc: "우리 집의 브레인! 효율적이고 논리적인 해결책을 척척 내놓습니다. 감정 표현에는 서툴러서 가끔 차가워 보일 수 있지만, 속으로는 가족의 미래를 누구보다 치열하게 고민하고 있답니다.",
+        tips: "옳은 말도 중요하지만, 가끔은 그냥 '그랬구나~' 하고 맞장구쳐주는 게 최고의 해결책일 때가 있어요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INTJ",
         matches: { best: "ENFP", worst: "ESFJ" }
     },
     "ISTP": {
         name: "만능 재주꾼",
-        desc: "과묵하지만 호기심이 많고 도구 사용에 능숙합니다.",
-        tips: "가족 행사나 모임에 조금 더 적극적으로 참여해봐요.",
+        desc: "고장 난 물건은 나에게 맡겨라! 손재주가 좋고 상황 적응력이 뛰어납니다. 귀찮은 건 딱 질색이라 말수는 적지만, 필요할 때는 누구보다 빠르게 움직여 해결해주는 해결사입니다.",
+        tips: "가족들과의 대화에 조금만 더 리액션을 보여주세요. '응', '아니' 대신 한 문장만 더 덧붙여도 분위기가 확 바뀔 거예요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISTP",
         matches: { best: "ESFJ", worst: "ENFJ" }
     },
     "ISFP": {
         name: "호기심 많은 예술가",
-        desc: "온화하고 겸손하며 삶의 여유를 즐길 줄 압니다.",
-        tips: "갈등을 피하지만 말고, 가끔은 내 의견을 확실히 말해보세요.",
+        desc: "집안의 평화 유지군! 다정하고 온화해서 가족들의 의견을 잘 들어줍니다. 싸움을 싫어해서 갈등 상황을 회피하려 할 때가 있고, 나만의 공간에서 힐링하는 시간을 중요하게 생각해요.",
+        tips: "싫은 건 싫다고 말하는 용기를 가져보세요. 당신의 의견을 표현해야 가족들도 당신이 뭘 원하는지 알 수 있어요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISFP",
         matches: { best: "ESTJ", worst: "ENTJ" }
     },
     "INFP": {
         name: "열정적인 중재자",
-        desc: "상냥하고 이타적이며 낭만적인 이상을 추구합니다.",
-        tips: "너무 깊은 생각에 빠져 우울해지지 않도록 주의해요.",
+        desc: "소녀/소년 감성 충만! 풍부한 상상력과 따뜻한 마음씨를 가졌습니다. 가족의 화목을 꿈꾸는 이상주의자지만, 현실적인 문제 앞에서는 조금 약한 모습을 보이기도 해요.",
+        tips: "현실의 벽에 부딪혀 우울해하지 마세요. 당신의 따뜻한 감성이 가족들에게는 큰 위로가 된답니다.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INFP",
         matches: { best: "ENFJ", worst: "ESTJ" }
     },
     "INTP": {
         name: "논리적인 사색가",
-        desc: "지적 호기심이 높고 잠재력과 가능성을 중요시합니다.",
-        tips: "가족과의 대화에서 너무 논리만 따지지 맙시다!",
+        desc: "엉뚱한 상상으로 가득 찬 우리 집 천재! 호기심이 많고 분석하는 걸 좋아합니다. 가족들이 보기에 '대체 무슨 생각을 하고 사는 거지?' 싶을 때가 많지만, 독창적인 아이디어로 깜짝 놀라게 하기도 하죠.",
+        tips: "가족과의 대화는 논리 토론장이 아니랍니다. 분석보다는 공감을, 비판보다는 칭찬을 먼저 건네보세요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INTP",
         matches: { best: "ENTJ", worst: "ESFJ" }
     },
     "ESTP": {
         name: "모험을 즐기는 사업가",
-        desc: "에너지가 넘치고 직관적이며 스릴을 즐깁니다.",
-        tips: "충동적인 결정 전에 가족과 한 번 상의해보세요.",
+        desc: "에너지 뿜뿜! 집안의 활력소! 유머 감각이 뛰어나고 행동력이 좋아서 지루할 틈이 없습니다. 다만 너무 즉흥적이라 가족들을 당황시킬 때가 종종 있어요.",
+        tips: "저지르기 전에 딱 3초만 더 생각해보는 건 어떨까요? 가족들과의 약속이나 규칙은 조금 더 진지하게 지켜주세요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESTP",
         matches: { best: "ISFJ", worst: "INFJ" }
     },
     "ESFP": {
         name: "자유로운 영혼의 연예인",
-        desc: "사교적이고 활동적이며 분위기 메이커 역할을 합니다.",
-        tips: "진지한 대화가 필요할 땐 집중해주세요.",
+        desc: "우리 집 분위기 메이커! 노래하고 춤추는 걸 좋아하고 사람들과 어울리는 게 천성입니다. 심각한 분위기는 못 견뎌하고, 언제나 즐겁고 신나는 일을 찾아다닙니다.",
+        tips: "즐거움도 좋지만, 가끔은 진지한 이야기에도 귀 기울여주세요. 가족의 고민을 들어주는 듬직한 모습도 보여주면 완벽해요!",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESFP",
         matches: { best: "ISTJ", worst: "INTJ" }
     },
     "ENFP": {
         name: "재기발랄한 활동가",
-        desc: "창의적이고 열정적이며 사람들과 어울리기를 좋아합니다.",
-        tips: "시작한 일을 끝까지 마무리하는 모습을 가족에게 보여주세요.",
+        desc: "해피 바이러스 전파자! 열정이 넘치고 친화력이 좋아서 누구와도 금방 친해집니다. 하고 싶은 게 너무 많아서 이것저것 벌려놓지만, 마무리가 조금 약한 귀여운 사고뭉치 스타일!",
+        tips: "시작한 일을 끝까지 마무리하는 멋진 모습을 보여주세요. 가족들은 당신의 꾸준함을 응원하고 싶어 한답니다.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENFP",
         matches: { best: "INFJ", worst: "ISTJ" }
     },
     "ENTP": {
         name: "뜨거운 논쟁을 즐기는 변론가",
-        desc: "지적인 도전을 즐기고 똑똑한 호기심으로 가득 찹니다.",
-        tips: "논쟁보다는 공감이 필요할 때가 있답니다.",
+        desc: "말발 하나는 타고난 우리 집 변호사! 박학다식하고 재치가 넘쳐서 대화가 끊이지 않습니다. 하지만 사소한 걸로 꼬치꼬치 따지거나 장난을 쳐서 가족들을 피곤하게 만들기도 해요.",
+        tips: "이겨먹으려는 대화보다는 이해하려는 대화를 시도해보세요. 가끔은 져주는 게 이기는 거랍니다.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENTP",
         matches: { best: "INFJ", worst: "ISFJ" }
     },
     "ESTJ": {
         name: "엄격한 관리자",
-        desc: "사물과 사람을 관리하는 데 뛰어난 능력을 가졌습니다.",
-        tips: "가족들에게 너무 통제하려 들지 말고 부드럽게 대해보세요.",
+        desc: "우리 집 규율 반장! 계획적이고 책임감이 강해서 집안일을 체계적으로 관리합니다. 흐트러진 꼴을 못 보고 잔소리가 좀 있어서 가족들이 무서워할 수도 있어요.",
+        tips: "완벽하지 않아도 괜찮아요. 가족들에게 엄격한 잣대를 들이대기보다는 따뜻한 포용력을 보여주세요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESTJ",
         matches: { best: "ISFP", worst: "INFP" }
     },
     "ESFJ": {
         name: "사교적인 외교관",
-        desc: "타인을 돕는 데 열성적이고 세심하며 인기가 많습니다.",
-        tips: "비판을 너무 개인적으로 받아들이지 마세요.",
+        desc: "배려심 깊은 우리 집 어머니/아버지! 가족들의 기분을 살피고 챙겨주는 데서 기쁨을 느낍니다. 인정받고 사랑받고 싶은 욕구가 커서, 가족들의 무심한 반응에 상처받기도 해요.",
+        tips: "남들 챙기느라 지친 당신, 오늘은 스스로를 위해 선물을 해보세요. 가족들도 당신이 행복하길 바란답니다.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESFJ",
         matches: { best: "ISFP", worst: "INTP" }
     },
     "ENFJ": {
         name: "정의로운 사회운동가",
-        desc: "카리스마와 충만한 열정을 지닌 타고난 리더입니다.",
-        tips: "모든 사람을 만족시킬 수는 없어요. 본인을 너무 희생하지 마세요.",
+        desc: "따뜻한 리더십의 소유자! 가족들의 잠재력을 이끌어내고 화합을 도모하는 능력이 탁월합니다. 모두가 행복한 이상적인 가정을 꿈꾸며 너무 애쓰다가 제풀에 지칠 수 있어요.",
+        tips: "모든 짐을 혼자 짊어지려 하지 마세요. 가족들을 믿고 맡기는 연습을 해보면 어떨까요?",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENFJ",
         matches: { best: "INFP", worst: "ISTP" }
     },
     "ENTJ": {
         name: "대담한 통솔자",
-        desc: "대담하고 상상력이 풍부하며 강한 의지의 지도자입니다.",
-        tips: "가족 구성원의 감정을 조금 더 배려하고 존중해주세요.",
+        desc: "카리스마 넘치는 우리 집 대장! 목표 지향적이고 결단력이 있어서 집안의 큰일을 척척 해결합니다. 자신의 계획대로 가족들이 따라오지 않으면 답답해하며 불호령을 내리기도 하죠.",
+        tips: "가족은 부하 직원이 아니랍니다. 명령보다는 권유를, 지시보다는 경청을 하는 부드러운 리더가 되어주세요.",
         img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENTJ",
         matches: { best: "INTP", worst: "ISFP" }
     }

@@ -71,11 +71,20 @@
         document.getElementById('today-date').innerText =
             `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
 
-        // Convert Email to Display Name (Mock logic for now)
-        const email = sessionStorage.getItem('user_email') || '가족';
-        // Simple mapping based on known IDs if you want, or just use ID part
-        const namePart = email.split('@')[0];
-        document.getElementById('user-name').innerText = namePart;
+        // User Name Logic
+        // 1. Try to get explicit name from session (saved during login/signup)
+        // 2. Fallback to email ID
+        const storedName = sessionStorage.getItem('user_name');
+        const email = sessionStorage.getItem('user_email');
+
+        let displayName = '가족';
+        if (storedName && storedName !== 'null') {
+            displayName = storedName;
+        } else if (email) {
+            displayName = email.split('@')[0];
+        }
+
+        document.getElementById('user-name').innerText = displayName;
     </script>
 </body>
 

@@ -2,30 +2,12 @@
 // Note: firebase is loaded globally via CDN in HTML
 
 // Login Function
-async function login(email, password) {
-    try {
-        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-
-        // Save basic info to session (or local) storage for UI rendering
-        sessionStorage.setItem('user_uid', user.uid);
-        sessionStorage.setItem('user_email', user.email);
-
-        return { success: true, user };
-    } catch (error) {
-        console.error("Login Error:", error);
-        return { success: false, message: error.message };
-    }
+const path = window.location.pathname;
+if (path.includes('/mbti/') || path.includes('/fortune/') || path.includes('/preference/')) {
+    window.location.href = '../login.html';
+} else {
+    window.location.href = 'login.html';
 }
-
-// Helper to determine path to login based on current depth
-function gotoLogin() {
-    const path = window.location.pathname;
-    if (path.includes('/mbti/') || path.includes('/fortune/') || path.includes('/preference/')) {
-        window.location.href = '../login.html';
-    } else {
-        window.location.href = 'login.html';
-    }
 }
 
 // Logout Function
