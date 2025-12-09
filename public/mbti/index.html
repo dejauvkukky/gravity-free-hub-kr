@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family MBTI</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=2">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=3">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -201,13 +201,14 @@
 
             <button class="btn btn-primary mt-4" style="margin-bottom: 30px;"
                 onclick="location.href='../dashboard.html'">홈으로 돌아가기</button>
+            <div style="text-align: center; color: #ccc; font-size: 0.7rem; margin-bottom: 20px;">v1.1 updated</div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script type="module">
         import { auth, db } from '../../src/firebase.js';
-        import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=2';
+        import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=3';
 
         // Globals
         window.questions = questions; // Fallback or use generated
