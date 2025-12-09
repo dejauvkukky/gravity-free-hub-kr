@@ -1,0 +1,3 @@
+# Bypass Jekyll processing
+# This file tells GitHub Pages to not process the site with Jekyll,
+# ensuring all files (especially those starting with _) are served correctly.
