@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden MBTI</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=8">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=9">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -208,7 +208,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=8';
+        import { auth, db } from '../../src/firebase.js?v=9';
         import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=9';
 
         // Globals
@@ -280,7 +280,7 @@
 
                     el.innerHTML = `
                         <div class="family-result-header" style="justify-content: flex-start; gap: 15px;">
-                            <img src="${info.img}" style="width:50px; height:50px; border-radius:50%; background:#f0f0f0;">
+                            <img src="${info.img}" style="width:50px; height:50px; border-radius:50%; background:#f0f0f0; object-fit: cover;">
                             <div>
                                 <div style="font-weight:bold; font-size:1.1rem; color:#333;">
                                     ${data.name} <span style="color:var(--color-coral); margin-left:5px;">${data.mbti}</span>
@@ -289,25 +289,26 @@
                                     ${info.name}
                                 </div>
                             </div>
-                            <div style="margin-left:auto; color:#ccc; font-size:1.2rem;">⌄</div>
+                            <div style="margin-left:auto; color:#ccc; font-size:0.8rem;">터치하여 상세</div>
                         </div>
                         <div class="family-detail">
-                            <p id="result-desc" style="line-height: 1.6; color: #555; margin-bottom: 20px;">${info.desc}</p>
+                            <p style="line-height: 1.6; color: #555; margin-bottom: 20px;">${info.desc}</p>
                             
+                            <h4 style="font-size:0.9rem; color:#666; margin-bottom:10px;">✨ 스타일 & 궁합</h4>
                             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                                 <div class="match-card" style="background-color: #fca5a5; padding: 10px; border-radius: 8px; flex: 1; text-align: center;">
-                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">❤️ 찰떡 궁합</span>
+                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">❤️ 최고의 짝꿍</span>
                                     <strong style="font-size:1.1rem;">${info.matches.best}</strong>
                                 </div>
                                 <div class="match-card" style="background-color: #93c5fd; padding: 10px; border-radius: 8px; flex: 1; text-align: center;">
-                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">⚡ 조금 힘든</span>
+                                    <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">⚡ 노력 필요</span>
                                     <strong style="font-size:1.1rem;">${info.matches.worst}</strong>
                                 </div>
                             </div>
 
                             ${historyHtml}
 
-                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">💡 팁: ${info.tips}</p>
+                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">💡 <strong>팁</strong>: ${info.tips}</p>
                         </div>
                     `;
                     listEl.appendChild(el);
