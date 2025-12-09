@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         .option-btn {
@@ -40,6 +42,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .match-card {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            color: #fff;
         }
     </style>
 </head>
@@ -74,15 +84,30 @@
 
         <!-- Result Screen -->
         <div class="p-4 hidden" id="result-screen" style="overflow-y: auto;">
-            <div class="text-center" style="margin-top: 20px;">
-                <p style="color: #666; margin-bottom: 8px;">당신의 성격 유형은</p>
+            <div class="text-center" style="margin-top: 10px;">
+                <img id="result-img" src="" alt="Character"
+                    style="width: 120px; height: 120px; border-radius: 50%; background: #f0f0f0; margin-bottom: 15px; object-fit: cover;">
+
+                <p style="color: #666; margin-bottom: 4px; font-size: 0.9rem;">당신의 성격 유형은</p>
                 <div id="result-type"
-                    style="font-size: 3.5rem; font-weight: 800; color: var(--color-coral); line-height: 1;">TYPE</div>
+                    style="font-size: 3rem; font-weight: 800; color: var(--color-coral); line-height: 1;">TYPE</div>
                 <div id="result-name" style="font-size: 1.2rem; font-weight: bold; margin: 10px 0 20px 0; color: #333;">
                     유형 이름</div>
 
                 <div class="card" style="margin: 0 0 20px 0; text-align: left;">
                     <p id="result-desc" style="line-height: 1.6; color: #555;">설명</p>
+                </div>
+
+                <!-- Match Info -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <div class="match-card" style="background-color: #fca5a5;">
+                        <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">❤️ 찰떡 궁합</span>
+                        <strong id="match-best" style="font-size:1.2rem;">ENFP</strong>
+                    </div>
+                    <div class="match-card" style="background-color: #93c5fd;">
+                        <span style="display:block; font-size:0.8rem; margin-bottom:5px; opacity:0.9;">⚡ 조금 힘든</span>
+                        <strong id="match-worst" style="font-size:1.2rem;">ESTJ</strong>
+                    </div>
                 </div>
 
                 <div class="card"
@@ -95,10 +120,13 @@
             <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
 
             <div>
-                <h3 style="font-size: 1.2rem; margin-bottom: 16px;">👨‍👩‍👧‍👦 우리 가족 MBTI 지도</h3>
+                <h3 style="font-size: 1.2rem; margin-bottom: 16px;">📊 가족 궁합 랭킹</h3>
+                <div style="margin-bottom: 20px; height: 200px;">
+                    <canvas id="familyChart"></canvas>
+                </div>
+
                 <div id="family-list">
                     <!-- Family List Items -->
-                    <p style="color:#aaa; text-align:center;">가족들의 결과를 불러오는 중...</p>
                 </div>
             </div>
 
@@ -110,11 +138,12 @@
     <!-- Scripts -->
     <script type="module">
         import { auth, db } from '../../src/firebase.js';
-        import { questions, results } from '../../src/mbti_data.js';
+        import { questions, results, getCompatibility } from '../../src/mbti_data.js';
 
         // Globals
         window.questions = questions;
         window.results = results;
+        window.getCompatibility = getCompatibility;
         window.db = db;
         window.auth = auth;
         window.currentQ = 0;
@@ -175,10 +204,6 @@
 
             // 1. Calculate Type
             let mbti = "";
-            mbti += window.scores.E > window.scores.I ? "E" : (window.scores.E < window.scores.I ? "I" : "E"); // Tie breaker E
-            mbti += window.scores.N > window.scores.S ? "N" : (window.scores.N < window.scores.S ? "S" : "N"); // Tie breaker N (Intuition usually rarer?) let's strict check
-            // Actually standard tie breaking is tricky. Let's simple > check.
-            mbti = "";
             mbti += (window.scores.E >= window.scores.I) ? "E" : "I";
             mbti += (window.scores.S >= window.scores.N) ? "S" : "N";
             mbti += (window.scores.T >= window.scores.F) ? "T" : "F";
@@ -213,18 +238,29 @@
             document.getElementById('result-screen').classList.remove('hidden');
 
             const info = window.results[myMbti];
+
+            // Basic Info
             document.getElementById('result-type').innerText = myMbti;
             document.getElementById('result-name').innerText = info.name;
             document.getElementById('result-desc').innerText = info.desc;
             document.getElementById('result-tips').innerText = info.tips;
+            document.getElementById('result-img').src = info.img;
 
-            // 4. Load Family Results
-            loadFamilyResults();
+            // Match Info
+            document.getElementById('match-best').innerText = info.matches.best;
+            document.getElementById('match-worst').innerText = info.matches.worst;
+
+            // 4. Load Family Results & Chart
+            loadFamilyResults(myMbti);
         }
 
-        async function loadFamilyResults() {
+        async function loadFamilyResults(myMbti) {
             const listEl = document.getElementById('family-list');
             listEl.innerHTML = '';
+
+            const familyScores = [];
+            const familyNames = [];
+            const familyColors = [];
 
             try {
                 const snapshot = await window.db.collection('mbti_results').get();
@@ -238,24 +274,64 @@
                     const data = doc.data();
                     const isMe = (window.auth.currentUser.uid === data.uid);
 
+                    if (isMe) return; // Skip me for compatibility chart
+
+                    const score = window.getCompatibility(myMbti, data.mbti);
+
+                    familyNames.push(data.name);
+                    familyScores.push(score);
+                    familyColors.push(score >= 80 ? '#fca5a5' : (score >= 50 ? '#fbbf24' : '#93c5fd')); // Red(High), Yellow(Mid), Blue(Low)
+
                     const el = document.createElement('div');
                     el.className = 'family-result-card';
-                    if (isMe) el.style.border = '2px solid var(--color-coral)'; // Highlight me
-
                     el.innerHTML = `
                         <div>
                             <span style="font-weight:bold; font-size:1rem; margin-right:6px;">${data.name}</span>
-                            ${isMe ? '<span style="font-size:0.8rem; color:var(--color-coral);">(나)</span>' : ''}
+                            <span style="color:#666; font-size:0.8rem;">(${data.mbti})</span>
                         </div>
-                        <div style="font-weight:800; font-size:1.1rem; color:#333;">${data.mbti}</div>
+                        <div style="font-weight:bold; color:${score >= 80 ? '#ef4444' : '#666'}">
+                            ${score}점 ${score >= 80 ? '❤️' : ''}
+                        </div>
                     `;
                     listEl.appendChild(el);
                 });
+
+                if (familyNames.length > 0) {
+                    renderChart(familyNames, familyScores, familyColors);
+                } else {
+                    listEl.innerHTML = '<p class="text-center text-gray-400">비교할 다른 가족 데이터가 없습니다.</p>';
+                }
 
             } catch (e) {
                 console.error("Load family failed", e);
                 listEl.innerHTML = '<p style="color:red">가족 정보를 불러오지 못했습니다.</p>';
             }
+        }
+
+        function renderChart(labels, data, colors) {
+            const ctx = document.getElementById('familyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '궁합 점수',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
         }
     </script>
 </body>

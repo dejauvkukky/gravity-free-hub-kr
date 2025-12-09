@@ -21,20 +21,154 @@ export const questions = [
 ];
 
 export const results = {
-    "ISTJ": { name: "청렴결백한 논리주의자", desc: "책임감이 강하고 현실적이며 매사에 철저합니다.", tips: "변화를 두려워 말아요. 가족의 감정도 챙겨주세요!" },
-    "ISFJ": { name: "용감한 수호자", desc: "차분하고 헌신적이며 침착하게 주변 사람을 챙깁니다.", tips: "남만 챙기지 말고 본인도 챙기세요. 거절하는 법을 배워봐요." },
-    "INFJ": { name: "통찰력 있는 선지자", desc: "사람에 대한 통찰력이 뛰어나고 깊은 영감을 줍니다.", tips: "속마음을 가족에게 조금만 더 표현해보세요." },
-    "INTJ": { name: "용의주도한 전략가", desc: "상상력이 풍부하며 철두철미한 계획을 세웁니다.", tips: "가족의 사소한 실수에도 너그러워질 필요가 있어요." },
-    "ISTP": { name: "만능 재주꾼", desc: "과묵하지만 호기심이 많고 도구 사용에 능숙합니다.", tips: "가족 행사나 모임에 조금 더 적극적으로 참여해봐요." },
-    "ISFP": { name: "호기심 많은 예술가", desc: "온화하고 겸손하며 삶의 여유를 즐길 줄 압니다.", tips: "갈등을 피하지만 말고, 가끔은 내 의견을 확실히 말해보세요." },
-    "INFP": { name: "열정적인 중재자", desc: "상냥하고 이타적이며 낭만적인 이상을 추구합니다.", tips: "너무 깊은 생각에 빠져 우울해지지 않도록 주의해요." },
-    "INTP": { name: "논리적인 사색가", desc: "지적 호기심이 높고 잠재력과 가능성을 중요시합니다.", tips: "가족과의 대화에서 너무 논리만 따지지 맙시다!" },
-    "ESTP": { name: "모험을 즐기는 사업가", desc: "에너지가 넘치고 직관적이며 스릴을 즐깁니다.", tips: "충동적인 결정 전에 가족과 한 번 상의해보세요." },
-    "ESFP": { name: "자유로운 영혼의 연예인", desc: "사교적이고 활동적이며 분위기 메이커 역할을 합니다.", tips: "진지한 대화가 필요할 땐 집중해주세요." },
-    "ENFP": { name: "재기발랄한 활동가", desc: "창의적이고 열정적이며 사람들과 어울리기를 좋아합니다.", tips: "시작한 일을 끝까지 마무리하는 모습을 가족에게 보여주세요." },
-    "ENTP": { name: "뜨거운 논쟁을 즐기는 변론가", desc: "지적인 도전을 즐기고 똑똑한 호기심으로 가득 찹니다.", tips: "논쟁보다는 공감이 필요할 때가 있답니다." },
-    "ESTJ": { name: "엄격한 관리자", desc: "사물과 사람을 관리하는 데 뛰어난 능력을 가졌습니다.", tips: "가족들에게 너무 통제하려 들지 말고 부드럽게 대해보세요." },
-    "ESFJ": { name: "사교적인 외교관", desc: "타인을 돕는 데 열성적이고 세심하며 인기가 많습니다.", tips: "비판을 너무 개인적으로 받아들이지 마세요." },
-    "ENFJ": { name: "정의로운 사회운동가", desc: "카리스마와 충만한 열정을 지닌 타고난 리더입니다.", tips: "모든 사람을 만족시킬 수는 없어요. 본인을 너무 희생하지 마세요." },
-    "ENTJ": { name: "대담한 통솔자", desc: "대담하고 상상력이 풍부하며 강한 의지의 지도자입니다.", tips: "가족 구성원의 감정을 조금 더 배려하고 존중해주세요." }
+    "ISTJ": {
+        name: "청렴결백한 논리주의자",
+        desc: "책임감이 강하고 현실적이며 매사에 철저합니다.",
+        tips: "변화를 두려워 말아요. 가족의 감정도 챙겨주세요!",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISTJ",
+        matches: { best: "ESFP", worst: "ENFJ" }
+    },
+    "ISFJ": {
+        name: "용감한 수호자",
+        desc: "차분하고 헌신적이며 침착하게 주변 사람을 챙깁니다.",
+        tips: "남만 챙기지 말고 본인도 챙기세요. 거절하는 법을 배워봐요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISFJ",
+        matches: { best: "ESFP", worst: "ENTP" }
+    },
+    "INFJ": {
+        name: "통찰력 있는 선지자",
+        desc: "사람에 대한 통찰력이 뛰어나고 깊은 영감을 줍니다.",
+        tips: "속마음을 가족에게 조금만 더 표현해보세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INFJ",
+        matches: { best: "ENFP", worst: "ESTJ" }
+    },
+    "INTJ": {
+        name: "용의주도한 전략가",
+        desc: "상상력이 풍부하며 철두철미한 계획을 세웁니다.",
+        tips: "가족의 사소한 실수에도 너그러워질 필요가 있어요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INTJ",
+        matches: { best: "ENFP", worst: "ESFJ" }
+    },
+    "ISTP": {
+        name: "만능 재주꾼",
+        desc: "과묵하지만 호기심이 많고 도구 사용에 능숙합니다.",
+        tips: "가족 행사나 모임에 조금 더 적극적으로 참여해봐요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISTP",
+        matches: { best: "ESFJ", worst: "ENFJ" }
+    },
+    "ISFP": {
+        name: "호기심 많은 예술가",
+        desc: "온화하고 겸손하며 삶의 여유를 즐길 줄 압니다.",
+        tips: "갈등을 피하지만 말고, 가끔은 내 의견을 확실히 말해보세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ISFP",
+        matches: { best: "ESTJ", worst: "ENTJ" }
+    },
+    "INFP": {
+        name: "열정적인 중재자",
+        desc: "상냥하고 이타적이며 낭만적인 이상을 추구합니다.",
+        tips: "너무 깊은 생각에 빠져 우울해지지 않도록 주의해요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INFP",
+        matches: { best: "ENFJ", worst: "ESTJ" }
+    },
+    "INTP": {
+        name: "논리적인 사색가",
+        desc: "지적 호기심이 높고 잠재력과 가능성을 중요시합니다.",
+        tips: "가족과의 대화에서 너무 논리만 따지지 맙시다!",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=INTP",
+        matches: { best: "ENTJ", worst: "ESFJ" }
+    },
+    "ESTP": {
+        name: "모험을 즐기는 사업가",
+        desc: "에너지가 넘치고 직관적이며 스릴을 즐깁니다.",
+        tips: "충동적인 결정 전에 가족과 한 번 상의해보세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESTP",
+        matches: { best: "ISFJ", worst: "INFJ" }
+    },
+    "ESFP": {
+        name: "자유로운 영혼의 연예인",
+        desc: "사교적이고 활동적이며 분위기 메이커 역할을 합니다.",
+        tips: "진지한 대화가 필요할 땐 집중해주세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESFP",
+        matches: { best: "ISTJ", worst: "INTJ" }
+    },
+    "ENFP": {
+        name: "재기발랄한 활동가",
+        desc: "창의적이고 열정적이며 사람들과 어울리기를 좋아합니다.",
+        tips: "시작한 일을 끝까지 마무리하는 모습을 가족에게 보여주세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENFP",
+        matches: { best: "INFJ", worst: "ISTJ" }
+    },
+    "ENTP": {
+        name: "뜨거운 논쟁을 즐기는 변론가",
+        desc: "지적인 도전을 즐기고 똑똑한 호기심으로 가득 찹니다.",
+        tips: "논쟁보다는 공감이 필요할 때가 있답니다.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENTP",
+        matches: { best: "INFJ", worst: "ISFJ" }
+    },
+    "ESTJ": {
+        name: "엄격한 관리자",
+        desc: "사물과 사람을 관리하는 데 뛰어난 능력을 가졌습니다.",
+        tips: "가족들에게 너무 통제하려 들지 말고 부드럽게 대해보세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESTJ",
+        matches: { best: "ISFP", worst: "INFP" }
+    },
+    "ESFJ": {
+        name: "사교적인 외교관",
+        desc: "타인을 돕는 데 열성적이고 세심하며 인기가 많습니다.",
+        tips: "비판을 너무 개인적으로 받아들이지 마세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ESFJ",
+        matches: { best: "ISFP", worst: "INTP" }
+    },
+    "ENFJ": {
+        name: "정의로운 사회운동가",
+        desc: "카리스마와 충만한 열정을 지닌 타고난 리더입니다.",
+        tips: "모든 사람을 만족시킬 수는 없어요. 본인을 너무 희생하지 마세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENFJ",
+        matches: { best: "INFP", worst: "ISTP" }
+    },
+    "ENTJ": {
+        name: "대담한 통솔자",
+        desc: "대담하고 상상력이 풍부하며 강한 의지의 지도자입니다.",
+        tips: "가족 구성원의 감정을 조금 더 배려하고 존중해주세요.",
+        img: "https://api.dicebear.com/7.x/adventurer/svg?seed=ENTJ",
+        matches: { best: "INTP", worst: "ISFP" }
+    }
 };
+
+// Simple compatibility score calculation
+export function getCompatibility(typeA, typeB) {
+    if (typeA === typeB) return 80; // Same type: Good but maybe clash
+
+    // Check Best/Worst map first
+    if (results[typeA].matches.best === typeB) return 100;
+    if (results[typeA].matches.worst === typeB) return 40;
+
+    // Basic Logic: Iterate chars
+    let diff = 0;
+    const aChars = typeA.split('');
+    const bChars = typeB.split('');
+
+    // Different logic for fun
+    // N/S difference is often biggest clash source
+    let nsMatch = (aChars[1] === bChars[1]);
+
+    // Just simple diff count
+    for (let i = 0; i < 4; i++) {
+        if (aChars[i] !== bChars[i]) diff++;
+    }
+
+    // 4 diff (Dual): 90 (Opposites attract)
+    // 0 diff: 80
+    // NS diff: -20 penalty
+
+    let score = 70; // Base
+
+    if (diff === 4) score = 95;
+    else if (diff === 3) score = 60;
+    else if (diff === 2) score = 50;
+    else if (diff === 1) score = 75;
+
+    if (!nsMatch) score -= 10;
+
+    return Math.max(0, Math.min(100, score));
+}
