@@ -18,12 +18,22 @@ async function login(email, password) {
     }
 }
 
+// Helper to determine path to login based on current depth
+function gotoLogin() {
+    const path = window.location.pathname;
+    if (path.includes('/mbti/') || path.includes('/fortune/') || path.includes('/preference/')) {
+        window.location.href = '../login.html';
+    } else {
+        window.location.href = 'login.html';
+    }
+}
+
 // Logout Function
 async function logout() {
     try {
         await firebase.auth().signOut();
         sessionStorage.clear();
-        window.location.href = '/public/login.html';
+        gotoLogin();
     } catch (error) {
         console.error("Logout Error:", error);
     }
@@ -34,14 +44,14 @@ function checkAuth() {
     firebase.auth().onAuthStateChanged((user) => {
         if (!user) {
             // Not logged in -> Redirect to login
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('login.html')) {
-                window.location.href = '/public/login.html';
+            // Skip check if already on login page
+            if (!window.location.pathname.includes('login.html')) {
+                gotoLogin();
             }
         } else {
             // Logged in -> If on login page, go to dashboard
             if (window.location.pathname.includes('login.html')) {
-                window.location.href = '/public/dashboard.html';
+                window.location.href = 'dashboard.html';
             }
         }
     });
