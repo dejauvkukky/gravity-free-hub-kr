@@ -6,53 +6,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family MBTI</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!DOCTYPE html>
+    <html lang="ko">
 
-    <style>
-        .option-btn {
-            display: block;
-            width: 100%;
-            padding: 20px;
-            margin-bottom: 12px;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            background: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Family MBTI</title>
+        <link rel="stylesheet" href="../../assets/css/style.css">
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        .option-btn:hover {
-            border-color: var(--color-coral);
-            background: #fff5f5;
-        }
+        <style>
+            .option-btn {
+                display: block;
+                width: 100%;
+                padding: 20px;
+                margin-bottom: 12px;
+                border: 2px solid #eee;
+                border-radius: 12px;
+                background: white;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-align: left;
+            }
 
-        .family-result-card {
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+            .option-btn:hover {
+                border-color: var(--color-coral);
+                background: #fff5f5;
+            }
 
-        .match-card {
-            flex: 1;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            color: #fff;
-        }
-    </style>
-</head>
+            .family-result-card {
+                background: #f9f9f9;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                font-size: 0.9rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .intro-card {
+                background: white;
+                border: 1px solid #eee;
+                border-radius: 12px;
+                padding: 15px;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .match-card {
+                flex: 1;
+                padding: 15px;
+                border-radius: 12px;
+                text-align: center;
+                color: #fff;
+            }
+        </style>
+    </head>
 
 <body>
     <div class="container">
@@ -64,8 +83,28 @@
         <!-- Loading -->
         <div id="loading" class="p-4 text-center hidden">로딩중...</div>
 
+        <!-- Intro Screen -->
+        <div class="p-4 flex-grow flex flex-col" id="intro-screen">
+            <div class="text-center" style="margin-bottom: 30px; margin-top: 20px;">
+                <h1 style="font-size: 2rem; color: var(--color-coral); margin-bottom: 10px;">우리 가족 MBTI</h1>
+                <p style="color: #666;">서로를 더 깊이 이해하는 시간 ❤️</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">👨‍👩‍👧‍👦 가족들의 결과</h3>
+                <div id="family-intro-list">
+                    <!-- Loaded dynamically -->
+                    <p style="text-align: center; color: #999; padding: 20px;">불러오는 중...</p>
+                </div>
+            </div>
+
+            <div style="flex-grow: 1;"></div>
+
+            <button class="btn btn-primary" onclick="startQuiz()">테스트 시작하기 (12문항)</button>
+        </div>
+
         <!-- Quiz Screen -->
-        <div class="p-4 flex-grow flex flex-col justify-center" id="quiz-screen">
+        <div class="p-4 flex-grow flex flex-col justify-center hidden" id="quiz-screen">
             <div style="background: #eee; height: 10px; border-radius: 5px; margin-bottom: 30px;">
                 <div id="progress-bar"
                     style="background: var(--color-coral); height: 100%; width: 0%; border-radius: 5px; transition: width 0.3s;">
@@ -138,60 +177,96 @@
     <!-- Scripts -->
     <script type="module">
         import { auth, db } from '../../src/firebase.js';
-        import { questions, results, getCompatibility } from '../../src/mbti_data.js';
+        import { results, getCompatibility, generateQuiz } from '../../src/mbti_data.js';
 
         // Globals
-        window.questions = questions;
         window.results = results;
         window.getCompatibility = getCompatibility;
+        window.generateQuiz = generateQuiz;
         window.db = db;
         window.auth = auth;
         window.currentQ = 0;
+        window.quiz = []; // Current quiz set
         window.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
 
         // Initialization
         auth.onAuthStateChanged(user => {
             if (!user) {
-                // Not logged in handled by auth.js usually, but fallback
                 location.href = '../login.html';
             } else {
-                initQuiz();
+                initIntro();
             }
         });
-    </script>
 
-    <script>
-        function initQuiz() {
+        // Intro Logic
+        async function initIntro() {
+            const listEl = document.getElementById('family-intro-list');
+            listEl.innerHTML = '';
+
+            try {
+                const snapshot = await db.collection('mbti_results').get();
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-center text-gray-400">아직 등록된 가족이 없습니다.<br>첫 번째 주인공이 되어보세요!</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const info = window.results[data.mbti];
+
+                    const el = document.createElement('div');
+                    el.className = 'intro-card';
+                    el.innerHTML = `
+                        <img src="${info.img}" style="width:50px; height:50px; border-radius:50%; background:#f0f0f0;">
+                        <div>
+                            <div style="font-weight:bold; font-size:1.1rem; color:#333;">${data.name}</div>
+                            <div style="color:var(--color-coral); font-weight:800; font-size:1.2rem;">${data.mbti}</div>
+                        </div>
+                        <div style="margin-left:auto; color:#888; font-size:0.9rem;">
+                            ${info.name.split(' ')[1] || info.name}
+                        </div>
+                    `;
+                    listEl.appendChild(el);
+                });
+            } catch (e) {
+                console.error(e);
+                listEl.innerHTML = '<p style="text-align:center; color:red;">데이터 로드 실패</p>';
+            }
+        }
+
+        // Expose to window for button click
+        window.startQuiz = function () {
+            // Generate New Quiz
+            window.quiz = window.generateQuiz();
+            window.currentQ = 0;
+            window.scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
             renderQuestion();
         }
 
+        // Quiz Logic
         function renderQuestion() {
-            const q = window.questions[window.currentQ];
+            const q = window.quiz[window.currentQ];
             document.getElementById('q-num').innerText = window.currentQ + 1;
             document.getElementById('question-text').innerText = q.t;
             document.getElementById('btn-a').innerText = q.a;
             document.getElementById('btn-b').innerText = q.b;
 
-            const pct = ((window.currentQ) / window.questions.length) * 100;
+            const pct = ((window.currentQ) / window.quiz.length) * 100;
             document.getElementById('progress-bar').style.width = pct + "%";
         }
 
-        function handleAnswer(choice) {
-            const q = window.questions[window.currentQ];
-
-            // Logic: Question has type e.g "EI". 
-            // In data.js: a -> first char (E), b -> second char (I) usually?
-            // Let's verify data structure:
-            // { id: 1, type: "EI", a: "E-like", b: "I-like" } -> Wait, data text implies mapping.
-            // Let's assume Option A corresponds to the FIRST char of type, Option B to SECOND.
-            // Ex: Type "EI", A -> E score, B -> I score.
-
-            const typeChars = q.type.split(''); // ['E', 'I']
-            if (choice === 'a') window.scores[typeChars[0]]++; // A -> First char
-            else window.scores[typeChars[1]]++; // B -> Second char
+        window.handleAnswer = function (choice) {
+            const q = window.quiz[window.currentQ];
+            const typeChars = q.type.split('');
+            if (choice === 'a') window.scores[typeChars[0]]++;
+            else window.scores[typeChars[1]]++;
 
             window.currentQ++;
-            if (window.currentQ < window.questions.length) {
+            if (window.currentQ < window.quiz.length) {
                 renderQuestion();
             } else {
                 finishQuiz();
@@ -202,18 +277,14 @@
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
 
-            // 1. Calculate Type
             let mbti = "";
             mbti += (window.scores.E >= window.scores.I) ? "E" : "I";
             mbti += (window.scores.S >= window.scores.N) ? "S" : "N";
             mbti += (window.scores.T >= window.scores.F) ? "T" : "F";
             mbti += (window.scores.J >= window.scores.P) ? "J" : "P";
 
-            // 2. Save to Firestore
             const user = window.auth.currentUser;
             const userRef = window.db.collection('mbti_results').doc(user.uid);
-
-            // Get nickname from email
             const nickname = user.email.split('@')[0];
 
             try {
@@ -226,10 +297,9 @@
                 });
             } catch (e) {
                 console.error("Save failed", e);
-                alert("결과 저장 실패 (권한 문제일 수 있음): " + e.message);
+                // Continue to show result anyway
             }
 
-            // 3. Show Result
             showResultScreen(mbti);
         }
 
@@ -239,18 +309,15 @@
 
             const info = window.results[myMbti];
 
-            // Basic Info
             document.getElementById('result-type').innerText = myMbti;
             document.getElementById('result-name').innerText = info.name;
             document.getElementById('result-desc').innerText = info.desc;
             document.getElementById('result-tips').innerText = info.tips;
             document.getElementById('result-img').src = info.img;
 
-            // Match Info
             document.getElementById('match-best').innerText = info.matches.best;
             document.getElementById('match-worst').innerText = info.matches.worst;
 
-            // 4. Load Family Results & Chart
             loadFamilyResults(myMbti);
         }
 
@@ -264,7 +331,6 @@
 
             try {
                 const snapshot = await window.db.collection('mbti_results').get();
-
                 if (snapshot.empty) {
                     listEl.innerHTML = '<p class="text-center text-gray-400">아직 다른 가족의 결과가 없네요.</p>';
                     return;
@@ -274,13 +340,12 @@
                     const data = doc.data();
                     const isMe = (window.auth.currentUser.uid === data.uid);
 
-                    if (isMe) return; // Skip me for compatibility chart
+                    if (isMe) return;
 
                     const score = window.getCompatibility(myMbti, data.mbti);
-
                     familyNames.push(data.name);
                     familyScores.push(score);
-                    familyColors.push(score >= 80 ? '#fca5a5' : (score >= 50 ? '#fbbf24' : '#93c5fd')); // Red(High), Yellow(Mid), Blue(Low)
+                    familyColors.push(score >= 80 ? '#fca5a5' : (score >= 50 ? '#fbbf24' : '#93c5fd'));
 
                     const el = document.createElement('div');
                     el.className = 'family-result-card';
@@ -301,10 +366,8 @@
                 } else {
                     listEl.innerHTML = '<p class="text-center text-gray-400">비교할 다른 가족 데이터가 없습니다.</p>';
                 }
-
             } catch (e) {
                 console.error("Load family failed", e);
-                listEl.innerHTML = '<p style="color:red">가족 정보를 불러오지 못했습니다.</p>';
             }
         }
 
