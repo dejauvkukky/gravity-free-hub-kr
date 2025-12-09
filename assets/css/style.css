@@ -1,7 +1,26 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
-/* Secret Garden Theme */
---color-primary: #2c3e50;
+:root {
+    /* Secret Garden Theme Variables */
+    --color-primary: #2c3e50;
+    /* Navy */
+    --color-accent: #ff7675;
+    /* Coral */
+    --color-secondary: #fdfbf7;
+    /* Beige */
+
+    /* Legacy & Functional mappings */
+    --color-coral: var(--color-accent);
+    --color-lemon: var(--color-secondary);
+    --color-mint: #A0E7E5;
+    /* Sub accent */
+
+    /* Global Styles */
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --bg-color: var(--color-secondary);
+    --card-bg: #ffffff;
+}
 
 body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
