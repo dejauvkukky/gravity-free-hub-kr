@@ -2,12 +2,39 @@
 // Note: firebase is loaded globally via CDN in HTML
 
 // Login Function
-const path = window.location.pathname;
-if (path.includes('/mbti/') || path.includes('/fortune/') || path.includes('/preference/')) {
-    window.location.href = '../login.html';
-} else {
-    window.location.href = 'login.html';
+async function login(email, password) {
+    try {
+        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // Save basic info to session (or local) storage for UI rendering
+        sessionStorage.setItem('user_uid', user.uid);
+        sessionStorage.setItem('user_email', user.email);
+        sessionStorage.setItem('user_name', user.email.split('@')[0]);
+
+        return { success: true, user };
+    } catch (error) {
+        console.error("Login Error:", error);
+        return { success: false, message: error.message };
+    }
 }
+
+// Helper to determine path to login based on current depth
+function gotoLogin() {
+    const path = window.location.pathname;
+    if (path.includes('/mbti/') || path.includes('/fortune/') || path.includes('/preference/')) {
+        window.location.href = '../login.html';
+    } else {
+        window.location.href = 'login.html';
+    }
+}
+
+// Helper to determine path to dashboard
+function gotoDashboard() {
+    const path = window.location.pathname;
+    if (path.includes('login.html')) {
+        window.location.href = 'dashboard.html';
+    }
 }
 
 // Logout Function
@@ -33,7 +60,7 @@ function checkAuth() {
         } else {
             // Logged in -> If on login page, go to dashboard
             if (window.location.pathname.includes('login.html')) {
-                window.location.href = 'dashboard.html';
+                gotoDashboard();
             }
         }
     });
@@ -43,5 +70,6 @@ function checkAuth() {
 window.AuthService = {
     login,
     logout,
-    checkAuth
+    checkAuth,
+    gotoDashboard
 };
