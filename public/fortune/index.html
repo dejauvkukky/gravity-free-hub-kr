@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 오늘의 운세 & 바이오리듬</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=6">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=7">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -107,18 +107,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 0 40px;
             text-align: center;
             font-size: 1.1rem;
             color: #333;
             font-weight: bold;
-            line-height: 1.4;
+            line-height: 1.5;
             z-index: 1;
-            /* Below Canvas */
+            overflow: hidden;
         }
 
         .fortune-cookie-content span {
             word-break: keep-all;
+            max-width: 100%;
         }
 
         canvas#scratchCanvas {
@@ -250,7 +251,7 @@
     </div>
 
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=6';
+        import { auth, db } from '../../src/firebase.js?v=7';
         import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
 
         // Expanded Data (20+ Items)
