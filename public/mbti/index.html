@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Family MBTI</title>
+    <title>Secret Garden MBTI</title>
     <link rel="stylesheet" href="../../assets/css/style.css?v=5">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -106,8 +106,8 @@
 <body>
     <div class="container">
         <header>
-            <a href="../dashboard.html" class="logo">← 뒤로가기</a>
-            <span>Family MBTI</span>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
+            <span>MBTI Test</span>
         </header>
 
         <!-- Loading -->
@@ -116,7 +116,7 @@
         <!-- Intro Screen -->
         <div class="p-4 flex-grow flex flex-col" id="intro-screen">
             <div class="text-center" style="margin-bottom: 30px; margin-top: 20px;">
-                <h1 style="font-size: 2rem; color: var(--color-coral); margin-bottom: 10px;">우리 가족 MBTI</h1>
+                <h1 style="font-size: 2rem; color: var(--color-coral); margin-bottom: 10px;">Secret MBTI</h1>
                 <p style="color: #666;">서로를 더 깊이 이해하는 시간 ❤️</p>
             </div>
 
@@ -202,8 +202,7 @@
             <button class="btn btn-primary mt-4" style="margin-bottom: 30px;"
                 onclick="location.href='../dashboard.html'">홈으로 돌아가기</button>
             <div style="text-align: center; color: #ccc; font-size: 0.7rem; margin-bottom: 20px;">v1.5 (Fixed Missing
-                List)
-            </div>
+                List & History Time)</div>
         </div>
     </div>
 
@@ -258,7 +257,7 @@
 
                         historySorted.forEach((rec, idx) => {
                             const date = new Date(rec.date.seconds * 1000);
-                            const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+                            const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                             const isLatest = (idx === 0);
 
                             historyHtml += `
@@ -451,7 +450,7 @@
                         html = '<ul style="list-style:none; padding:0; margin:0;">';
                         history.forEach((rec, idx) => {
                             const date = new Date(rec.date.seconds * 1000);
-                            const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+                            const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                             const isLatest = (idx === 0);
 
                             html += `

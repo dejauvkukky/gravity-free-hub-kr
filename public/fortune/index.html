@@ -4,68 +4,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Today Fortune</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
+    <title>Secret Garden - 오늘의 운세</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=5">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .fortune-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        .fortune-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .zodiac-badge {
+            background: var(--color-lemon);
+            color: #d97706;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .link-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            text-align: left;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-btn:hover {
+            background: white;
+            border-color: var(--color-coral);
+            transform: translateX(5px);
+        }
+
+        .bio-legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <a href="../dashboard.html" class="logo">← 메인</a>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
             <span>오늘의 운세</span>
         </header>
 
-        <div class="p-4 text-center" style="margin-top: 50px;">
-            <div style="font-size: 5rem; margin-bottom: 20px;">🔮</div>
+        <div id="loading" class="p-4 text-center">로딩중...</div>
 
-            <div class="card">
-                <h3 id="fortune-title" style="color: var(--color-mint);">오늘의 운세는?</h3>
-                <p id="fortune-text" style="font-size: 1.1rem; line-height: 1.6; margin-top: 20px;">
-                    운세를 확인하고 있습니다...
-                </p>
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ddd;">
-                    <strong>오늘의 행운 컬러</strong>
-                    <div id="lucky-color"
-                        style="height: 30px; width: 30px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px; border: 1px solid #ccc;">
-                    </div>
+        <div id="content" class="p-4 hidden">
+            <!-- User Selector -->
+            <div style="margin-bottom: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 10px;"
+                id="family-selector">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Birthdate Setup (If missing) -->
+            <div id="setup-section" class="fortune-card hidden">
+                <h3 class="card-title">🎂 생일 등록이 필요해요</h3>
+                <p class="card-desc" style="margin-bottom: 15px;">정확한 운세 확인을 위해 생년월일을 알려주세요.</p>
+                <div class="input-group">
+                    <input type="date" id="birthdate-input" class="input-field">
                 </div>
+                <button class="btn btn-primary" onclick="saveBirthdate()">저장하고 운세 보기</button>
+            </div>
+
+            <!-- Fortune Display -->
+            <div id="fortune-section" class="hidden">
+                <div class="text-center" style="margin-bottom: 20px;">
+                    <h2 id="user-greeting" style="font-size: 1.5rem; color: var(--color-primary); margin-bottom: 5px;">
+                        안녕하세요!</h2>
+                    <p id="today-date" style="color: #666; font-size: 0.9rem;"></p>
+                </div>
+
+                <!-- Zodiac Info -->
+                <div class="fortune-card">
+                    <div class="fortune-header">
+                        <span class="card-title" style="margin:0;">🌠 별자리 & 띠</span>
+                        <span id="zodiac-text" class="zodiac-badge">물병자리 / 용띠</span>
+                    </div>
+                    <p style="color: #555; line-height: 1.5; font-size: 0.95rem;">
+                        오늘의 기운을 확인해보세요.
+                    </p>
+                </div>
+
+                <!-- Biorhythm -->
+                <div class="fortune-card">
+                    <h3 class="card-title">🧬 오늘의 바이오리듬</h3>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="bioChart"></canvas>
+                    </div>
+                    <div class="bio-legend">
+                        <div class="legend-item"><span class="dot" style="background:#22c55e"></span>신체</div>
+                        <div class="legend-item"><span class="dot" style="background:#ef4444"></span>감성</div>
+                        <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지성</div>
+                    </div>
+                    <p id="bio-comment"
+                        style="margin-top: 15px; font-size: 0.9rem; color: #555; text-align: center; background: #f0fdf4; padding: 10px; border-radius: 8px;">
+                        컨디션 분석 중...
+                    </p>
+                </div>
+
+                <!-- External Links -->
+                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: #333;">🔮 자세한 운세 보러가기</h3>
+
+                <a href="https://m.search.naver.com/search.naver?query=오늘의운세" target="_blank" class="link-btn">
+                    <span>네이버 오늘의 운세</span>
+                    <span style="color:#ccc">Example ></span>
+                </a>
+                <a href="https://m.search.daum.net/search?w=tot&q=오늘의운세" target="_blank" class="link-btn">
+                    <span>다음 운세</span>
+                    <span style="color:#ccc">Go ></span>
+                </a>
+                <a href="https://shinhan.haezone.com/inSaju.asp?bType=A104" target="_blank" class="link-btn">
+                    <span>신한생명 무료운세</span>
+                    <span style="color:#ccc">Go ></span>
+                </a>
             </div>
         </div>
     </div>
 
-    <script>
-        // Fortune Logic (Daily Fixed Random)
-        const fortunes = [
-            "기분 좋은 일이 생길 거예요. 웃음으로 시작해보세요!",
-            "약간의 휴식이 필요한 날입니다. 따뜻한 차 한 잔 어때요?",
-            "가족과 대화하기 딱 좋은 날입니다. 저녁 식사를 함께하세요.",
-            "작은 행운이 따르는 날입니다. 복권을 사봐도 좋을지도?",
-            "계획했던 일이 술술 풀리는 날입니다. 자신감을 가지세요!"
-        ];
-        const colors = ["#FFDBDA", "#A0E7E5", "#FBE7C6", "#B4F8C8", "#D4F0F0"];
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js';
+        import { getZodiac, getChineseZodiac } from '../../src/users.js';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toDateString(); // "Wed Dec 09 2025"
-            // Use session user or generic key
-            const storageKey = `fortune_${today}`;
+        let currentUserData = null;
+        let bioChart = null;
 
-            let data = localStorage.getItem(storageKey);
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                location.href = '../login.html';
+            } else {
+                initFortune(user);
+            }
+        });
 
-            if (!data) {
-                // Generate New
-                const randIdx = Math.floor(Math.random() * fortunes.length);
-                const randCol = Math.floor(Math.random() * colors.length);
-                data = JSON.stringify({
-                    text: fortunes[randIdx],
-                    color: colors[randCol]
+        async function initFortune(user) {
+            document.getElementById('loading').classList.remove('hidden');
+            const today = new Date();
+            document.getElementById('today-date').innerText = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+
+            // Load Family List
+            try {
+                const snapshot = await db.collection('mbti_results').get();
+                const selector = document.getElementById('family-selector');
+
+                let myData = null;
+                const members = [];
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.uid = doc.id; // Store Doc ID
+                    members.push(data);
+
+                    const btn = document.createElement('button');
+                    btn.innerText = data.name;
+                    btn.style.cssText = `
+                        padding: 8px 16px; 
+                        border-radius: 20px; 
+                        border: 1px solid #eee; 
+                        background: white; 
+                        margin-right: 8px; 
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        transition: all 0.2s;
+                    `;
+                    btn.onclick = () => selectMember(data, btn);
+                    selector.appendChild(btn);
+
+                    if (user.uid === data.uid) {
+                        myData = data;
+                        btn.click(); // Select self by default
+                    }
                 });
-                localStorage.setItem(storageKey, data);
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+
+                if (!myData && members.length > 0) {
+                    // If I am not in the list (rare), select first
+                    selector.children[0].click();
+                }
+
+            } catch (e) {
+                console.error(e);
+                alert('데이터를 불러오는데 실패했습니다.');
+            }
+        }
+
+        window.selectMember = function (data, btnElement) {
+            // Update UI Selection
+            const buttons = document.getElementById('family-selector').children;
+            for (let btn of buttons) {
+                btn.style.background = 'white';
+                btn.style.color = '#333';
+                btn.style.borderColor = '#eee';
+            }
+            btnElement.style.background = 'var(--color-primary)';
+            btnElement.style.color = 'white';
+            btnElement.style.borderColor = 'var(--color-primary)';
+
+            currentUserData = data;
+            document.getElementById('user-greeting').innerText = `${data.name}님의 오늘 운세`;
+
+            if (data.birthdate) {
+                document.getElementById('setup-section').classList.add('hidden');
+                document.getElementById('fortune-section').classList.remove('hidden');
+                renderFortune(data.birthdate);
+            } else {
+                document.getElementById('setup-section').classList.remove('hidden');
+                document.getElementById('fortune-section').classList.add('hidden');
+                document.getElementById('birthdate-input').value = '';
+            }
+        }
+
+        window.saveBirthdate = async function () {
+            const date = document.getElementById('birthdate-input').value;
+            if (!date) return alert('생년월일을 입력해주세요.');
+
+            try {
+                await db.collection('mbti_results').doc(currentUserData.uid).update({
+                    birthdate: date
+                });
+                currentUserData.birthdate = date; // Update local
+
+                document.getElementById('setup-section').classList.add('hidden');
+                document.getElementById('fortune-section').classList.remove('hidden');
+                renderFortune(date);
+            } catch (e) {
+                console.error(e);
+                alert('저장에 실패했습니다.');
+            }
+        }
+
+        function renderFortune(birthdateStr) {
+            // Zodiac
+            const z1 = getZodiac(birthdateStr);
+            const z2 = getChineseZodiac(birthdateStr);
+            document.getElementById('zodiac-text').innerText = `${z1} / ${z2}`;
+
+            // Search Link Update
+            // Can update href with more specific query if needed, e.g. "물병자리 운세"
+
+            // Biorhythm
+            drawBiorhythm(birthdateStr);
+        }
+
+        function drawBiorhythm(birthdateStr) {
+            const birth = new Date(birthdateStr);
+            const today = new Date();
+            const labels = [];
+            const dataPhys = [];
+            const dataEmo = [];
+            const dataIntel = [];
+
+            // Show +/- 7 days
+            for (let i = -3; i <= 3; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() + i);
+
+                const diffTime = d - birth;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+
+                // Formulas: sin(2pi*t / P)
+                // P: Phys=23, Emo=28, Intel=33
+                dataPhys.push(Math.sin(2 * Math.PI * diffDays / 23) * 100);
+                dataEmo.push(Math.sin(2 * Math.PI * diffDays / 28) * 100);
+                dataIntel.push(Math.sin(2 * Math.PI * diffDays / 33) * 100);
             }
 
-            const parsed = JSON.parse(data);
-            document.getElementById('fortune-text').innerText = parsed.text;
-            document.getElementById('lucky-color').style.backgroundColor = parsed.color;
-        });
+            const ctx = document.getElementById('bioChart').getContext('2d');
+            if (bioChart) bioChart.destroy();
+
+            bioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: '신체', data: dataPhys, borderColor: '#22c55e', tension: 0.4, pointRadius: 3 },
+                        { label: '감성', data: dataEmo, borderColor: '#ef4444', tension: 0.4, pointRadius: 3 },
+                        { label: '지성', data: dataIntel, borderColor: '#3b82f6', tension: 0.4, pointRadius: 3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: -100, max: 100, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Comment
+            // Analyzing center value (today, index 3)
+            const p = dataPhys[3];
+            const e = dataEmo[3];
+            const i = dataIntel[3];
+            const avg = (p + e + i) / 3;
+
+            let comment = "오늘은 ";
+            if (avg > 50) comment += "컨디션이 최상이에요! 🤩 무언가 새로 시작하기 좋은 날입니다.";
+            else if (avg > 0) comment += "전반적으로 무난한 하루에요. 😊 평온하게 보내세요.";
+            else if (avg > -50) comment += "조금 처질 수 있어요. ☕ 따뜻한 차 한 잔으로 여유를 가지세요.";
+            else comment += "에너지 충전이 필요해요. 🔋 무리하지 말고 푹 쉬는 게 좋겠어요.";
+
+            document.getElementById('bio-comment').innerText = comment;
+        }
     </script>
 </body>
 

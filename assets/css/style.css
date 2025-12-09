@@ -1,18 +1,7 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
-:root {
-    /* Color Palette */
-    --color-mint: #A0E7E5;
-    --color-coral: #FFAEBC;
-    --color-lemon: #FBE7C6;
-    --color-lavender: #B4F8C8;
-
-    --text-primary: #333333;
-    --text-secondary: #666666;
-
-    --bg-color: #F9FAFB;
-    --card-bg: #FFFFFF;
-}
+/* Secret Garden Theme */
+--color-primary: #2c3e50;
 
 body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
@@ -40,21 +29,25 @@ body {
 /* Header */
 header {
     padding: 20px;
-    background-color: var(--card-bg);
+    background-color: var(--color-primary);
+    /* Navy Header */
     position: sticky;
     top: 0;
     z-index: 10;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: white;
 }
 
 .logo {
     font-size: 1.2rem;
     font-weight: 800;
-    color: var(--color-coral);
+    color: #fff;
+    /* White Text */
     text-decoration: none;
+    letter-spacing: -0.5px;
 }
 
 /* Card UI */
@@ -98,13 +91,15 @@ header {
 }
 
 .btn-primary {
-    background-color: var(--color-coral);
+    background-color: var(--color-primary);
+    /* Navy Button */
     color: white;
 }
 
 .btn-mint {
-    background-color: var(--color-mint);
-    color: #333;
+    background-color: var(--color-accent);
+    /* Coral Button */
+    color: white;
 }
 
 .btn:hover {
