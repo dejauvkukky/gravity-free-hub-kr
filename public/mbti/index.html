@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family MBTI</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=3">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=5">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -201,14 +201,15 @@
 
             <button class="btn btn-primary mt-4" style="margin-bottom: 30px;"
                 onclick="location.href='../dashboard.html'">홈으로 돌아가기</button>
-            <div style="text-align: center; color: #ccc; font-size: 0.7rem; margin-bottom: 20px;">v1.1 updated</div>
+            <div style="text-align: center; color: #ccc; font-size: 0.7rem; margin-bottom: 20px;">v1.3 (History Fixed)
+            </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script type="module">
         import { auth, db } from '../../src/firebase.js';
-        import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=3';
+        import { results, getCompatibility, generateQuiz, questions } from '../../src/mbti_data.js?v=6';
 
         // Globals
         window.questions = questions; // Fallback or use generated
@@ -247,15 +248,28 @@
                     const info = window.results[data.mbti];
 
                     const el = document.createElement('div');
-                    el.className = 'intro-card';
+                    // Style as clickable result card
+                    el.className = 'family-result-card';
+                    el.onclick = function () {
+                        this.classList.toggle('expanded');
+                    }
+
                     el.innerHTML = `
-                        <img src="${info.img}" style="width:50px; height:50px; border-radius:50%; background:#f0f0f0;">
-                        <div>
-                            <div style="font-weight:bold; font-size:1.1rem; color:#333;">${data.name}</div>
-                            <div style="color:var(--color-coral); font-weight:800; font-size:1.2rem;">${data.mbti}</div>
+                        <div class="family-result-header" style="justify-content: flex-start; gap: 15px;">
+                            <img src="${info.img}" style="width:50px; height:50px; border-radius:50%; background:#f0f0f0;">
+                            <div>
+                                <div style="font-weight:bold; font-size:1.1rem; color:#333;">
+                                    ${data.name} <span style="color:var(--color-coral); margin-left:5px;">${data.mbti}</span>
+                                </div>
+                                <div style="color:#888; font-size:0.9rem;">
+                                    ${info.name}
+                                </div>
+                            </div>
+                            <div style="margin-left:auto; color:#ccc; font-size:1.2rem;">⌄</div>
                         </div>
-                        <div style="margin-left:auto; color:#888; font-size:0.9rem;">
-                            ${info.name.split(' ')[1] || info.name}
+                        <div class="family-detail">
+                            <p>${info.desc}</p>
+                            <p style="margin-top:8px; color:#15803d; background:#f0fdf4; padding:8px; border-radius:4px;">💡 팁: ${info.tips}</p>
                         </div>
                     `;
                     listEl.appendChild(el);
@@ -323,23 +337,29 @@
                 nickname = user.email.split('@')[0];
             }
 
+            const timestamp = new Date();
+            const newRecord = { mbti: mbti, date: timestamp };
+
             try {
+                // Use arrayUnion to append history
+                // We use global 'firebase' object from CDN
                 await userRef.set({
                     uid: user.uid,
                     email: user.email,
                     name: nickname,
-                    mbti: mbti,
-                    timestamp: new Date()
-                });
+                    mbti: mbti, // Latest
+                    timestamp: timestamp,
+                    history: window.firebase.firestore.FieldValue.arrayUnion(newRecord)
+                }, { merge: true });
             } catch (e) {
                 console.error("Save failed", e);
-                // Continue to show result anyway
             }
 
-            showResultScreen(mbti);
+            // Pass mbti and userRef to show history
+            showResultScreen(mbti, user.uid);
         }
 
-        async function showResultScreen(myMbti) {
+        async function showResultScreen(myMbti, uid) {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
 
@@ -354,7 +374,66 @@
             document.getElementById('match-best').innerText = info.matches.best;
             document.getElementById('match-worst').innerText = info.matches.worst;
 
+            // Render History
+            if (uid) {
+                renderHistory(uid);
+            }
+
             loadFamilyResults(myMbti);
+        }
+
+        async function renderHistory(uid) {
+            const historyEl = document.getElementById('history-section');
+            if (!historyEl) {
+                // Create container if not exists (insert before family chart)
+                const container = document.createElement('div');
+                container.id = 'history-section';
+                container.style.marginBottom = '30px';
+                container.innerHTML = '<h3 style="font-size: 1.2rem; margin-bottom: 16px;">📜 나의 MBTI 변천사</h3><div id="history-list" class="card" style="padding: 15px;"></div>';
+
+                const target = document.querySelector('hr'); // Insert above HR
+                target.parentNode.insertBefore(container, target);
+            }
+
+            const listEl = document.getElementById('history-list');
+            listEl.innerHTML = '불러오는 중...';
+
+            try {
+                const doc = await window.db.collection('mbti_results').doc(uid).get();
+                if (doc.exists && doc.data().history) {
+                    const history = doc.data().history;
+                    // Sort by date desc
+                    history.sort((a, b) => b.date.seconds - a.date.seconds);
+
+                    let html = '';
+                    if (history.length === 0) {
+                        html = '<p style="color:#999;">기록된 이력이 없습니다.</p>';
+                    } else {
+                        html = '<ul style="list-style:none; padding:0; margin:0;">';
+                        history.forEach((rec, idx) => {
+                            const date = new Date(rec.date.seconds * 1000);
+                            const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+                            const isLatest = (idx === 0);
+
+                            html += `
+                                <li style="display:flex; justify-content:space-between; padding: 10px 0; border-bottom: 1px dashed #eee; align-items:center;">
+                                    <span style="color:#666; font-size:0.9rem;">${dateStr}</span>
+                                    <span style="font-weight:bold; color:${isLatest ? 'var(--color-coral)' : '#333'};">
+                                        ${rec.mbti} ${isLatest ? '<span style="font-size:0.7rem; background:var(--color-coral); color:white; padding:2px 6px; border-radius:10px; margin-left:5px;">현재</span>' : ''}
+                                    </span>
+                                </li>
+                            `;
+                        });
+                        html += '</ul>';
+                    }
+                    listEl.innerHTML = html;
+                } else {
+                    listEl.innerHTML = '<p style="color:#999;">첫 검사시네요! 데이터가 쌓이면 이곳에 이력이 표시됩니다.</p>';
+                }
+            } catch (e) {
+                console.error("History load failed", e);
+                listEl.innerHTML = ''; // Hide on error
+            }
         }
 
         async function loadFamilyResults(myMbti) {
