@@ -19,7 +19,7 @@
         .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            /* padding: 20px; Removed for full-width header */
             box-sizing: border-box;
         }
 
@@ -389,54 +389,59 @@
             <span>🎵 Sound Garden</span>
         </header>
 
-        <!-- ADMIN PANEL -->
-        <div id="admin-panel" class="admin-panel">
-            <h3>🎵 음악 등록 (Admin)</h3>
-            <form onsubmit="submitMusicInline(event)" class="admin-form">
-                <input type="text" id="in-url" placeholder="유튜브 링크 (URL 붙여넣기)" required>
-                <input type="text" id="in-title" placeholder="제목" required>
-                <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)">
-                <input list="cat-options" id="in-cat" placeholder="이모지 + 카테고리 (예: 🚗 드라이브)">
-                <datalist id="cat-options">
-                    <option value="🚗 드라이브">
-                    <option value="💪 운동">
-                    <option value="🧘 힐링">
-                    <option value="☔ 비오는날">
-                    <option value="🎆 신나는">
-                    <option value="🕰 추억의노래">
-                </datalist>
-                <button type="submit">등록하기</button>
-            </form>
-        </div>
+        <div class="content-body" style="padding: 20px;">
 
-        <!-- Featured Section (Renamed) -->
-        <div class="featured-section">
-            <div class="featured-title">🔥 Fresh Picks <span
-                    style="font-size:0.9rem; color:#94a3b8; font-weight:normal;">(따끈따끈 신곡)</span></div>
-            <div class="featured-scroll" id="featured-list"></div>
-        </div>
-
-        <!-- Filter & Action Row -->
-        <div
-            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
-            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;"></div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <select id="sort-select" onchange="changeSort()"
-                    style="padding:10px; border-radius:12px; border:1px solid #cbd5e1; font-size:0.9rem; background:white; color:#334155; font-weight:500;">
-                    <option value="new">최신순</option>
-                    <option value="old">오래된순</option>
-                    <option value="name">이름순</option>
-                </select>
+            <!-- ADMIN PANEL -->
+            <div id="admin-panel" class="admin-panel">
+                <h3>🎵 음악 등록 (Admin)</h3>
+                <form onsubmit="submitMusicInline(event)" class="admin-form">
+                    <input type="text" id="in-url" placeholder="유튜브 링크 (URL 붙여넣기)" required>
+                    <input type="text" id="in-title" placeholder="제목" required>
+                    <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)">
+                    <input list="cat-options" id="in-cat" placeholder="이모지 + 카테고리 (예: 🚗 드라이브)">
+                    <datalist id="cat-options">
+                        <option value="🚗 드라이브">
+                        <option value="💪 운동">
+                        <option value="🧘 힐링">
+                        <option value="☔ 비오는날">
+                        <option value="🎆 신나는">
+                        <option value="🕰 추억의노래">
+                    </datalist>
+                    <button type="submit">등록하기</button>
+                </form>
             </div>
-        </div>
 
-        <!-- Music List -->
-        <div class="music-list" id="music-list">
-            <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
-        </div>
+            <!-- Featured Section (Renamed) -->
+            <div class="featured-section">
+                <div class="featured-title">🔥 Fresh Picks <span
+                        style="font-size:0.9rem; color:#94a3b8; font-weight:normal;">(따끈따끈 신곡)</span></div>
+                <div class="featured-scroll" id="featured-list"></div>
+            </div>
 
-        <!-- Load More -->
-        <button id="load-more-btn" class="load-more-btn" onclick="loadMore()" style="display:none;">더 보기 (+10)</button>
+            <!-- Filter & Action Row -->
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;">
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <select id="sort-select" onchange="changeSort()"
+                        style="padding:10px; border-radius:12px; border:1px solid #cbd5e1; font-size:0.9rem; background:white; color:#334155; font-weight:500;">
+                        <option value="new">최신순</option>
+                        <option value="old">오래된순</option>
+                        <option value="name">이름순</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Music List -->
+            <div class="music-list" id="music-list">
+                <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
+            </div>
+
+            <!-- Load More -->
+            <button id="load-more-btn" class="load-more-btn" onclick="loadMore()" style="display:none;">더 보기
+                (+10)</button>
+        </div> <!-- End content-body -->
     </div>
 
     <!-- Player Overlay -->
