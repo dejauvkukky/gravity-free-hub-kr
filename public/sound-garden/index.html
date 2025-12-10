@@ -5,12 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=18">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=19">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         /* Layout */
+        .container-Override {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
         .featured-section {
             margin-bottom: 25px;
         }
@@ -25,15 +32,13 @@
         .featured-scroll {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 15px;
         }
 
         @media (max-width: 600px) {
             .featured-scroll {
                 grid-template-columns: 1fr;
             }
-
-            /* Mobile: Stack */
         }
 
         /* Video Card */
@@ -79,11 +84,11 @@
         }
 
         .v-info {
-            padding: 10px;
+            padding: 12px;
         }
 
         .v-title {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: bold;
             margin-bottom: 4px;
             overflow: hidden;
@@ -92,7 +97,7 @@
         }
 
         .v-desc {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #666;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -117,9 +122,9 @@
         .cat-btn {
             background: white;
             border: 1px solid #ddd;
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #555;
             white-space: nowrap;
             cursor: pointer;
@@ -131,29 +136,35 @@
             background: var(--color-primary);
             color: white;
             border-color: var(--color-primary);
+            font-weight: bold;
         }
 
         /* List Area */
         .music-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         .music-item {
             background: white;
             border-radius: 12px;
-            padding: 12px;
+            padding: 15px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .music-item:active {
+            transform: scale(0.99);
         }
 
         .music-thumb-mini {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 8px;
             object-fit: cover;
             flex-shrink: 0;
@@ -165,16 +176,18 @@
         }
 
         .m-title {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            color: #333;
         }
 
         .m-meta {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #888;
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
         /* Modal for Player */
@@ -184,7 +197,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 2000;
             display: none;
             flex-direction: column;
@@ -225,62 +238,45 @@
         .comment-section {
             background: #f9f9f9;
             flex-grow: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
             margin-top: -10px;
             position: relative;
         }
 
         .comment-list {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .comment-bubble {
             background: white;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 12px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .reaction-bar {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
         }
 
         .react-btn {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             background: none;
             border: none;
             cursor: pointer;
-            margin: 0 5px;
+            margin: 0 8px;
             transition: transform 0.1s;
         }
 
         .react-btn:active {
             transform: scale(1.3);
-        }
-
-        /* Admin Add Button */
-        .fab-add {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--color-primary);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            z-index: 9999;
         }
 
         /* Write Modal */
@@ -290,11 +286,11 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
-            border-radius: 16px;
+            padding: 25px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 350px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
             z-index: 2001;
             display: none;
         }
@@ -302,10 +298,19 @@
 </head>
 
 <body>
-    <div class="container" style="padding-bottom: 80px;">
-        <header>
-            <a href="../dashboard.html" class="logo">← Secret Garden</a>
-            <span>🎵 Sound Garden</span>
+    <div class="container-Override">
+        <!-- Header with Admin Button -->
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <a href="../dashboard.html" class="logo"
+                    style="text-decoration:none; color:#333; font-size:1.5rem;">←</a>
+                <span style="font-size:1.3rem; font-weight:bold; color:#1e293b;">🎵 Sound Garden</span>
+            </div>
+
+            <button id="admin-add-btn" onclick="openWriteModal()"
+                style="display:none; background:var(--color-primary); color:white; border:none; border-radius:12px; padding:8px 16px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.15); transition:transform 0.1s;">
+                + 등록
+            </button>
         </header>
 
         <!-- Featured (Top 3) -->
@@ -317,12 +322,12 @@
         </div>
 
         <!-- Categories & Sort -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap: 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap: 10px;">
             <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;">
                 <!-- JS Generated -->
             </div>
             <select id="sort-select" onchange="changeSort()"
-                style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size:0.85rem; background:white; flex-shrink: 0;">
+                style="padding:8px; border-radius:12px; border:1px solid #ddd; font-size:0.9rem; background:white; flex-shrink: 0; color:#555;">
                 <option value="new">최신순</option>
                 <option value="old">오래된순</option>
                 <option value="name">이름순</option>
@@ -331,11 +336,8 @@
 
         <!-- Music List -->
         <div class="music-list" id="music-list">
-            <div style="text-align:center; padding: 20px; color:#999;">로딩중...</div>
+            <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
         </div>
-
-        <!-- Admin Add Button -->
-        <div id="admin-fab" class="fab-add" style="display:none;" onclick="openWriteModal()">+</div>
     </div>
 
     <!-- Player Overlay -->
@@ -343,37 +345,40 @@
         <div class="player-container">
             <div class="player-header">
                 <span id="player-title"
-                    style="font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:80%;">Title</span>
-                <button onclick="closePlayer()" style="background:none; border:none; color:white; font-size:1.2rem;">✕
-                    닫기</button>
+                    style="font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:80%; font-size:1.1rem;">Title</span>
+                <button onclick="closePlayer()"
+                    style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">✕ 닫기</button>
             </div>
             <div class="video-box">
                 <div id="youtube-embed-container"></div>
             </div>
             <div class="comment-section">
                 <!-- Info -->
-                <div style="margin-bottom:15px;">
-                    <h3 id="info-title" style="margin:0 0 5px 0; font-size:1.1rem;">Title</h3>
-                    <p id="info-desc" style="margin:0; font-size:0.9rem; color:#666;">Description</p>
+                <div style="margin-bottom:20px; text-align:center;">
+                    <h3 id="info-title" style="margin:0 0 5px 0; font-size:1.2rem; color:#333;">Title</h3>
+                    <p id="info-desc"
+                        style="margin:0; font-size:0.9rem; color:#666; background:#eee; display:inline-block; padding:4px 8px; border-radius:8px;">
+                        Description</p>
                 </div>
                 <!-- Reactions -->
                 <div class="reaction-bar">
                     <button class="react-btn" onclick="addReaction('❤️')">❤️ <span id="count-heart"
-                            style="font-size:0.8rem; color:#666;">0</span></button>
+                            style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
                     <button class="react-btn" onclick="addReaction('🔥')">🔥 <span id="count-fire"
-                            style="font-size:0.8rem; color:#666;">0</span></button>
+                            style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
                     <button class="react-btn" onclick="addReaction('👏')">👏 <span id="count-clap"
-                            style="font-size:0.8rem; color:#666;">0</span></button>
+                            style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
                 </div>
                 <!-- Comments -->
-                <div style="font-size:0.9rem; font-weight:bold; margin-bottom:10px;">댓글</div>
+                <div style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333;">💬 댓글</div>
                 <div id="comment-list" class="comment-list"></div>
 
                 <!-- Comment Form -->
-                <form onsubmit="postComment(event)" style="display:flex; gap:8px;">
-                    <input type="text" id="comment-input" class="input-field" placeholder="댓글 남기기..."
-                        style="margin:0; padding:10px;">
-                    <button type="submit" class="btn btn-primary" style="width:auto; white-space:nowrap;">전송</button>
+                <form onsubmit="postComment(event)" style="display:flex; gap:10px;">
+                    <input type="text" id="comment-input" class="input-field" placeholder="댓글을 남겨보세요!"
+                        style="margin:0; padding:12px; border-radius:12px;">
+                    <button type="submit" class="btn btn-primary"
+                        style="width:auto; white-space:nowrap; border-radius:12px; padding:0 20px;">전송</button>
                 </form>
             </div>
         </div>
@@ -382,15 +387,16 @@
     <!-- Write Modal (Admin Only) -->
     <div id="write-overlay" class="modal-overlay" style="z-index: 2001; display: none;">
         <div class="write-modal">
-            <h3 style="margin-top:0;">🎵 음악 등록</h3>
+            <h3 style="margin-top:0; color:#333; margin-bottom:20px;">🎵 음악 등록</h3>
             <form onsubmit="submitMusic(event)">
-                <input type="text" id="in-url" class="input-field" placeholder="유튜브 링크 (URL)" required>
-                <input type="text" id="in-title" class="input-field" placeholder="제목" required>
-                <input type="text" id="in-desc" class="input-field" placeholder="짧은 설명 (가수명 등)">
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:0.8rem; color:#666">카테고리 (직접 입력 가능)</label>
-                    <input list="cat-options" id="in-cat" class="input-field" style="margin-top:5px;"
-                        placeholder="카테고리 입력 또는 선택">
+                <input type="text" id="in-url" class="input-field" placeholder="유튜브 링크 (URL 붙여넣기)" required
+                    style="padding:12px;">
+                <input type="text" id="in-title" class="input-field" placeholder="제목" required style="padding:12px;">
+                <input type="text" id="in-desc" class="input-field" placeholder="짧은 설명 (가수명 등)" style="padding:12px;">
+                <div style="margin-bottom:20px;">
+                    <label style="font-size:0.85rem; color:#666; margin-bottom:5px; display:block;">카테고리</label>
+                    <input list="cat-options" id="in-cat" class="input-field" style="margin-top:0; padding:12px;"
+                        placeholder="카테고리 선택 또는 입력">
                     <datalist id="cat-options">
                         <option value="🚗 드라이브">
                         <option value="💪 운동">
@@ -402,8 +408,8 @@
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button type="button" class="btn" onclick="closeWriteModal()"
-                        style="background:#eee; color:#555;">취소</button>
-                    <button type="submit" class="btn btn-primary">등록</button>
+                        style="background:#f1f5f9; color:#64748b; flex:1;">취소</button>
+                    <button type="submit" class="btn btn-primary" style="flex:2;">등록하기</button>
                 </div>
             </form>
         </div>
@@ -411,7 +417,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=18';
+        import { auth, db } from '../../src/firebase.js?v=19';
         const COLLECTION = 'sound_garden_posts';
 
         let allPosts = [];
@@ -429,7 +435,10 @@
                 currentUser = user;
                 isAdmin = (user.email === 'kukky@family.com');
 
-                if (isAdmin) document.getElementById('admin-fab').style.display = 'flex';
+                if (isAdmin) {
+                    const btn = document.getElementById('admin-add-btn');
+                    if (btn) btn.style.display = 'block';
+                }
 
                 loadPosts();
             }
@@ -532,7 +541,7 @@
                             <span>${post.description}</span>
                         </div>
                     </div>
-                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none;">✕</button>` : ''}
+                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none; padding:10px;">✕</button>` : ''}
                 </div>
             `).join('');
         }
@@ -636,7 +645,9 @@
         }
 
         // --- Admin Functions ---
-        window.openWriteModal = () => document.getElementById('write-overlay').style.display = 'flex';
+        window.openWriteModal = () => {
+            document.getElementById('write-overlay').style.display = 'flex';
+        }
         window.closeWriteModal = () => document.getElementById('write-overlay').style.display = 'none';
 
         window.submitMusic = async function (e) {
@@ -663,7 +674,7 @@
                     hearts: 0, fires: 0, claps: 0
                 });
                 closeWriteModal();
-                loadPosts();
+                loadPosts(); // Reload to see new
             } catch (err) { alert(err.message); }
         }
 
