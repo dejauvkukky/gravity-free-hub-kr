@@ -316,15 +316,17 @@
             </div>
         </div>
 
-        <!-- Categories -->
-        <div class="category-scroll" id="category-list">
-            <button class="cat-btn active" onclick="filterCat('all')">전체</button>
-            <button class="cat-btn" onclick="filterCat('🚗 드라이브')">🚗 드라이브</button>
-            <button class="cat-btn" onclick="filterCat('💪 운동')">💪 운동</button>
-            <button class="cat-btn" onclick="filterCat('🧘 힐링')">🧘 힐링</button>
-            <button class="cat-btn" onclick="filterCat('☔ 비오는날')">☔ 비오는날</button>
-            <button class="cat-btn" onclick="filterCat('🎆 신나는')">🎆 신나는</button>
-            <button class="cat-btn" onclick="filterCat('🕰 추억의노래')">🕰 추억의노래</button>
+        <!-- Categories & Sort -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; margin-right:10px;">
+                <!-- JS Generated -->
+            </div>
+            <select id="sort-select" onchange="changeSort()"
+                style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size:0.85rem; background:white;">
+                <option value="new">최신순</option>
+                <option value="old">오래된순</option>
+                <option value="name">이름순</option>
+            </select>
         </div>
 
         <!-- Music List -->
@@ -378,23 +380,25 @@
     </div>
 
     <!-- Write Modal (Admin Only) -->
-    <div id="write-overlay" class="modal-overlay" style="z-index: 2001;">
-        <div class="write-modal" style="display:block;">
+    <div id="write-overlay" class="modal-overlay" style="z-index: 2001; display: none;">
+        <div class="write-modal">
             <h3 style="margin-top:0;">🎵 음악 등록</h3>
             <form onsubmit="submitMusic(event)">
                 <input type="text" id="in-url" class="input-field" placeholder="유튜브 링크 (URL)" required>
                 <input type="text" id="in-title" class="input-field" placeholder="제목" required>
                 <input type="text" id="in-desc" class="input-field" placeholder="짧은 설명 (가수명 등)">
                 <div style="margin-bottom:15px;">
-                    <label style="font-size:0.8rem; color:#666">카테고리</label>
-                    <select id="in-cat" class="input-field" style="margin-top:5px;">
-                        <option>🚗 드라이브</option>
-                        <option>💪 운동</option>
-                        <option>🧘 힐링</option>
-                        <option>☔ 비오는날</option>
-                        <option>🎆 신나는</option>
-                        <option>🕰 추억의노래</option>
-                    </select>
+                    <label style="font-size:0.8rem; color:#666">카테고리 (직접 입력 가능)</label>
+                    <input list="cat-options" id="in-cat" class="input-field" style="margin-top:5px;"
+                        placeholder="카테고리 입력 또는 선택">
+                    <datalist id="cat-options">
+                        <option value="🚗 드라이브">
+                        <option value="💪 운동">
+                        <option value="🧘 힐링">
+                        <option value="☔ 비오는날">
+                        <option value="🎆 신나는">
+                        <option value="🕰 추억의노래">
+                    </datalist>
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button type="button" class="btn" onclick="closeWriteModal()"
@@ -412,6 +416,7 @@
 
         let allPosts = [];
         let currentCat = 'all';
+        let sortMode = 'new';
         let currentUser = null;
         let isAdmin = false;
         let currentPlayingId = null;
@@ -443,6 +448,7 @@
 
         function renderAll() {
             renderFeatured();
+            renderCategories(); // Dynamic
             renderList();
         }
 
@@ -470,22 +476,46 @@
             `).join('');
         }
 
+        // Generate Category Buttons
+        function renderCategories() {
+            const defaultCats = ['all', '🚗 드라이브', '💪 운동', '🧘 힐링', '☔ 비오는날'];
+            const usedCats = new Set(allPosts.map(p => p.category).filter(Boolean));
+            // Merge
+            const merged = new Set([...defaultCats, ...usedCats]);
+
+            const container = document.getElementById('category-list');
+            container.innerHTML = Array.from(merged).map(cat => {
+                const label = cat === 'all' ? '전체' : cat;
+                const isActive = (cat === currentCat) ? 'active' : '';
+                return `<button class="cat-btn ${isActive}" onclick="filterCat('${cat}')">${label}</button>`;
+            }).join('');
+        }
+
         window.filterCat = function (cat) {
             currentCat = cat;
-            // Update buttons
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                if (btn.innerText.includes(cat) || (cat === 'all' && btn.innerText === '전체')) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
+            renderCategories(); // Re-render to update active state
             renderList();
         }
 
-        function renderList() {
+        window.renderList = function () {
             const listEl = document.getElementById('music-list');
-            let filtered = allPosts;
+            let filtered = allPosts.slice(); // Copy
+
+            // Filter
             if (currentCat !== 'all') {
-                filtered = allPosts.filter(p => p.category === currentCat);
+                filtered = filtered.filter(p => p.category === currentCat);
             }
+
+            // Sort
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.createdAt);
+                const dateB = new Date(b.createdAt);
+
+                if (sortMode === 'new') return dateB - dateA;
+                if (sortMode === 'old') return dateA - dateB;
+                if (sortMode === 'name') return a.title.localeCompare(b.title);
+                return 0;
+            });
 
             if (filtered.length === 0) {
                 listEl.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">해당 카테고리의 음악이 없습니다 🥲</div>';
@@ -506,6 +536,11 @@
                     ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none;">✕</button>` : ''}
                 </div>
             `).join('');
+        }
+
+        window.changeSort = function () {
+            sortMode = document.getElementById('sort-select').value;
+            renderList();
         }
 
         // --- Player ---
