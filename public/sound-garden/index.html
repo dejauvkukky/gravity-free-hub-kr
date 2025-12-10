@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=21">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=22">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -297,20 +297,13 @@
         <!-- Featured Section -->
         <div class="featured-section">
             <div class="featured-title">✨ Featured Music</div>
-            <div class="featured-scroll" id="featured-list">
-                <!-- JS Generated -->
-            </div>
+            <div class="featured-scroll" id="featured-list"></div>
         </div>
 
         <!-- Filter & Action Row -->
         <div
             style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-            <!-- Categories -->
-            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;">
-                <!-- JS Generated -->
-            </div>
-
-            <!-- Controls -->
+            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;"></div>
             <div style="display:flex; gap:10px; align-items:center;">
                 <select id="sort-select" onchange="changeSort()"
                     style="padding:8px; border-radius:12px; border:1px solid #ddd; font-size:0.9rem; background:white; color:#555;">
@@ -319,7 +312,7 @@
                     <option value="name">이름순</option>
                 </select>
 
-                <!-- Admin Button -->
+                <!-- Admin Button (No inline onclick, ID only) -->
                 <button id="admin-add-btn" type="button"
                     style="display:none; background:var(--color-primary); color:white; border:none; border-radius:12px; padding:8px 16px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.15); white-space:nowrap;">
                     + 등록
@@ -327,7 +320,6 @@
             </div>
         </div>
 
-        <!-- List -->
         <div class="music-list" id="music-list">
             <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
         </div>
@@ -400,21 +392,36 @@
         </div>
     </div>
 
-    <!-- Global Helpers -->
+    <!-- Independent Script for Modal Logic -->
     <script>
+        // Define modal functions globally
         function openWriteModal() {
-            document.getElementById('write-overlay').style.display = 'flex';
+            const el = document.getElementById('write-overlay');
+            if (el) el.style.display = 'flex';
         }
         function closeWriteModal() {
-            document.getElementById('write-overlay').style.display = 'none';
+            const el = document.getElementById('write-overlay');
+            if (el) el.style.display = 'none';
         }
+
+        // Attach listener immediately to ensure it works regardless of module loading
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('admin-add-btn');
+            if (btn) {
+                btn.onclick = openWriteModal; // Direct assignment is safest here
+                // Also add touch event for mobile
+                btn.ontouchstart = (e) => { e.preventDefault(); openWriteModal(); };
+            }
+        });
+
+        // Expose to window for module to call if needed
         window.openWriteModal = openWriteModal;
         window.closeWriteModal = closeWriteModal;
     </script>
 
     <!-- Main Module -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=21';
+        import { auth, db } from '../../src/firebase.js?v=22';
         const COLLECTION = 'sound_garden_posts';
         let allPosts = [];
         let currentCat = 'all';
@@ -432,12 +439,7 @@
                 // Show Admin Button safely
                 if (isAdmin) {
                     const btn = document.getElementById('admin-add-btn');
-                    if (btn) {
-                        btn.style.display = 'block';
-                        btn.addEventListener('click', () => {
-                            window.openWriteModal();
-                        });
-                    }
+                    if (btn) btn.style.display = 'block';
                 }
                 loadPosts();
             }
@@ -496,14 +498,12 @@
             const listEl = document.getElementById('music-list');
             let res = allPosts.slice();
             if (currentCat !== 'all') res = res.filter(p => p.category === currentCat);
-
             res.sort((a, b) => {
                 const dA = new Date(a.createdAt), dB = new Date(b.createdAt);
                 if (sortMode === 'new') return dB - dA;
                 if (sortMode === 'old') return dA - dB;
                 return a.title.localeCompare(b.title);
             });
-
             if (res.length == 0) { listEl.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">없음</div>'; return; }
             listEl.innerHTML = res.map(post => `
                 <div class="music-item" onclick="playMusic('${post.id}')">
@@ -526,7 +526,6 @@
             document.getElementById('info-desc').innerText = p.description;
             document.getElementById('youtube-embed-container').innerHTML =
                 `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
-
             updateReactions(p);
             loadComments(id);
             document.getElementById('player-overlay').style.display = 'flex';
@@ -538,8 +537,6 @@
             currentPlayingId = null;
         }
 
-        // Functions for comments, reactions, submit...
-        // Simplified for brevity in this single file rewrite
         async function loadComments(id) {
             const list = document.getElementById('comment-list');
             list.innerHTML = '...';
