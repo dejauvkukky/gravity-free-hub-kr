@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 가족 일정</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=13">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=15">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -56,14 +56,31 @@
         }
 
         .calendar-cell.selected {
-            background-color: #fff1f2;
-            border-color: var(--color-primary);
             box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+
+        /* Feature: Highlights */
+        .calendar-cell.has-event {
+            background-color: #f0fdf4;
+            /* Light Green */
+            border-color: #bbf7d0;
+        }
+
+        .calendar-cell.is-holiday {
+            background-color: #fef2f2;
+            /* Light Red */
+            border-color: #fecaca;
+        }
+
+        .calendar-cell.is-holiday span:first-child {
+            color: #ef4444;
+            font-weight: 800;
         }
 
         .calendar-cell.today {
             font-weight: bold;
             color: var(--color-primary);
+            border: 1px solid var(--color-primary);
         }
 
         .calendar-cell.other-month {
@@ -78,20 +95,23 @@
             margin-bottom: 5px;
         }
 
-        .event-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--color-secondary);
-            margin-top: 4px;
-        }
-
         .event-dots {
             display: flex;
             gap: 2px;
             margin-top: 4px;
             flex-wrap: wrap;
             justify-content: center;
+        }
+
+        .event-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--color-secondary);
+        }
+
+        .event-dot.holiday-dot {
+            background-color: #ef4444;
         }
 
         .detail-day {
@@ -142,6 +162,16 @@
             margin-top: 2px;
         }
 
+        .holiday-badge {
+            font-size: 0.7rem;
+            color: #ef4444;
+            background: #fee2e2;
+            padding: 2px 4px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
         .delete-btn {
             color: #ef4444;
             font-size: 0.8rem;
@@ -152,18 +182,55 @@
             padding: 2px 5px;
         }
 
-        .add-form {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-card {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .add-input {
-            flex-grow: 1;
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .add-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
         }
     </style>
 </head>
@@ -203,19 +270,15 @@
 
             <!-- Selected Date Detail -->
             <div class="detail-day" id="detail-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h3 style="font-size:1.1rem; color:var(--color-primary); margin:0;" id="selected-date-title">12월 10일
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="font-size:1.1rem; color:var(--color-primary); margin:0;" id="selected-date-title">Day
                     </h3>
-                    <span style="font-size:0.8rem; color:#888;">일정 등록</span>
+                    <button class="btn btn-primary" onclick="openModal()"
+                        style="width:auto; padding:6px 14px; font-size:0.85rem;">+ 일정 추가</button>
                 </div>
-                <div id="selected-date-list" style="margin-bottom:15px;">
+                <div id="selected-date-list">
                     <!-- Events for this day -->
                 </div>
-                <form class="add-form" onsubmit="addSchedule(event)">
-                    <input type="text" id="new-event-input" class="add-input" placeholder="간단한 메모 (예: 할머니 생신)" required>
-                    <button type="submit" class="btn btn-primary"
-                        style="width:auto; padding:0 15px; font-size:0.9rem;">등록</button>
-                </form>
             </div>
 
             <!-- Monthly List -->
@@ -229,15 +292,43 @@
         </div>
     </div>
 
+    <!-- Modal HTML -->
+    <div id="schedule-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="margin-top:0; color:#333; margin-bottom: 5px;">📝 일정 등록</h3>
+            <p id="modal-date-display" style="color:#888; font-size:0.9rem; margin-bottom:20px;"></p>
+
+            <form onsubmit="addSchedule(event)">
+                <input type="text" id="modal-input" class="add-input" placeholder="일정 내용 (예: 가족 여행)" required>
+
+                <div id="admin-options"
+                    style="display:none; margin-bottom:20px; background:#fff5f5; padding:10px; border-radius:8px;">
+                    <label
+                        style="display:flex; align-items:center; gap:8px; font-size:0.9rem; color:#ef4444; font-weight:bold; cursor:pointer;">
+                        <input type="checkbox" id="modal-holiday-check" style="width:18px; height:18px;"> 🎌 공휴일(빨간날)로
+                        지정
+                    </label>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn" onclick="closeModal()"
+                        style="background:#f1f5f9; color:#64748b; flex:1;">취소</button>
+                    <button type="submit" class="btn btn-primary" style="flex:1;">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=13';
+        import { auth, db } from '../../src/firebase.js?v=15';
         const COLLECTION = 'family_schedules';
 
-        let currentDate = new Date(); // Tracks the month being viewed
-        let selectedDate = new Date(); // Tracks the clicked date
-        let monthEvents = []; // Cache events for current month
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let monthEvents = [];
         let currentUser = null;
+        let isAdmin = false;
 
         // Init
         auth.onAuthStateChanged(user => {
@@ -245,6 +336,9 @@
                 location.href = '../login.html';
             } else {
                 currentUser = user;
+                // Admin ID Check (kukky@family.com)
+                isAdmin = (user.email === 'kukky@family.com');
+
                 initCalendar();
             }
         });
@@ -255,10 +349,14 @@
             await loadMonthEvents();
             renderCalendar();
             renderMonthList();
-            // Select today/first day by default logic handled in render? 
-            // Let's hide detail section initially until user clicks something
-            // Or auto-select today if in current month
-            selectDate(new Date());
+
+            // Select today if in current month
+            const today = new Date();
+            if (today.getMonth() === currentDate.getMonth() && today.getFullYear() === currentDate.getFullYear()) {
+                selectDate(today);
+            } else {
+                selectDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+            }
 
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('content').classList.remove('hidden');
@@ -267,26 +365,16 @@
         async function loadMonthEvents() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-
-            // Range for query: 1st of month to last of month
-            // Actually, simplified: just store string "YYYY-MM-DD" and query by string compare? 
-            // Or query events where date starts with "YYYY-MM"
-            // Firestore string filtering is easier for this scale.
-
             const startStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
             const endStr = `${year}-${String(month + 1).padStart(2, '0')}-31`;
 
             try {
-                // Assuming format YYYY-MM-DD
-                // We'll filter client side for simplicity if dataset is small, 
-                // but better to query: .where('date', '>=', startStr).where('date', '<=', endStr)
                 const snapshot = await db.collection(COLLECTION)
                     .where('date', '>=', startStr)
                     .where('date', '<=', endStr)
                     .get();
 
                 monthEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Sort by date
                 monthEvents.sort((a, b) => a.date.localeCompare(b.date));
             } catch (e) {
                 console.error("Load failed", e);
@@ -296,10 +384,10 @@
 
         window.changeMonth = async function (dir) {
             currentDate.setMonth(currentDate.getMonth() + dir);
-            await loadMonthEvents(); // Reload data for new month
+            await loadMonthEvents();
             renderCalendar();
             renderMonthList();
-            document.getElementById('detail-section').style.display = 'none'; // Hide detail when switching month
+            selectDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
         }
 
         function renderCalendar() {
@@ -314,14 +402,12 @@
             const firstDay = new Date(y, m, 1);
             const lastDay = new Date(y, m + 1, 0);
 
-            // Pad empty cells for start of week
             for (let i = 0; i < firstDay.getDay(); i++) {
                 const cell = document.createElement('div');
                 cell.className = 'calendar-cell other-month';
                 grid.appendChild(cell);
             }
 
-            // Days
             const today = new Date();
             for (let d = 1; d <= lastDay.getDate(); d++) {
                 const dateObj = new Date(y, m, d);
@@ -329,38 +415,41 @@
 
                 const cell = document.createElement('div');
                 cell.className = 'calendar-cell';
-                if (dateStr === formatDate(today)) cell.classList.add('today');
 
-                // Visual selection state logic
-                // If using global selectedDate, check match
+                if (dateStr === formatDate(today)) cell.classList.add('today');
                 if (selectedDate && formatDate(selectedDate) === dateStr) {
                     cell.classList.add('selected');
                 }
 
+                // Check Events
+                const dayEvents = monthEvents.filter(e => e.date === dateStr);
+                const isHoliday = dayEvents.some(e => e.isHoliday);
+
+                if (dayEvents.length > 0) {
+                    cell.classList.add('has-event');
+                }
+                if (isHoliday) {
+                    cell.classList.add('is-holiday');
+                }
+
                 cell.onclick = () => selectDate(dateObj);
 
-                // Date Number
                 const numSpan = document.createElement('span');
                 numSpan.innerText = d;
                 cell.appendChild(numSpan);
 
-                // Dots for events
-                const dayEvents = monthEvents.filter(e => e.date === dateStr);
+                // Dots
                 if (dayEvents.length > 0) {
                     const dotsC = document.createElement('div');
                     dotsC.className = 'event-dots';
-                    // Max 3 dots
-                    dayEvents.slice(0, 3).forEach(() => {
+                    dayEvents.slice(0, 3).forEach(evt => {
                         const dot = document.createElement('div');
                         dot.className = 'event-dot';
+                        if (evt.isHoliday) dot.classList.add('holiday-dot');
                         dotsC.appendChild(dot);
                     });
                     if (dayEvents.length > 3) {
-                        const plus = document.createElement('span');
-                        plus.style.fontSize = '0.6rem';
-                        plus.style.color = 'var(--color-secondary)';
-                        plus.innerText = '+';
-                        dotsC.appendChild(plus);
+                        // + mark
                     }
                     cell.appendChild(dotsC);
                 }
@@ -372,12 +461,10 @@
         function selectDate(dateObj) {
             selectedDate = dateObj;
 
-            // Highlight visual
             const cells = document.querySelectorAll('.calendar-cell');
             cells.forEach(c => c.classList.remove('selected'));
-            renderCalendar(); // Re-render to show selection border, efficiently enough
+            renderCalendar();
 
-            // Show Detail
             const section = document.getElementById('detail-section');
             section.style.display = 'block';
 
@@ -386,11 +473,7 @@
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             document.getElementById('selected-date-title').innerText = `${m}월 ${d}일 (${days[dateObj.getDay()]})`;
 
-            // Render day list
             renderDayList(formatDate(dateObj));
-
-            // Scroll to detail if needed?
-            // section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function renderDayList(dateStr) {
@@ -399,7 +482,7 @@
 
             const dayEvents = monthEvents.filter(e => e.date === dateStr);
             if (dayEvents.length === 0) {
-                listEl.innerHTML = '<p style="font-size:0.9rem; color:#aaa;">등록된 일정이 없습니다.</p>';
+                listEl.innerHTML = '<p style="font-size:0.9rem; color:#aaa; margin-bottom:0;">등록된 일정이 없습니다.</p>';
                 return;
             }
 
@@ -408,14 +491,22 @@
                 div.className = 'event-item';
                 div.style.alignItems = 'center';
 
+                let titleHtml = evt.title;
+                if (evt.isHoliday) {
+                    titleHtml = `<span class="holiday-badge">🎌 공휴일</span> <span style="color:#ef4444; font-weight:bold;">${evt.title}</span>`;
+                }
+
                 let html = `
                     <div class="event-content">
-                        ${evt.title}
+                        ${titleHtml}
                         <div class="event-meta">by ${evt.author}</div>
                     </div>
                 `;
 
-                if (currentUser.uid === evt.uid) {
+                // Allow delete if author or if admin & holiday
+                const canDelete = (currentUser.uid === evt.uid) || (isAdmin && evt.isHoliday);
+
+                if (canDelete) {
                     html += `<button class="delete-btn" onclick="window.deleteSchedule('${evt.id}')">삭제</button>`;
                 }
 
@@ -424,16 +515,50 @@
             });
         }
 
+        // --- Modal Logic ---
+        window.openModal = function () {
+            const modal = document.getElementById('schedule-modal');
+            const dateDisplay = document.getElementById('modal-date-display');
+            const holidayOption = document.getElementById('admin-options');
+
+            const d = selectedDate;
+            dateDisplay.innerText = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 일정 추가`;
+
+            // Admin Check
+            if (isAdmin) {
+                holidayOption.style.display = 'block';
+            } else {
+                holidayOption.style.display = 'none';
+            }
+
+            // Reset fields
+            document.getElementById('modal-input').value = '';
+            document.getElementById('modal-holiday-check').checked = false;
+
+            modal.style.display = 'flex';
+            document.getElementById('modal-input').focus();
+        }
+
+        window.closeModal = function () {
+            document.getElementById('schedule-modal').style.display = 'none';
+        }
+
         window.addSchedule = async function (e) {
             e.preventDefault();
-            const input = document.getElementById('new-event-input');
-            const title = input.value.trim();
+            const title = document.getElementById('modal-input').value.trim();
+            const isHoliday = document.getElementById('modal-holiday-check').checked;
+
             if (!title) return;
+            // Safety: Only admin can set holiday
+            if (isHoliday && !isAdmin) return;
 
             const dateStr = formatDate(selectedDate);
 
             let nickname = sessionStorage.getItem('user_name');
             if (!nickname) nickname = currentUser.email.split('@')[0];
+
+            // If holiday, override nickname
+            if (isHoliday) nickname = "관리자";
 
             try {
                 await db.collection(COLLECTION).add({
@@ -441,15 +566,15 @@
                     title: title,
                     uid: currentUser.uid,
                     author: nickname,
-                    createdAt: new Date()
+                    createdAt: new Date(),
+                    isHoliday: isHoliday
                 });
 
-                input.value = '';
-                // Refresh
+                closeModal();
                 await loadMonthEvents();
                 renderCalendar();
-                renderMonthList(); // Updates bottom list
-                renderDayList(dateStr); // Updates detail section based on current selection
+                renderMonthList();
+                renderDayList(dateStr);
             } catch (err) {
                 alert('저장 실패: ' + err.message);
             }
@@ -480,11 +605,19 @@
                 const d = new Date(evt.date);
                 const dStr = `${d.getMonth() + 1}/${d.getDate()}`;
 
+                let titleHtml = evt.title;
+                let rowStyle = '';
+
+                if (evt.isHoliday) {
+                    titleHtml = `<span style="color:#ef4444; font-weight:bold;">🎌 ${evt.title}</span>`;
+                    rowStyle = 'background:#fef2f2;';
+                }
+
                 html += `
-                    <div class="event-item">
-                        <div class="event-date">${dStr}</div>
+                    <div class="event-item" style="${rowStyle}">
+                        <div class="event-date" style="${evt.isHoliday ? 'color:#ef4444' : ''}">${dStr}</div>
                         <div class="event-content">
-                            ${evt.title}
+                            ${titleHtml}
                             <div class="event-meta">by ${evt.author}</div>
                         </div>
                     </div>
@@ -493,15 +626,12 @@
             listEl.innerHTML = html;
         }
 
-        // Helper
         function formatDate(d) {
-            // Returns YYYY-MM-DD local
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
-
     </script>
 </body>
 
