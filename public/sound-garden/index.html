@@ -403,6 +403,8 @@
                         <!-- Dynamically populated -->
                     </datalist>
                     <button type="submit">등록하기</button>
+                    <button type="button" onclick="migrateCommentCounts()"
+                        style="background:#f59e0b; margin-top:10px;">🔧 덧글 수 동기화 (Migration)</button>
                 </form>
             </div>
 
@@ -688,7 +690,30 @@
                 commentCount: firebase.firestore.FieldValue.increment(1)
             });
 
-            input.value = ''; loadComments(window.currentPlayingId);
+            input.value = '';
+            loadComments(window.currentPlayingId);
+            loadPosts(); // Refresh main list to show updated count
+        }
+
+        window.migrateCommentCounts = async () => {
+            if (!confirm('모든 게시글의 덧글 수를 다시 계산하여 동기화하시겠습니까? (시간이 걸릴 수 있습니다)')) return;
+
+            try {
+                const snapshot = await db.collection(COLLECTION).get();
+                let count = 0;
+                for (const doc of snapshot.docs) {
+                    const commentsSnap = await db.collection(COLLECTION).doc(doc.id).collection('comments').get();
+                    const size = commentsSnap.size;
+                    if (doc.data().commentCount !== size) {
+                        await db.collection(COLLECTION).doc(doc.id).update({ commentCount: size });
+                        count++;
+                    }
+                }
+                alert(`동기화 완료! ${count}개의 게시글이 업데이트 되었습니다.`);
+                loadPosts();
+            } catch (e) {
+                alert('에러 발생: ' + e.message);
+            }
         }
     </script>
 </body>
