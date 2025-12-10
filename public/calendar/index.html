@@ -11,6 +11,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="manifest" href="../manifest.json">
+    <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+    <meta name="theme-color" content="#6366f1">
     <style>
         .calendar-header {
             display: flex;
@@ -652,6 +656,16 @@
             return `${year}-${month}-${day}`;
         }
     </script>
+</body>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('../sw.js')
+                .then(reg => console.log('SW registered!', reg))
+                .catch(err => console.log('SW registration failed: ', err));
+        });
+    }
+</script>
 </body>
 
 </html>
