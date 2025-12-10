@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Garden - Sound Garden</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=17">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        /* Layout */
+        .featured-section {
+            margin-bottom: 25px;
+        }
+
+        .featured-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        .featured-scroll {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .featured-scroll {
+                grid-template-columns: 1fr;
+            }
+
+            /* Mobile: Stack */
+        }
+
+        /* Video Card */
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .video-card:active {
+            transform: scale(0.98);
+        }
+
+        .thumb-area {
+            position: relative;
+            padding-bottom: 56.25%;
+            /* 16:9 Aspect Ratio */
+            background: #000;
+        }
+
+        .thumb-area img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2rem;
+            opacity: 0.8;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .v-info {
+            padding: 10px;
+        }
+
+        .v-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .v-desc {
+            font-size: 0.75rem;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Categories */
+        .category-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .category-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #555;
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .cat-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* List Area */
+        .music-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .music-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+        }
+
+        .music-thumb-mini {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .m-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .m-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .m-meta {
+            font-size: 0.75rem;
+            color: #888;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal for Player */
+        .player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .player-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .video-box {
+            position: relative;
+            padding-bottom: 56.25%;
+            background: black;
+            flex-shrink: 0;
+        }
+
+        .video-box iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .comment-section {
+            background: #f9f9f9;
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            margin-top: -10px;
+            position: relative;
+        }
+
+        .comment-list {
+            margin-bottom: 15px;
+        }
+
+        .comment-bubble {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .reaction-bar {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .react-btn {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: transform 0.1s;
+        }
+
+        .react-btn:active {
+            transform: scale(1.3);
+        }
+
+        /* Admin Add Button */
+        .fab-add {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 900;
+        }
+
+        /* Write Modal */
+        .write-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 2001;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" style="padding-bottom: 80px;">
+        <header>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
+            <span>🎵 Sound Garden</span>
+        </header>
+
+        <!-- Featured (Top 3) -->
+        <div class="featured-section">
+            <div class="featured-title">✨ Featured Music</div>
+            <div class="featured-scroll" id="featured-list">
+                <!-- JS Generated -->
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="category-scroll" id="category-list">
+            <button class="cat-btn active" onclick="filterCat('all')">전체</button>
+            <button class="cat-btn" onclick="filterCat('🚗 드라이브')">🚗 드라이브</button>
+            <button class="cat-btn" onclick="filterCat('💪 운동')">💪 운동</button>
+            <button class="cat-btn" onclick="filterCat('🧘 힐링')">🧘 힐링</button>
+            <button class="cat-btn" onclick="filterCat('☔ 비오는날')">☔ 비오는날</button>
+            <button class="cat-btn" onclick="filterCat('🎆 신나는')">🎆 신나는</button>
+            <button class="cat-btn" onclick="filterCat('🕰 추억의노래')">🕰 추억의노래</button>
+        </div>
+
+        <!-- Music List -->
+        <div class="music-list" id="music-list">
+            <div style="text-align:center; padding: 20px; color:#999;">로딩중...</div>
+        </div>
+
+        <!-- Admin Add Button -->
+        <div id="admin-fab" class="fab-add" style="display:none;" onclick="openWriteModal()">+</div>
+    </div>
+
+    <!-- Player Overlay -->
+    <div id="player-overlay" class="player-overlay">
+        <div class="player-container">
+            <div class="player-header">
+                <span id="player-title"
+                    style="font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:80%;">Title</span>
+                <button onclick="closePlayer()" style="background:none; border:none; color:white; font-size:1.2rem;">✕
+                    닫기</button>
+            </div>
+            <div class="video-box">
+                <div id="youtube-embed-container"></div>
+            </div>
+            <div class="comment-section">
+                <!-- Info -->
+                <div style="margin-bottom:15px;">
+                    <h3 id="info-title" style="margin:0 0 5px 0; font-size:1.1rem;">Title</h3>
+                    <p id="info-desc" style="margin:0; font-size:0.9rem; color:#666;">Description</p>
+                </div>
+                <!-- Reactions -->
+                <div class="reaction-bar">
+                    <button class="react-btn" onclick="addReaction('❤️')">❤️ <span id="count-heart"
+                            style="font-size:0.8rem; color:#666;">0</span></button>
+                    <button class="react-btn" onclick="addReaction('🔥')">🔥 <span id="count-fire"
+                            style="font-size:0.8rem; color:#666;">0</span></button>
+                    <button class="react-btn" onclick="addReaction('👏')">👏 <span id="count-clap"
+                            style="font-size:0.8rem; color:#666;">0</span></button>
+                </div>
+                <!-- Comments -->
+                <div style="font-size:0.9rem; font-weight:bold; margin-bottom:10px;">댓글</div>
+                <div id="comment-list" class="comment-list"></div>
+
+                <!-- Comment Form -->
+                <form onsubmit="postComment(event)" style="display:flex; gap:8px;">
+                    <input type="text" id="comment-input" class="input-field" placeholder="댓글 남기기..."
+                        style="margin:0; padding:10px;">
+                    <button type="submit" class="btn btn-primary" style="width:auto; white-space:nowrap;">전송</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Write Modal (Admin Only) -->
+    <div id="write-overlay" class="modal-overlay" style="z-index: 2001;">
+        <div class="write-modal" style="display:block;">
+            <h3 style="margin-top:0;">🎵 음악 등록</h3>
+            <form onsubmit="submitMusic(event)">
+                <input type="text" id="in-url" class="input-field" placeholder="유튜브 링크 (URL)" required>
+                <input type="text" id="in-title" class="input-field" placeholder="제목" required>
+                <input type="text" id="in-desc" class="input-field" placeholder="짧은 설명 (가수명 등)">
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:0.8rem; color:#666">카테고리</label>
+                    <select id="in-cat" class="input-field" style="margin-top:5px;">
+                        <option>🚗 드라이브</option>
+                        <option>💪 운동</option>
+                        <option>🧘 힐링</option>
+                        <option>☔ 비오는날</option>
+                        <option>🎆 신나는</option>
+                        <option>🕰 추억의노래</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn" onclick="closeWriteModal()"
+                        style="background:#eee; color:#555;">취소</button>
+                    <button type="submit" class="btn btn-primary">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js?v=17';
+        const COLLECTION = 'sound_garden_posts';
+
+        let allPosts = [];
+        let currentCat = 'all';
+        let currentUser = null;
+        let isAdmin = false;
+        let currentPlayingId = null;
+
+        // Init
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                location.href = '../login.html';
+            } else {
+                currentUser = user;
+                isAdmin = (user.email === 'kukky@family.com');
+
+                if (isAdmin) document.getElementById('admin-fab').style.display = 'flex';
+
+                loadPosts();
+            }
+        });
+
+        async function loadPosts() {
+            try {
+                const snapshot = await db.collection(COLLECTION).orderBy('createdAt', 'desc').get();
+                allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            } catch (e) {
+                console.error(e);
+                document.getElementById('music-list').innerHTML = '로딩 실패';
+            }
+        }
+
+        function renderAll() {
+            renderFeatured();
+            renderList();
+        }
+
+        function renderFeatured() {
+            // Top 3
+            const featured = allPosts.slice(0, 3);
+            const container = document.getElementById('featured-list');
+
+            if (featured.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">등록된 음악이 없습니다.</div>';
+                return;
+            }
+
+            container.innerHTML = featured.map(post => `
+                <div class="video-card" onclick="playMusic('${post.id}')">
+                    <div class="thumb-area">
+                        <img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg" loading="lazy">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="v-info">
+                        <div class="v-title">${post.title}</div>
+                        <div class="v-desc">${post.description || post.category}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.filterCat = function (cat) {
+            currentCat = cat;
+            // Update buttons
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.innerText.includes(cat) || (cat === 'all' && btn.innerText === '전체')) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderList();
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('music-list');
+            let filtered = allPosts;
+            if (currentCat !== 'all') {
+                filtered = allPosts.filter(p => p.category === currentCat);
+            }
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">해당 카테고리의 음악이 없습니다 🥲</div>';
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(post => `
+                <div class="music-item" onclick="playMusic('${post.id}')">
+                    <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg" loading="lazy">
+                    <div class="m-info">
+                        <div class="m-title">${post.title}</div>
+                        <div class="m-meta">
+                            <span>${post.category}</span>
+                            <span>•</span>
+                            <span>${post.description}</span>
+                        </div>
+                    </div>
+                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none;">✕</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // --- Player ---
+        window.playMusic = function (docId) {
+            currentPlayingId = docId;
+            const post = allPosts.find(p => p.id === docId);
+            if (!post) return;
+
+            document.getElementById('player-title').innerText = post.title;
+            document.getElementById('info-title').innerText = post.title;
+            document.getElementById('info-desc').innerText = post.description + ' | ' + post.category;
+
+            // Embed
+            const embedHtml = `<iframe src="https://www.youtube.com/embed/${post.videoId}?autoplay=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            document.getElementById('youtube-embed-container').innerHTML = embedHtml;
+
+            updateReactionCounts(post);
+            loadComments(docId);
+
+            document.getElementById('player-overlay').style.display = 'flex';
+        }
+
+        window.closePlayer = function () {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('youtube-embed-container').innerHTML = ''; // Stop video
+            currentPlayingId = null;
+        }
+
+        // --- Comments & Reactions ---
+        async function loadComments(docId) {
+            const listEl = document.getElementById('comment-list');
+            listEl.innerHTML = '<div style="color:#999; font-size:0.8rem;">댓글 로딩중...</div>';
+
+            try {
+                const snap = await db.collection(COLLECTION).doc(docId).collection('comments').orderBy('createdAt', 'asc').get();
+                if (snap.empty) {
+                    listEl.innerHTML = '<div style="color:#ccc; font-size:0.8rem;">첫 번째 댓글을 남겨보세요!</div>';
+                    return;
+                }
+                listEl.innerHTML = snap.docs.map(doc => {
+                    const d = doc.data();
+                    return `<div class="comment-bubble"><b>${d.author}</b>: ${d.text}</div>`;
+                }).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        window.postComment = async function (e) {
+            e.preventDefault();
+            if (!currentPlayingId) return;
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            let author = sessionStorage.getItem('user_name') || '익명';
+
+            try {
+                await db.collection(COLLECTION).doc(currentPlayingId).collection('comments').add({
+                    text: text, author: author, uid: currentUser.uid, createdAt: new Date()
+                });
+                input.value = '';
+                loadComments(currentPlayingId);
+            } catch (e) { alert('댓글 실패'); }
+        }
+
+        window.addReaction = async function (type) {
+            if (!currentPlayingId) return;
+            // Simple increment for now, client-side optimistic UI later if needed
+            // Ideally we track who reacted, but for simplicity just increment
+            // We'll modify the specific field 'react_HEART' etc.
+
+            // NOTE: Firestore increment requires field value. For now let's just show local alert or skip strict counting to save complexity?
+            // Let's do simple array union of UIDs to prevent dupes? or just simple subcollection?
+            // To keep it super simple: Just add a dummy comment with the emoji? 
+            // Or updating field `react_${type}`.
+
+            // Let's use specific fields: hearts, fires, claps
+            const fieldMap = { '❤️': 'hearts', '🔥': 'fires', '👏': 'claps' };
+            const field = fieldMap[type];
+
+            try {
+                await db.collection(COLLECTION).doc(currentPlayingId).update({
+                    [field]: firebase.firestore.FieldValue.increment(1)
+                });
+                // Update local UI
+                const span = document.getElementById(type === '❤️' ? 'count-heart' : type === '🔥' ? 'count-fire' : 'count-clap');
+                span.innerText = parseInt(span.innerText) + 1;
+            } catch (e) { console.error(e); }
+        }
+
+        function updateReactionCounts(post) {
+            document.getElementById('count-heart').innerText = post.hearts || 0;
+            document.getElementById('count-fire').innerText = post.fires || 0;
+            document.getElementById('count-clap').innerText = post.claps || 0;
+        }
+
+        // --- Admin Functions ---
+        window.openWriteModal = () => document.getElementById('write-overlay').style.display = 'flex';
+        window.closeWriteModal = () => document.getElementById('write-overlay').style.display = 'none';
+
+        window.submitMusic = async function (e) {
+            e.preventDefault();
+            if (!isAdmin) return;
+
+            const url = document.getElementById('in-url').value;
+            const title = document.getElementById('in-title').value;
+            const desc = document.getElementById('in-desc').value;
+            const cat = document.getElementById('in-cat').value;
+
+            // Extract ID
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (!match || match[2].length !== 11) {
+                alert('올바른 유튜브 링크가 아닙니다.'); return;
+            }
+            const videoId = match[2];
+
+            try {
+                await db.collection(COLLECTION).add({
+                    videoId, title, description: desc, category: cat,
+                    author: 'kukky', createdAt: new Date().toISOString(),
+                    hearts: 0, fires: 0, claps: 0
+                });
+                closeWriteModal();
+                loadPosts();
+            } catch (err) { alert(err.message); }
+        }
+
+        window.deletePost = async function (id) {
+            if (!confirm('삭제하시겠습니까?')) return;
+            try {
+                await db.collection(COLLECTION).doc(id).delete();
+                loadPosts();
+            } catch (e) { alert('삭제 실패'); }
+        }
+
+    </script>
+</body>
+
+</html>

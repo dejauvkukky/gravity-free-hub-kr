@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=16">
+    <link rel="stylesheet" href="../assets/css/style.css?v=17">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -80,7 +80,14 @@
                 <div class="card-desc">우리 가족의 중요 행사를 달력에 기록해요!</div>
             </div>
 
-            <!-- Card 4: Preference (Hidden) -->
+            <!-- Card 4: Sound Garden -->
+            <div class="card" onclick="location.href='sound-garden/index.html'"
+                style="background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%); border: 1px solid #ddd6fe; margin:0; transition: transform 0.2s;">
+                <div class="card-title" style="color: #6d28d9;">🎵 Sound Garden</div>
+                <div class="card-desc">가족과 함께 듣는 음악 힐링 공간 🎧</div>
+            </div>
+
+            <!-- Card 5: Preference (Hidden) -->
             <div class="card"
                 style="border-left: 5px solid #ccc; margin:0; opacity: 0.7; cursor: default; display: none;">
                 <div class="card-title">⚖️ 취향 분석기 (준비중)</div>
