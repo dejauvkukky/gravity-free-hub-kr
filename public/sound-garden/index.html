@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=22">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=23">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -180,7 +180,45 @@
             align-items: center;
         }
 
-        /* Player */
+        /* Admin Panel - Inline */
+        .admin-panel {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .admin-panel h3 {
+            margin-top: 0;
+            color: #0369a1;
+            font-size: 1.1rem;
+        }
+
+        .admin-form {
+            display: grid;
+            gap: 10px;
+        }
+
+        .admin-form input {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+
+        .admin-form button {
+            padding: 10px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Player Overlay */
         .player-overlay {
             position: fixed;
             top: 0;
@@ -268,21 +306,6 @@
         .react-btn:active {
             transform: scale(1.3);
         }
-
-        .write-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-            z-index: 2001;
-            display: none;
-        }
     </style>
 </head>
 
@@ -293,6 +316,26 @@
             <a href="../dashboard.html" class="logo">← Secret Garden</a>
             <span>🎵 Sound Garden</span>
         </header>
+
+        <!-- ADMIN PANEL (Inline, Hidden by Default) -->
+        <div id="admin-panel" class="admin-panel">
+            <h3>🎵 음악 등록 (Admin)</h3>
+            <form onsubmit="submitMusicInline(event)" class="admin-form">
+                <input type="text" id="in-url" placeholder="유튜브 링크 (URL)" required>
+                <input type="text" id="in-title" placeholder="제목" required>
+                <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)">
+                <input list="cat-options" id="in-cat" placeholder="이모지 + 카테고리 (예: 🚗 드라이브)">
+                <datalist id="cat-options">
+                    <option value="🚗 드라이브">
+                    <option value="💪 운동">
+                    <option value="🧘 힐링">
+                    <option value="☔ 비오는날">
+                    <option value="🎆 신나는">
+                    <option value="🕰 추억의노래">
+                </datalist>
+                <button type="submit">등록하기</button>
+            </form>
+        </div>
 
         <!-- Featured Section -->
         <div class="featured-section">
@@ -311,21 +354,16 @@
                     <option value="old">오래된순</option>
                     <option value="name">이름순</option>
                 </select>
-
-                <!-- Admin Button (No inline onclick, ID only) -->
-                <button id="admin-add-btn" type="button"
-                    style="display:none; background:var(--color-primary); color:white; border:none; border-radius:12px; padding:8px 16px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.15); white-space:nowrap;">
-                    + 등록
-                </button>
             </div>
         </div>
 
+        <!-- Music List -->
         <div class="music-list" id="music-list">
             <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals (Player Only) -->
     <div id="player-overlay" class="player-overlay">
         <div class="player-container">
             <div class="player-header">
@@ -364,71 +402,24 @@
         </div>
     </div>
 
-    <div id="write-overlay" class="modal-overlay" style="z-index: 2001; display: none;">
-        <div class="write-modal">
-            <h3 style="margin-top:0; color:#333; margin-bottom:20px;">🎵 음악 등록</h3>
-            <form onsubmit="submitMusic(event)">
-                <input type="text" id="in-url" class="input-field" placeholder="유튜브 링크" required style="padding:12px;">
-                <input type="text" id="in-title" class="input-field" placeholder="제목" required style="padding:12px;">
-                <input type="text" id="in-desc" class="input-field" placeholder="짧은 설명" style="padding:12px;">
-                <div style="margin-bottom:20px;">
-                    <input list="cat-options" id="in-cat" class="input-field" style="margin-top:0; padding:12px;"
-                        placeholder="카테고리 선택/입력">
-                    <datalist id="cat-options">
-                        <option value="🚗 드라이브">
-                        <option value="💪 운동">
-                        <option value="🧘 힐링">
-                        <option value="☔ 비오는날">
-                        <option value="🎆 신나는">
-                        <option value="🕰 추억의노래">
-                    </datalist>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" class="btn" onclick="closeWriteModal()"
-                        style="background:#f1f5f9; color:#64748b; flex:1;">취소</button>
-                    <button type="submit" class="btn btn-primary" style="flex:2;">등록하기</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Independent Script for Modal Logic -->
+    <!-- Global Helpers -->
     <script>
-        // Define modal functions globally
-        function openWriteModal() {
-            const el = document.getElementById('write-overlay');
-            if (el) el.style.display = 'flex';
+        // No modal logic needed for write anymore
+        window.closePlayer = function () {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('youtube-embed-container').innerHTML = '';
         }
-        function closeWriteModal() {
-            const el = document.getElementById('write-overlay');
-            if (el) el.style.display = 'none';
-        }
-
-        // Attach listener immediately to ensure it works regardless of module loading
-        document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById('admin-add-btn');
-            if (btn) {
-                btn.onclick = openWriteModal; // Direct assignment is safest here
-                // Also add touch event for mobile
-                btn.ontouchstart = (e) => { e.preventDefault(); openWriteModal(); };
-            }
-        });
-
-        // Expose to window for module to call if needed
-        window.openWriteModal = openWriteModal;
-        window.closeWriteModal = closeWriteModal;
     </script>
 
     <!-- Main Module -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=22';
+        import { auth, db } from '../../src/firebase.js?v=23';
         const COLLECTION = 'sound_garden_posts';
         let allPosts = [];
         let currentCat = 'all';
         let sortMode = 'new';
         let currentUser = null;
         let isAdmin = false;
-        let currentPlayingId = null;
 
         auth.onAuthStateChanged(user => {
             if (!user) location.href = '../login.html';
@@ -436,10 +427,10 @@
                 currentUser = user;
                 isAdmin = (user.email === 'kukky@family.com');
 
-                // Show Admin Button safely
+                // Show Admin Panel Inline
                 if (isAdmin) {
-                    const btn = document.getElementById('admin-add-btn');
-                    if (btn) btn.style.display = 'block';
+                    const panel = document.getElementById('admin-panel');
+                    if (panel) panel.style.display = 'block';
                 }
                 loadPosts();
             }
@@ -453,29 +444,16 @@
             } catch (e) { document.getElementById('music-list').innerHTML = '로딩 실패'; }
         }
 
-        function renderAll() {
-            renderFeatured();
-            renderCategories();
-            renderList();
-        }
+        function renderAll() { renderFeatured(); renderCategories(); renderList(); }
 
         function renderFeatured() {
             const featured = allPosts.slice(0, 3);
             const container = document.getElementById('featured-list');
-            if (featured.length === 0) {
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">음악 없음</div>';
-                return;
-            }
+            if (featured.length === 0) { container.innerHTML = '<div style="color:#999; grid-column:1/-1; text-align:center;">음악 없음</div>'; return; }
             container.innerHTML = featured.map(post => `
                 <div class="video-card" onclick="playMusic('${post.id}')">
-                    <div class="thumb-area">
-                        <img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg" loading="lazy">
-                        <div class="play-icon">▶</div>
-                    </div>
-                    <div class="v-info">
-                        <div class="v-title">${post.title}</div>
-                        <div class="v-desc">${post.description}</div>
-                    </div>
+                    <div class="thumb-area"><img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg"><div class="play-icon">▶</div></div>
+                    <div class="v-info"><div class="v-title">${post.title}</div><div class="v-desc">${post.description}</div></div>
                 </div>
             `).join('');
         }
@@ -483,12 +461,9 @@
         function renderCategories() {
             const used = new Set(allPosts.map(p => p.category).filter(Boolean));
             const cats = ['all', ...Array.from(used).sort()];
-            const container = document.getElementById('category-list');
-            container.innerHTML = cats.map(cat => {
-                const label = cat === 'all' ? '전체' : cat;
-                const cls = (cat === currentCat) ? 'active' : '';
-                return `<button class="cat-btn ${cls}" onclick="filterCat('${cat}')">${label}</button>`;
-            }).join('');
+            document.getElementById('category-list').innerHTML = cats.map(cat =>
+                `<button class="cat-btn ${cat === currentCat ? 'active' : ''}" onclick="filterCat('${cat}')">${cat === 'all' ? '전체' : cat}</button>`
+            ).join('');
         }
 
         window.filterCat = (cat) => { currentCat = cat; renderCategories(); renderList(); }
@@ -508,56 +483,62 @@
             listEl.innerHTML = res.map(post => `
                 <div class="music-item" onclick="playMusic('${post.id}')">
                     <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg">
-                    <div class="m-info">
-                        <div class="m-title">${post.title}</div>
-                        <div class="m-meta">${post.category} • ${post.description}</div>
-                    </div>
-                     ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none; padding:10px;">✕</button>` : ''}
+                    <div class="m-info"><div class="m-title">${post.title}</div><div class="m-meta">${post.category} • ${post.description}</div></div>
+                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none; padding:10px;">✕</button>` : ''}
                 </div>
             `).join('');
         }
 
         window.playMusic = (id) => {
-            currentPlayingId = id;
-            const p = allPosts.find(x => x.id === id);
-            if (!p) return;
+            const p = allPosts.find(x => x.id === id); if (!p) return;
+            window.currentPlayingId = id; // global for comment/reaction
             document.getElementById('player-title').innerText = p.title;
             document.getElementById('info-title').innerText = p.title;
             document.getElementById('info-desc').innerText = p.description;
-            document.getElementById('youtube-embed-container').innerHTML =
-                `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
-            updateReactions(p);
-            loadComments(id);
+            document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
+            updateReactions(p); loadComments(id);
             document.getElementById('player-overlay').style.display = 'flex';
         }
 
-        window.closePlayer = () => {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('youtube-embed-container').innerHTML = '';
-            currentPlayingId = null;
-        }
-
-        async function loadComments(id) {
-            const list = document.getElementById('comment-list');
-            list.innerHTML = '...';
-            const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
-            list.innerHTML = snap.empty ? '<div style="color:#ccc">첫 댓글 주인공이 되어보세요!</div>' :
-                snap.docs.map(d => `<div class="comment-bubble"><b>${d.data().author}</b>: ${d.data().text}</div>`).join('');
-        }
-
-        window.postComment = async (e) => {
+        // --- Inline Submit ---
+        window.submitMusicInline = async (e) => {
             e.preventDefault();
-            const input = document.getElementById('comment-input');
-            if (!input.value.trim()) return;
-            await db.collection(COLLECTION).doc(currentPlayingId).collection('comments').add({
-                text: input.value, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
-            });
-            input.value = ''; loadComments(currentPlayingId);
+            const [url, title, desc, cat] = ['in-url', 'in-title', 'in-desc', 'in-cat'].map(x => document.getElementById(x).value);
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            if (!match || match[2].length !== 11) { alert('유튜브 링크 확인 필요'); return; }
+
+            try {
+                await db.collection(COLLECTION).add({
+                    videoId: match[2], title, description: desc, category: cat, author: 'kukky',
+                    createdAt: new Date().toISOString(), hearts: 0, fires: 0, claps: 0
+                });
+                alert('등록되었습니다!');
+                // Clear inputs
+                ['in-url', 'in-title', 'in-desc', 'in-cat'].forEach(x => document.getElementById(x).value = '');
+                loadPosts();
+            } catch (e) { alert('에러: ' + e.message); }
         }
 
+        window.deletePost = async (id) => { if (confirm('삭제?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
+
+        // --- Comments & Reactions (Global helpers reused) ---
+        async function loadComments(id) {
+            const list = document.getElementById('comment-list'); list.innerHTML = '...';
+            const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
+            list.innerHTML = snap.empty ? '<div style="color:#ccc">댓글 없음</div>' : snap.docs.map(d => `<div class="comment-bubble"><b>${d.data().author}</b>: ${d.data().text}</div>`).join('');
+        }
+        window.postComment = async (e) => {
+            e.preventDefault(); const val = document.getElementById('comment-input').value.trim();
+            if (!val || !window.currentPlayingId) return;
+            await db.collection(COLLECTION).doc(window.currentPlayingId).collection('comments').add({
+                text: val, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
+            });
+            document.getElementById('comment-input').value = ''; loadComments(window.currentPlayingId);
+        }
         window.addReaction = async (type) => {
+            if (!window.currentPlayingId) return;
             const field = type === '❤️' ? 'hearts' : (type === '🔥' ? 'fires' : 'claps');
-            await db.collection(COLLECTION).doc(currentPlayingId).update({ [field]: firebase.firestore.FieldValue.increment(1) });
+            await db.collection(COLLECTION).doc(window.currentPlayingId).update({ [field]: firebase.firestore.FieldValue.increment(1) });
             const span = document.getElementById(type === '❤️' ? 'count-heart' : (type === '🔥' ? 'count-fire' : 'count-clap'));
             span.innerText = parseInt(span.innerText) + 1;
         }
@@ -565,22 +546,6 @@
             document.getElementById('count-heart').innerText = p.hearts || 0;
             document.getElementById('count-fire').innerText = p.fires || 0;
             document.getElementById('count-clap').innerText = p.claps || 0;
-        }
-
-        window.submitMusic = async (e) => {
-            e.preventDefault();
-            const [url, title, desc, cat] = ['in-url', 'in-title', 'in-desc', 'in-cat'].map(x => document.getElementById(x).value);
-            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-            if (!match || match[2].length !== 11) { alert('유튜브 링크 확인 필요'); return; }
-            await db.collection(COLLECTION).add({
-                videoId: match[2], title, description: desc, category: cat, author: 'kukky',
-                createdAt: new Date().toISOString(), hearts: 0, fires: 0, claps: 0
-            });
-            closeWriteModal(); loadPosts();
-        }
-
-        window.deletePost = async (id) => {
-            if (confirm('삭제?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); }
         }
     </script>
 </body>
