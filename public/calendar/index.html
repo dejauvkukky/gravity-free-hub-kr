@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 가족 일정</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=15">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=16">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -124,11 +124,30 @@
         }
 
         .month-list {
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
+            /* Subtle warmth */
             border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid #eee;
+            padding: 25px;
+            /* More padding */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            /* Deeper shadow for pop */
+            border: 1px solid #f0f0f0;
+            border-left: 6px solid var(--color-secondary);
+            /* Distinct accent */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative icon for the list */
+        .month-list::after {
+            content: "📅";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 5rem;
+            opacity: 0.05;
+            transform: rotate(15deg);
+            pointer-events: none;
         }
 
         .event-item {
@@ -321,7 +340,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=15';
+        import { auth, db } from '../../src/firebase.js?v=16';
         const COLLECTION = 'family_schedules';
 
         let currentDate = new Date();
