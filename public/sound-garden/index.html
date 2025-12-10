@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=17">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=18">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -280,7 +280,7 @@
             font-size: 1.5rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            z-index: 900;
+            z-index: 9999;
         }
 
         /* Write Modal */
@@ -317,12 +317,12 @@
         </div>
 
         <!-- Categories & Sort -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; margin-right:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap: 10px;">
+            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;">
                 <!-- JS Generated -->
             </div>
             <select id="sort-select" onchange="changeSort()"
-                style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size:0.85rem; background:white;">
+                style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size:0.85rem; background:white; flex-shrink: 0;">
                 <option value="new">최신순</option>
                 <option value="old">오래된순</option>
                 <option value="name">이름순</option>
@@ -411,7 +411,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=17';
+        import { auth, db } from '../../src/firebase.js?v=18';
         const COLLECTION = 'sound_garden_posts';
 
         let allPosts = [];
@@ -478,13 +478,12 @@
 
         // Generate Category Buttons
         function renderCategories() {
-            const defaultCats = ['all', '🚗 드라이브', '💪 운동', '🧘 힐링', '☔ 비오는날'];
             const usedCats = new Set(allPosts.map(p => p.category).filter(Boolean));
-            // Merge
-            const merged = new Set([...defaultCats, ...usedCats]);
+            // Only use existing cats + all
+            const finalCats = ['all', ...Array.from(usedCats).sort()];
 
             const container = document.getElementById('category-list');
-            container.innerHTML = Array.from(merged).map(cat => {
+            container.innerHTML = finalCats.map(cat => {
                 const label = cat === 'all' ? '전체' : cat;
                 const isActive = (cat === currentCat) ? 'active' : '';
                 return `<button class="cat-btn ${isActive}" onclick="filterCat('${cat}')">${label}</button>`;
