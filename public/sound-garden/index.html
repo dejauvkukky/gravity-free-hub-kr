@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=24">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=25">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -17,13 +17,13 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 768px;
             margin: 0 auto;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        /* Explict Padding */
+        /* Fixed Width Match */
 
         /* Feature Specific Styles */
         .featured-section {
@@ -43,10 +43,10 @@
         .featured-scroll {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 15px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .featured-scroll {
                 grid-template-columns: 1fr;
             }
@@ -58,17 +58,12 @@
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s;
             border: 1px solid #f1f5f9;
         }
 
         .video-card:active {
             transform: scale(0.98);
-        }
-
-        .video-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .thumb-area {
@@ -95,17 +90,11 @@
             color: white;
             font-size: 2.5rem;
             opacity: 0.9;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
-            transition: transform 0.2s;
-        }
-
-        .video-card:hover .play-icon {
-            transform: translate(-50%, -50%) scale(1.1);
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
         }
 
         .v-info {
-            padding: 16px;
+            padding: 15px;
         }
 
         .v-title {
@@ -142,7 +131,7 @@
         .cat-btn {
             background: white;
             border: 1px solid #e2e8f0;
-            padding: 10px 18px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.95rem;
             color: #64748b;
@@ -151,7 +140,6 @@
             flex-shrink: 0;
             transition: all 0.2s;
             font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         .cat-btn.active {
@@ -159,7 +147,6 @@
             color: white;
             border-color: var(--color-primary, #6366f1);
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
         }
 
         .music-list {
@@ -243,11 +230,6 @@
             border-radius: 10px;
             font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .admin-form input:focus {
-            border-color: #3b82f6;
         }
 
         .admin-form button {
@@ -259,14 +241,9 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 1rem;
-            transition: background 0.2s;
         }
 
-        .admin-form button:hover {
-            background: #1d4ed8;
-        }
-
-        /* Modified Player Overlay - Fixed Footer */
+        /* Modified Player Overlay */
         .player-overlay {
             position: fixed;
             top: 0;
@@ -315,44 +292,13 @@
             height: 100%;
         }
 
-        /* Scrollable Content Area */
+        /* Scrollable Content */
         .player-scroll-content {
             flex-grow: 1;
             overflow-y: auto;
             padding: 20px;
             background: #f8fafc;
             -webkit-overflow-scrolling: touch;
-        }
-
-        /* Fixed Footer Input */
-        .player-footer {
-            padding: 12px 15px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            flex-shrink: 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .player-footer input {
-            flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 25px;
-            outline: none;
-            background: #f1f5f9;
-        }
-
-        .player-footer button {
-            background: var(--color-primary, #6366f1);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;
         }
 
         .comment-bubble {
@@ -365,37 +311,62 @@
             border: 1px solid #f1f5f9;
         }
 
-        .reaction-bar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-            padding: 15px 0;
+        /* Footer Input + Emoji Bar */
+        .player-footer {
+            flex-shrink: 0;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
         }
 
-        .react-btn {
-            font-size: 1.5rem;
+        .emoji-bar {
+            display: flex;
+            gap: 15px;
+            padding: 10px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+            overflow-x: auto;
+        }
+
+        .emoji-btn {
+            font-size: 1.4rem;
             background: none;
             border: none;
             cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            padding: 5px;
             transition: transform 0.1s;
         }
 
-        .react-btn span {
-            font-size: 0.8rem;
-            color: #64748b;
-            font-weight: bold;
+        .emoji-btn:active {
+            transform: scale(1.2);
         }
 
-        .react-btn:active {
-            transform: scale(1.2);
+        .input-bar {
+            display: flex;
+            gap: 10px;
+            padding: 12px 15px;
+            align-items: center;
+        }
+
+        .input-bar input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 25px;
+            outline: none;
+            background: #f1f5f9;
+        }
+
+        .input-bar button {
+            background: var(--color-primary, #6366f1);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .load-more-btn {
@@ -408,11 +379,6 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 20px;
-            transition: background 0.2s;
-        }
-
-        .load-more-btn:hover {
-            background: #f1f5f9;
         }
     </style>
 </head>
@@ -475,7 +441,7 @@
         <button id="load-more-btn" class="load-more-btn" onclick="loadMore()" style="display:none;">더 보기 (+10)</button>
     </div>
 
-    <!-- Player Overlay (Refactored) -->
+    <!-- Player Overlay -->
     <div id="player-overlay" class="player-overlay">
         <div class="player-container">
             <!-- 1. Header -->
@@ -500,35 +466,31 @@
                         Description</p>
                 </div>
 
-                <!-- Reactions -->
-                <div class="reaction-bar">
-                    <button class="react-btn" onclick="addReaction('❤️')">
-                        <div style="font-size:1.8rem;">❤️</div>
-                        <span id="count-heart">0</span>
-                    </button>
-                    <button class="react-btn" onclick="addReaction('🔥')">
-                        <div style="font-size:1.8rem;">🔥</div>
-                        <span id="count-fire">0</span>
-                    </button>
-                    <button class="react-btn" onclick="addReaction('👏')">
-                        <div style="font-size:1.8rem;">👏</div>
-                        <span id="count-clap">0</span>
-                    </button>
-                </div>
+                <!-- Removed Reaction Bar -->
 
                 <div
                     style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333; display:flex; align-items:center; gap:5px;">
                     💬 댓글 <span id="comment-count" style="font-size:0.8rem; color:#94a3b8; font-weight:normal;"></span>
                 </div>
                 <div id="comment-list" class="comment-list"></div>
-                <div style="height: 20px;"></div> <!-- visual spacing at end of scroll -->
+                <div style="height: 20px;"></div>
             </div>
 
-            <!-- 4. Fixed Footer Input -->
-            <form class="player-footer" onsubmit="postComment(event)">
-                <input type="text" id="comment-input" placeholder="따뜻한 댓글을 남겨주세요!" autocomplete="off">
-                <button type="submit">전송</button>
-            </form>
+            <!-- 4. Fixed Footer with Emojis -->
+            <div class="player-footer">
+                <div class="emoji-bar">
+                    <button class="emoji-btn" onclick="appendEmoji('❤️')">❤️</button>
+                    <button class="emoji-btn" onclick="appendEmoji('🔥')">🔥</button>
+                    <button class="emoji-btn" onclick="appendEmoji('👏')">👏</button>
+                    <button class="emoji-btn" onclick="appendEmoji('👍')">👍</button>
+                    <!-- <button class="emoji-btn" onclick="appendEmoji('😍')">😍</button> -->
+                    <button class="emoji-btn" onclick="appendEmoji('🤣')">🤣</button>
+                </div>
+                <form class="input-bar" onsubmit="postComment(event)">
+                    <input type="text" id="comment-input" placeholder="따뜻한 댓글을 남겨주세요!" autocomplete="off">
+                    <button type="submit">전송</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -537,12 +499,18 @@
         window.closePlayer = function () {
             document.getElementById('player-overlay').style.display = 'none';
             document.getElementById('youtube-embed-container').innerHTML = '';
-            document.body.style.overflow = ''; // Restore scroll
+            document.body.style.overflow = '';
+        }
+
+        window.appendEmoji = function (emoji) {
+            const input = document.getElementById('comment-input');
+            input.value += emoji;
+            input.focus();
         }
     </script>
 
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=24';
+        import { auth, db } from '../../src/firebase.js?v=25';
         const COLLECTION = 'sound_garden_posts';
 
         // State
@@ -592,9 +560,8 @@
                 return a.title.localeCompare(b.title);
             });
 
-            // 3. Reset Pagination on Filter/Sort Change
+            // 3. Reset Pagination
             visibleCount = 10;
-
             renderUI();
         }
 
@@ -628,7 +595,6 @@
             const listEl = document.getElementById('music-list');
             const btnEl = document.getElementById('load-more-btn');
 
-            // Slice for Pagination
             const displayList = filteredPosts.slice(0, visibleCount);
 
             if (displayList.length === 0) {
@@ -654,7 +620,6 @@
             }
         }
 
-        // Global functions exposed via window
         window.filterCat = (cat) => { currentCat = cat; applyFilterAndSort(); }
         window.changeSort = () => { sortMode = document.getElementById('sort-select').value; applyFilterAndSort(); }
         window.loadMore = () => { visibleCount += 10; renderList(); }
@@ -684,9 +649,8 @@
             document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
 
             document.getElementById('player-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            document.body.style.overflow = 'hidden';
 
-            updateReactions(p);
             loadComments(id);
         }
 
@@ -697,8 +661,6 @@
             const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
             list.innerHTML = snap.empty ? '<div style="color:#ccc; padding:10px 0;">첫 댓글을 남겨주세요! 👇</div>' :
                 snap.docs.map(d => `<div class="comment-bubble"><b>${d.data().author}</b>: ${d.data().text}</div>`).join('');
-
-            // Scroll to bottom of comments
             const scrollArea = document.querySelector('.player-scroll-content');
             if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
         }
@@ -711,22 +673,6 @@
                 text: val, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
             });
             input.value = ''; loadComments(window.currentPlayingId);
-        }
-
-        window.addReaction = async (type) => {
-            if (!window.currentPlayingId) return;
-            const field = type === '❤️' ? 'hearts' : (type === '🔥' ? 'fires' : 'claps');
-            await db.collection(COLLECTION).doc(window.currentPlayingId).update({ [field]: firebase.firestore.FieldValue.increment(1) });
-
-            // Local Optimistic Update
-            const span = document.getElementById(type === '❤️' ? 'count-heart' : (type === '🔥' ? 'count-fire' : 'count-clap'));
-            span.innerText = parseInt(span.innerText) + 1;
-        }
-
-        function updateReactions(p) {
-            document.getElementById('count-heart').innerText = p.hearts || 0;
-            document.getElementById('count-fire').innerText = p.fires || 0;
-            document.getElementById('count-clap').innerText = p.claps || 0;
         }
     </script>
 </body>
