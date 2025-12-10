@@ -398,14 +398,9 @@
                     <input type="text" id="in-url" placeholder="유튜브 링크 (URL 붙여넣기)" required>
                     <input type="text" id="in-title" placeholder="제목" required>
                     <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)">
-                    <input list="cat-options" id="in-cat" placeholder="이모지 + 카테고리 (예: 🚗 드라이브)">
+                    <input list="cat-options" id="in-cat" placeholder="카테고리 입력 또는 선택">
                     <datalist id="cat-options">
-                        <option value="🚗 드라이브">
-                        <option value="💪 운동">
-                        <option value="🧘 힐링">
-                        <option value="☔ 비오는날">
-                        <option value="🎆 신나는">
-                        <option value="🕰 추억의노래">
+                        <!-- Dynamically populated -->
                     </datalist>
                     <button type="submit">등록하기</button>
                 </form>
@@ -539,6 +534,14 @@
             try {
                 const snapshot = await db.collection(COLLECTION).orderBy('createdAt', 'desc').get();
                 allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Populate Category Datalist dynamically
+                const uniqueCats = new Set(allPosts.map(p => p.category).filter(Boolean));
+                const dataList = document.getElementById('cat-options');
+                if (dataList) {
+                    dataList.innerHTML = Array.from(uniqueCats).sort().map(c => `<option value="${c}">`).join('');
+                }
+
                 // Initial Filter/Sort
                 applyFilterAndSort();
             } catch (e) { document.getElementById('music-list').innerHTML = '로딩 실패'; }
@@ -607,7 +610,13 @@
             listEl.innerHTML = displayList.map(post => `
                 <div class="music-item" onclick="playMusic('${post.id}')">
                     <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg" loading="lazy">
-                    <div class="m-info"><div class="m-title">${post.title}</div><div class="m-meta">${post.category} • ${post.description}</div></div>
+                    <div class="m-info">
+                        <div class="m-title">
+                            ${post.title}
+                            ${(post.commentCount || 0) > 0 ? `<span style="font-size:0.8rem; color:#6366f1; margin-left:5px; vertical-align:middle;">💬 ${post.commentCount}</span>` : ''}
+                        </div>
+                        <div class="m-meta">${post.category} • ${post.description}</div>
+                    </div>
                     ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:#ef4444; background:none; border:none; padding:10px; font-weight:bold;">삭제</button>` : ''}
                 </div>
             `).join('');
@@ -673,6 +682,12 @@
             await db.collection(COLLECTION).doc(window.currentPlayingId).collection('comments').add({
                 text: val, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
             });
+
+            // Increment Comment Count
+            await db.collection(COLLECTION).doc(window.currentPlayingId).update({
+                commentCount: firebase.firestore.FieldValue.increment(1)
+            });
+
             input.value = ''; loadComments(window.currentPlayingId);
         }
     </script>
