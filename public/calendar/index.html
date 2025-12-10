@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Garden - 가족 일정</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=13">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .calendar-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--color-primary);
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-cell {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 8px;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .calendar-cell:hover {
+            border-color: var(--color-primary);
+        }
+
+        .calendar-cell.selected {
+            background-color: #fff1f2;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+
+        .calendar-cell.today {
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .calendar-cell.other-month {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .weekday-header {
+            font-size: 0.8rem;
+            text-align: center;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .event-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--color-secondary);
+            margin-top: 4px;
+        }
+
+        .event-dots {
+            display: flex;
+            gap: 2px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .detail-day {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        .month-list {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-date {
+            font-size: 0.85rem;
+            color: #666;
+            width: 50px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .event-content {
+            flex-grow: 1;
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        .event-meta {
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .delete-btn {
+            color: #ef4444;
+            font-size: 0.8rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 2px 5px;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
+            <span>가족 일정</span>
+        </header>
+
+        <div id="loading" class="p-4 text-center">불러오는 중...</div>
+
+        <div id="content" class="p-4 hidden">
+            <!-- Calendar View -->
+            <div class="calendar-header">
+                <button class="calendar-btn" onclick="changeMonth(-1)">◀</button>
+                <h2 style="font-size: 1.4rem; color: #333; margin: 0;" id="current-month">2023.12</h2>
+                <button class="calendar-btn" onclick="changeMonth(1)">▶</button>
+            </div>
+
+            <!-- Grid Header -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px;">
+                <div class="weekday-header" style="color:#ef4444">일</div>
+                <div class="weekday-header">월</div>
+                <div class="weekday-header">화</div>
+                <div class="weekday-header">수</div>
+                <div class="weekday-header">목</div>
+                <div class="weekday-header">금</div>
+                <div class="weekday-header" style="color:#3b82f6">토</div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Generated by JS -->
+            </div>
+
+            <!-- Selected Date Detail -->
+            <div class="detail-day" id="detail-section" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="font-size:1.1rem; color:var(--color-primary); margin:0;" id="selected-date-title">12월 10일
+                    </h3>
+                    <span style="font-size:0.8rem; color:#888;">일정 등록</span>
+                </div>
+                <div id="selected-date-list" style="margin-bottom:15px;">
+                    <!-- Events for this day -->
+                </div>
+                <form class="add-form" onsubmit="addSchedule(event)">
+                    <input type="text" id="new-event-input" class="add-input" placeholder="간단한 메모 (예: 할머니 생신)" required>
+                    <button type="submit" class="btn btn-primary"
+                        style="width:auto; padding:0 15px; font-size:0.9rem;">등록</button>
+                </form>
+            </div>
+
+            <!-- Monthly List -->
+            <div class="month-list">
+                <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">📅 이달의 일정</h3>
+                <div id="month-event-list">
+                    <!-- List items -->
+                    <p style="text-align:center; color:#999; font-size:0.9rem;">등록된 일정이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js?v=13';
+        const COLLECTION = 'family_schedules';
+
+        let currentDate = new Date(); // Tracks the month being viewed
+        let selectedDate = new Date(); // Tracks the clicked date
+        let monthEvents = []; // Cache events for current month
+        let currentUser = null;
+
+        // Init
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                location.href = '../login.html';
+            } else {
+                currentUser = user;
+                initCalendar();
+            }
+        });
+
+        async function initCalendar() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('content').classList.add('hidden');
+            await loadMonthEvents();
+            renderCalendar();
+            renderMonthList();
+            // Select today/first day by default logic handled in render? 
+            // Let's hide detail section initially until user clicks something
+            // Or auto-select today if in current month
+            selectDate(new Date());
+
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+        }
+
+        async function loadMonthEvents() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            // Range for query: 1st of month to last of month
+            // Actually, simplified: just store string "YYYY-MM-DD" and query by string compare? 
+            // Or query events where date starts with "YYYY-MM"
+            // Firestore string filtering is easier for this scale.
+
+            const startStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+            const endStr = `${year}-${String(month + 1).padStart(2, '0')}-31`;
+
+            try {
+                // Assuming format YYYY-MM-DD
+                // We'll filter client side for simplicity if dataset is small, 
+                // but better to query: .where('date', '>=', startStr).where('date', '<=', endStr)
+                const snapshot = await db.collection(COLLECTION)
+                    .where('date', '>=', startStr)
+                    .where('date', '<=', endStr)
+                    .get();
+
+                monthEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort by date
+                monthEvents.sort((a, b) => a.date.localeCompare(b.date));
+            } catch (e) {
+                console.error("Load failed", e);
+                monthEvents = [];
+            }
+        }
+
+        window.changeMonth = async function (dir) {
+            currentDate.setMonth(currentDate.getMonth() + dir);
+            await loadMonthEvents(); // Reload data for new month
+            renderCalendar();
+            renderMonthList();
+            document.getElementById('detail-section').style.display = 'none'; // Hide detail when switching month
+        }
+
+        function renderCalendar() {
+            const y = currentDate.getFullYear();
+            const m = currentDate.getMonth();
+
+            document.getElementById('current-month').innerText = `${y}.${String(m + 1).padStart(2, '0')}`;
+
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(y, m, 1);
+            const lastDay = new Date(y, m + 1, 0);
+
+            // Pad empty cells for start of week
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell other-month';
+                grid.appendChild(cell);
+            }
+
+            // Days
+            const today = new Date();
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dateObj = new Date(y, m, d);
+                const dateStr = formatDate(dateObj);
+
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                if (dateStr === formatDate(today)) cell.classList.add('today');
+
+                // Visual selection state logic
+                // If using global selectedDate, check match
+                if (selectedDate && formatDate(selectedDate) === dateStr) {
+                    cell.classList.add('selected');
+                }
+
+                cell.onclick = () => selectDate(dateObj);
+
+                // Date Number
+                const numSpan = document.createElement('span');
+                numSpan.innerText = d;
+                cell.appendChild(numSpan);
+
+                // Dots for events
+                const dayEvents = monthEvents.filter(e => e.date === dateStr);
+                if (dayEvents.length > 0) {
+                    const dotsC = document.createElement('div');
+                    dotsC.className = 'event-dots';
+                    // Max 3 dots
+                    dayEvents.slice(0, 3).forEach(() => {
+                        const dot = document.createElement('div');
+                        dot.className = 'event-dot';
+                        dotsC.appendChild(dot);
+                    });
+                    if (dayEvents.length > 3) {
+                        const plus = document.createElement('span');
+                        plus.style.fontSize = '0.6rem';
+                        plus.style.color = 'var(--color-secondary)';
+                        plus.innerText = '+';
+                        dotsC.appendChild(plus);
+                    }
+                    cell.appendChild(dotsC);
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function selectDate(dateObj) {
+            selectedDate = dateObj;
+
+            // Highlight visual
+            const cells = document.querySelectorAll('.calendar-cell');
+            cells.forEach(c => c.classList.remove('selected'));
+            renderCalendar(); // Re-render to show selection border, efficiently enough
+
+            // Show Detail
+            const section = document.getElementById('detail-section');
+            section.style.display = 'block';
+
+            const m = dateObj.getMonth() + 1;
+            const d = dateObj.getDate();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            document.getElementById('selected-date-title').innerText = `${m}월 ${d}일 (${days[dateObj.getDay()]})`;
+
+            // Render day list
+            renderDayList(formatDate(dateObj));
+
+            // Scroll to detail if needed?
+            // section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function renderDayList(dateStr) {
+            const listEl = document.getElementById('selected-date-list');
+            listEl.innerHTML = '';
+
+            const dayEvents = monthEvents.filter(e => e.date === dateStr);
+            if (dayEvents.length === 0) {
+                listEl.innerHTML = '<p style="font-size:0.9rem; color:#aaa;">등록된 일정이 없습니다.</p>';
+                return;
+            }
+
+            dayEvents.forEach(evt => {
+                const div = document.createElement('div');
+                div.className = 'event-item';
+                div.style.alignItems = 'center';
+
+                let html = `
+                    <div class="event-content">
+                        ${evt.title}
+                        <div class="event-meta">by ${evt.author}</div>
+                    </div>
+                `;
+
+                if (currentUser.uid === evt.uid) {
+                    html += `<button class="delete-btn" onclick="window.deleteSchedule('${evt.id}')">삭제</button>`;
+                }
+
+                div.innerHTML = html;
+                listEl.appendChild(div);
+            });
+        }
+
+        window.addSchedule = async function (e) {
+            e.preventDefault();
+            const input = document.getElementById('new-event-input');
+            const title = input.value.trim();
+            if (!title) return;
+
+            const dateStr = formatDate(selectedDate);
+
+            let nickname = sessionStorage.getItem('user_name');
+            if (!nickname) nickname = currentUser.email.split('@')[0];
+
+            try {
+                await db.collection(COLLECTION).add({
+                    date: dateStr,
+                    title: title,
+                    uid: currentUser.uid,
+                    author: nickname,
+                    createdAt: new Date()
+                });
+
+                input.value = '';
+                // Refresh
+                await loadMonthEvents();
+                renderCalendar();
+                renderMonthList(); // Updates bottom list
+                renderDayList(dateStr); // Updates detail section based on current selection
+            } catch (err) {
+                alert('저장 실패: ' + err.message);
+            }
+        }
+
+        window.deleteSchedule = async function (docId) {
+            if (!confirm('일정을 삭제하시겠습니까?')) return;
+            try {
+                await db.collection(COLLECTION).doc(docId).delete();
+                await loadMonthEvents();
+                renderCalendar();
+                renderMonthList();
+                renderDayList(formatDate(selectedDate));
+            } catch (err) {
+                alert('삭제 실패: ' + err.message);
+            }
+        }
+
+        function renderMonthList() {
+            const listEl = document.getElementById('month-event-list');
+            if (monthEvents.length === 0) {
+                listEl.innerHTML = '<p style="text-align:center; color:#999; font-size:0.9rem;">등록된 일정이 없습니다.</p>';
+                return;
+            }
+
+            let html = '';
+            monthEvents.forEach(evt => {
+                const d = new Date(evt.date);
+                const dStr = `${d.getMonth() + 1}/${d.getDate()}`;
+
+                html += `
+                    <div class="event-item">
+                        <div class="event-date">${dStr}</div>
+                        <div class="event-content">
+                            ${evt.title}
+                            <div class="event-meta">by ${evt.author}</div>
+                        </div>
+                    </div>
+                 `;
+            });
+            listEl.innerHTML = html;
+        }
+
+        // Helper
+        function formatDate(d) {
+            // Returns YYYY-MM-DD local
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+    </script>
+</body>
+
+</html>

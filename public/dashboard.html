@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=13">
+    <link rel="stylesheet" href="../assets/css/style.css?v=14">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -45,7 +45,14 @@
                 <div class="card-desc">오늘의 바이오리듬과 <strong>포춘쿠키를 긁어보세요!</strong> 🥠</div>
             </div>
 
-            <!-- Card 3: Preference (Future) -->
+            <!-- Card 3: Calendar -->
+            <div class="card" onclick="location.href='calendar/index.html'"
+                style="background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1px solid #bfdbfe; margin:0; transition: transform 0.2s;">
+                <div class="card-title" style="color: #1d4ed8;">📅 가족 일정</div>
+                <div class="card-desc">우리 가족의 중요 행사를 달력에 기록해요!</div>
+            </div>
+
+            <!-- Card 4: Preference (Hidden) -->
             <div class="card"
                 style="border-left: 5px solid #ccc; margin:0; opacity: 0.7; cursor: default; display: none;">
                 <div class="card-title">⚖️ 취향 분석기 (준비중)</div>
