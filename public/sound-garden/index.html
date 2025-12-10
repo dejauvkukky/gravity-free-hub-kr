@@ -5,19 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=19">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=20">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         /* Layout */
-        .container-Override {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 80px;
-        }
-
         .featured-section {
             margin-bottom: 25px;
         }
@@ -41,7 +34,6 @@
             }
         }
 
-        /* Video Card */
         .video-card {
             background: white;
             border-radius: 12px;
@@ -58,7 +50,6 @@
         .thumb-area {
             position: relative;
             padding-bottom: 56.25%;
-            /* 16:9 Aspect Ratio */
             background: #000;
         }
 
@@ -104,7 +95,6 @@
             white-space: nowrap;
         }
 
-        /* Categories */
         .category-scroll {
             display: flex;
             gap: 8px;
@@ -112,7 +102,6 @@
             padding-bottom: 10px;
             margin-bottom: 15px;
             scrollbar-width: none;
-            /* Firefox */
         }
 
         .category-scroll::-webkit-scrollbar {
@@ -139,7 +128,6 @@
             font-weight: bold;
         }
 
-        /* List Area */
         .music-list {
             display: flex;
             flex-direction: column;
@@ -190,7 +178,6 @@
             align-items: center;
         }
 
-        /* Modal for Player */
         .player-overlay {
             position: fixed;
             top: 0;
@@ -279,7 +266,6 @@
             transform: scale(1.3);
         }
 
-        /* Write Modal */
         .write-modal {
             position: fixed;
             top: 50%;
@@ -298,43 +284,44 @@
 </head>
 
 <body>
-    <div class="container-Override">
-        <!-- Header with Admin Button -->
+    <div class="container">
+        <!-- Header -->
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
             <div style="display:flex; align-items:center; gap:10px;">
                 <a href="../dashboard.html" class="logo"
                     style="text-decoration:none; color:#333; font-size:1.5rem;">←</a>
                 <span style="font-size:1.3rem; font-weight:bold; color:#1e293b;">🎵 Sound Garden</span>
             </div>
-
-            <button id="admin-add-btn" onclick="openWriteModal()"
-                style="display:none; background:var(--color-primary); color:white; border:none; border-radius:12px; padding:8px 16px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.15); transition:transform 0.1s;">
-                + 등록
-            </button>
         </header>
 
-        <!-- Featured (Top 3) -->
+        <!-- Featured -->
         <div class="featured-section">
             <div class="featured-title">✨ Featured Music</div>
-            <div class="featured-scroll" id="featured-list">
-                <!-- JS Generated -->
+            <div class="featured-scroll" id="featured-list"></div>
+        </div>
+
+        <!-- Categories & Sort & Admin Button -->
+        <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+            <!-- Categories -->
+            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;"></div>
+
+            <!-- Sort & Button -->
+            <div style="display:flex; gap:10px; align-items:center;">
+                <select id="sort-select" onchange="changeSort()"
+                    style="padding:8px; border-radius:12px; border:1px solid #ddd; font-size:0.9rem; background:white; color:#555;">
+                    <option value="new">최신순</option>
+                    <option value="old">오래된순</option>
+                    <option value="name">이름순</option>
+                </select>
+
+                <button id="admin-add-btn" type="button" onclick="openWriteModal()"
+                    style="display:none; background:var(--color-primary); color:white; border:none; border-radius:12px; padding:8px 16px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.15); white-space:nowrap;">
+                    + 등록
+                </button>
             </div>
         </div>
 
-        <!-- Categories & Sort -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap: 10px;">
-            <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;">
-                <!-- JS Generated -->
-            </div>
-            <select id="sort-select" onchange="changeSort()"
-                style="padding:8px; border-radius:12px; border:1px solid #ddd; font-size:0.9rem; background:white; flex-shrink: 0; color:#555;">
-                <option value="new">최신순</option>
-                <option value="old">오래된순</option>
-                <option value="name">이름순</option>
-            </select>
-        </div>
-
-        <!-- Music List -->
         <div class="music-list" id="music-list">
             <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
         </div>
@@ -346,21 +333,19 @@
             <div class="player-header">
                 <span id="player-title"
                     style="font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:80%; font-size:1.1rem;">Title</span>
-                <button onclick="closePlayer()"
+                <button onclick="closePlayer()" type="button"
                     style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">✕ 닫기</button>
             </div>
             <div class="video-box">
                 <div id="youtube-embed-container"></div>
             </div>
             <div class="comment-section">
-                <!-- Info -->
                 <div style="margin-bottom:20px; text-align:center;">
                     <h3 id="info-title" style="margin:0 0 5px 0; font-size:1.2rem; color:#333;">Title</h3>
                     <p id="info-desc"
                         style="margin:0; font-size:0.9rem; color:#666; background:#eee; display:inline-block; padding:4px 8px; border-radius:8px;">
                         Description</p>
                 </div>
-                <!-- Reactions -->
                 <div class="reaction-bar">
                     <button class="react-btn" onclick="addReaction('❤️')">❤️ <span id="count-heart"
                             style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
@@ -369,11 +354,8 @@
                     <button class="react-btn" onclick="addReaction('👏')">👏 <span id="count-clap"
                             style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
                 </div>
-                <!-- Comments -->
                 <div style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333;">💬 댓글</div>
                 <div id="comment-list" class="comment-list"></div>
-
-                <!-- Comment Form -->
                 <form onsubmit="postComment(event)" style="display:flex; gap:10px;">
                     <input type="text" id="comment-input" class="input-field" placeholder="댓글을 남겨보세요!"
                         style="margin:0; padding:12px; border-radius:12px;">
@@ -384,7 +366,7 @@
         </div>
     </div>
 
-    <!-- Write Modal (Admin Only) -->
+    <!-- Write Modal -->
     <div id="write-overlay" class="modal-overlay" style="z-index: 2001; display: none;">
         <div class="write-modal">
             <h3 style="margin-top:0; color:#333; margin-bottom:20px;">🎵 음악 등록</h3>
@@ -415,11 +397,20 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=19';
-        const COLLECTION = 'sound_garden_posts';
+    <script>
+        window.openWriteModal = function () {
+            const el = document.getElementById('write-overlay');
+            if (el) el.style.display = 'flex';
+        }
+        window.closeWriteModal = function () {
+            const el = document.getElementById('write-overlay');
+            if (el) el.style.display = 'none';
+        }
+    </script>
 
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js?v=20';
+        const COLLECTION = 'sound_garden_posts';
         let allPosts = [];
         let currentCat = 'all';
         let sortMode = 'new';
@@ -427,19 +418,15 @@
         let isAdmin = false;
         let currentPlayingId = null;
 
-        // Init
         auth.onAuthStateChanged(user => {
-            if (!user) {
-                location.href = '../login.html';
-            } else {
+            if (!user) location.href = '../login.html';
+            else {
                 currentUser = user;
                 isAdmin = (user.email === 'kukky@family.com');
-
                 if (isAdmin) {
                     const btn = document.getElementById('admin-add-btn');
                     if (btn) btn.style.display = 'block';
                 }
-
                 loadPosts();
             }
         });
@@ -457,20 +444,17 @@
 
         function renderAll() {
             renderFeatured();
-            renderCategories(); // Dynamic
+            renderCategories();
             renderList();
         }
 
         function renderFeatured() {
-            // Top 3
             const featured = allPosts.slice(0, 3);
             const container = document.getElementById('featured-list');
-
             if (featured.length === 0) {
                 container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">등록된 음악이 없습니다.</div>';
                 return;
             }
-
             container.innerHTML = featured.map(post => `
                 <div class="video-card" onclick="playMusic('${post.id}')">
                     <div class="thumb-area">
@@ -485,12 +469,9 @@
             `).join('');
         }
 
-        // Generate Category Buttons
         function renderCategories() {
             const usedCats = new Set(allPosts.map(p => p.category).filter(Boolean));
-            // Only use existing cats + all
             const finalCats = ['all', ...Array.from(usedCats).sort()];
-
             const container = document.getElementById('category-list');
             container.innerHTML = finalCats.map(cat => {
                 const label = cat === 'all' ? '전체' : cat;
@@ -501,35 +482,26 @@
 
         window.filterCat = function (cat) {
             currentCat = cat;
-            renderCategories(); // Re-render to update active state
+            renderCategories();
             renderList();
         }
 
         window.renderList = function () {
             const listEl = document.getElementById('music-list');
-            let filtered = allPosts.slice(); // Copy
-
-            // Filter
-            if (currentCat !== 'all') {
-                filtered = filtered.filter(p => p.category === currentCat);
-            }
-
-            // Sort
+            let filtered = allPosts.slice();
+            if (currentCat !== 'all') filtered = filtered.filter(p => p.category === currentCat);
             filtered.sort((a, b) => {
                 const dateA = new Date(a.createdAt);
                 const dateB = new Date(b.createdAt);
-
                 if (sortMode === 'new') return dateB - dateA;
                 if (sortMode === 'old') return dateA - dateB;
                 if (sortMode === 'name') return a.title.localeCompare(b.title);
                 return 0;
             });
-
             if (filtered.length === 0) {
                 listEl.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">해당 카테고리의 음악이 없습니다 🥲</div>';
                 return;
             }
-
             listEl.innerHTML = filtered.map(post => `
                 <div class="music-item" onclick="playMusic('${post.id}')">
                     <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg" loading="lazy">
@@ -551,37 +523,29 @@
             renderList();
         }
 
-        // --- Player ---
         window.playMusic = function (docId) {
             currentPlayingId = docId;
             const post = allPosts.find(p => p.id === docId);
             if (!post) return;
-
             document.getElementById('player-title').innerText = post.title;
             document.getElementById('info-title').innerText = post.title;
             document.getElementById('info-desc').innerText = post.description + ' | ' + post.category;
-
-            // Embed
             const embedHtml = `<iframe src="https://www.youtube.com/embed/${post.videoId}?autoplay=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             document.getElementById('youtube-embed-container').innerHTML = embedHtml;
-
             updateReactionCounts(post);
             loadComments(docId);
-
             document.getElementById('player-overlay').style.display = 'flex';
         }
 
         window.closePlayer = function () {
             document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('youtube-embed-container').innerHTML = ''; // Stop video
+            document.getElementById('youtube-embed-container').innerHTML = '';
             currentPlayingId = null;
         }
 
-        // --- Comments & Reactions ---
         async function loadComments(docId) {
             const listEl = document.getElementById('comment-list');
             listEl.innerHTML = '<div style="color:#999; font-size:0.8rem;">댓글 로딩중...</div>';
-
             try {
                 const snap = await db.collection(COLLECTION).doc(docId).collection('comments').orderBy('createdAt', 'asc').get();
                 if (snap.empty) {
@@ -601,9 +565,7 @@
             const input = document.getElementById('comment-input');
             const text = input.value.trim();
             if (!text) return;
-
             let author = sessionStorage.getItem('user_name') || '익명';
-
             try {
                 await db.collection(COLLECTION).doc(currentPlayingId).collection('comments').add({
                     text: text, author: author, uid: currentUser.uid, createdAt: new Date()
@@ -615,24 +577,12 @@
 
         window.addReaction = async function (type) {
             if (!currentPlayingId) return;
-            // Simple increment for now, client-side optimistic UI later if needed
-            // Ideally we track who reacted, but for simplicity just increment
-            // We'll modify the specific field 'react_HEART' etc.
-
-            // NOTE: Firestore increment requires field value. For now let's just show local alert or skip strict counting to save complexity?
-            // Let's do simple array union of UIDs to prevent dupes? or just simple subcollection?
-            // To keep it super simple: Just add a dummy comment with the emoji? 
-            // Or updating field `react_${type}`.
-
-            // Let's use specific fields: hearts, fires, claps
             const fieldMap = { '❤️': 'hearts', '🔥': 'fires', '👏': 'claps' };
             const field = fieldMap[type];
-
             try {
                 await db.collection(COLLECTION).doc(currentPlayingId).update({
                     [field]: firebase.firestore.FieldValue.increment(1)
                 });
-                // Update local UI
                 const span = document.getElementById(type === '❤️' ? 'count-heart' : type === '🔥' ? 'count-fire' : 'count-clap');
                 span.innerText = parseInt(span.innerText) + 1;
             } catch (e) { console.error(e); }
@@ -644,37 +594,28 @@
             document.getElementById('count-clap').innerText = post.claps || 0;
         }
 
-        // --- Admin Functions ---
-        window.openWriteModal = () => {
-            document.getElementById('write-overlay').style.display = 'flex';
-        }
-        window.closeWriteModal = () => document.getElementById('write-overlay').style.display = 'none';
-
         window.submitMusic = async function (e) {
             e.preventDefault();
             if (!isAdmin) return;
-
             const url = document.getElementById('in-url').value;
             const title = document.getElementById('in-title').value;
             const desc = document.getElementById('in-desc').value;
             const cat = document.getElementById('in-cat').value;
-
-            // Extract ID
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             if (!match || match[2].length !== 11) {
                 alert('올바른 유튜브 링크가 아닙니다.'); return;
             }
             const videoId = match[2];
-
             try {
                 await db.collection(COLLECTION).add({
                     videoId, title, description: desc, category: cat,
                     author: 'kukky', createdAt: new Date().toISOString(),
                     hearts: 0, fires: 0, claps: 0
                 });
-                closeWriteModal();
-                loadPosts(); // Reload to see new
+                if (window.closeWriteModal) window.closeWriteModal();
+                else document.getElementById('write-overlay').style.display = 'none';
+                loadPosts();
             } catch (err) { alert(err.message); }
         }
 
@@ -685,7 +626,6 @@
                 loadPosts();
             } catch (e) { alert('삭제 실패'); }
         }
-
     </script>
 </body>
 
