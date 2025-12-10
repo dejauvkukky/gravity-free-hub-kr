@@ -5,30 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=23">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=24">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
+        /* Base Layout */
+        body {
+            margin: 0;
+            background-color: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Explict Padding */
+
         /* Feature Specific Styles */
         .featured-section {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .featured-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--color-primary);
-            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .featured-scroll {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 20px;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .featured-scroll {
                 grid-template-columns: 1fr;
             }
@@ -36,16 +54,21 @@
 
         .video-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            transition: transform 0.2s;
-            border: 1px solid #eee;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #f1f5f9;
         }
 
         .video-card:active {
             transform: scale(0.98);
+        }
+
+        .video-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .thumb-area {
@@ -70,27 +93,34 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 2rem;
-            opacity: 0.8;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 2.5rem;
+            opacity: 0.9;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+            transition: transform 0.2s;
+        }
+
+        .video-card:hover .play-icon {
+            transform: translate(-50%, -50%) scale(1.1);
         }
 
         .v-info {
-            padding: 15px;
+            padding: 16px;
         }
 
         .v-title {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            color: #334155;
         }
 
         .v-desc {
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.85rem;
+            color: #64748b;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -98,10 +128,10 @@
 
         .category-scroll {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
             scrollbar-width: none;
         }
 
@@ -111,53 +141,57 @@
 
         .cat-btn {
             background: white;
-            border: 1px solid #ddd;
-            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            padding: 10px 18px;
             border-radius: 20px;
-            font-size: 0.9rem;
-            color: #555;
+            font-size: 0.95rem;
+            color: #64748b;
             white-space: nowrap;
             cursor: pointer;
             flex-shrink: 0;
             transition: all 0.2s;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         .cat-btn.active {
-            background: var(--color-primary);
+            background: var(--color-primary, #6366f1);
             color: white;
-            border-color: var(--color-primary);
+            border-color: var(--color-primary, #6366f1);
             font-weight: bold;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
         }
 
         .music-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .music-item {
             background: white;
             border-radius: 12px;
-            padding: 15px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
             cursor: pointer;
-            transition: transform 0.1s;
-            border: 1px solid #eee;
+            transition: background 0.2s;
+            border: 1px solid #f1f5f9;
         }
 
         .music-item:active {
-            transform: scale(0.99);
+            background: #f8fafc;
         }
 
         .music-thumb-mini {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
             object-fit: cover;
             flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .m-info {
@@ -166,59 +200,73 @@
         }
 
         .m-title {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
+            margin-bottom: 4px;
+            color: #334155;
         }
 
         .m-meta {
-            font-size: 0.8rem;
-            color: #888;
+            font-size: 0.85rem;
+            color: #94a3b8;
             display: flex;
             gap: 8px;
             align-items: center;
         }
 
-        /* Admin Panel - Inline */
+        /* Admin Panel */
         .admin-panel {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 16px;
             padding: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             display: none;
-            /* Hidden by default */
         }
 
         .admin-panel h3 {
             margin-top: 0;
-            color: #0369a1;
+            color: #1d4ed8;
             font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 700;
         }
 
         .admin-form {
             display: grid;
-            gap: 10px;
+            gap: 12px;
         }
 
         .admin-form input {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .admin-form input:focus {
+            border-color: #3b82f6;
         }
 
         .admin-form button {
-            padding: 10px;
-            background: #0ea5e9;
+            padding: 12px;
+            background: #2563eb;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
         }
 
-        /* Player Overlay */
+        .admin-form button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Modified Player Overlay - Fixed Footer */
         .player-overlay {
             position: fixed;
             top: 0;
@@ -235,17 +283,20 @@
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
-            flex-grow: 1;
+            height: 100%;
             display: flex;
             flex-direction: column;
+            background: white;
         }
 
         .player-header {
-            padding: 15px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #0f172a;
             color: white;
+            flex-shrink: 0;
         }
 
         .video-box {
@@ -253,6 +304,7 @@
             padding-bottom: 56.25%;
             background: black;
             flex-shrink: 0;
+            width: 100%;
         }
 
         .video-box iframe {
@@ -263,65 +315,121 @@
             height: 100%;
         }
 
-        .comment-section {
-            background: #f9f9f9;
+        /* Scrollable Content Area */
+        .player-scroll-content {
             flex-grow: 1;
-            padding: 20px;
             overflow-y: auto;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            margin-top: -10px;
-            position: relative;
+            padding: 20px;
+            background: #f8fafc;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .comment-list {
-            margin-bottom: 20px;
+        /* Fixed Footer Input */
+        .player-footer {
+            padding: 12px 15px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .player-footer input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 25px;
+            outline: none;
+            background: #f1f5f9;
+        }
+
+        .player-footer button {
+            background: var(--color-primary, #6366f1);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .comment-bubble {
             background: white;
-            padding: 10px 14px;
+            padding: 12px 16px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 0.95rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
         }
 
         .reaction-bar {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
         .react-btn {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             background: none;
             border: none;
             cursor: pointer;
-            margin: 0 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
             transition: transform 0.1s;
         }
 
+        .react-btn span {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: bold;
+        }
+
         .react-btn:active {
-            transform: scale(1.3);
+            transform: scale(1.2);
+        }
+
+        .load-more-btn {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .load-more-btn:hover {
+            background: #f1f5f9;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Consistent Header -->
+        <!-- Header -->
         <header>
             <a href="../dashboard.html" class="logo">← Secret Garden</a>
             <span>🎵 Sound Garden</span>
         </header>
 
-        <!-- ADMIN PANEL (Inline, Hidden by Default) -->
+        <!-- ADMIN PANEL -->
         <div id="admin-panel" class="admin-panel">
             <h3>🎵 음악 등록 (Admin)</h3>
             <form onsubmit="submitMusicInline(event)" class="admin-form">
-                <input type="text" id="in-url" placeholder="유튜브 링크 (URL)" required>
+                <input type="text" id="in-url" placeholder="유튜브 링크 (URL 붙여넣기)" required>
                 <input type="text" id="in-title" placeholder="제목" required>
                 <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)">
                 <input list="cat-options" id="in-cat" placeholder="이모지 + 카테고리 (예: 🚗 드라이브)">
@@ -337,19 +445,20 @@
             </form>
         </div>
 
-        <!-- Featured Section -->
+        <!-- Featured Section (Renamed) -->
         <div class="featured-section">
-            <div class="featured-title">✨ Featured Music</div>
+            <div class="featured-title">🔥 Fresh Picks <span
+                    style="font-size:0.9rem; color:#94a3b8; font-weight:normal;">(따끈따끈 신곡)</span></div>
             <div class="featured-scroll" id="featured-list"></div>
         </div>
 
         <!-- Filter & Action Row -->
         <div
-            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
             <div class="category-scroll" id="category-list" style="margin-bottom:0; flex-grow:1; min-width: 0;"></div>
             <div style="display:flex; gap:10px; align-items:center;">
                 <select id="sort-select" onchange="changeSort()"
-                    style="padding:8px; border-radius:12px; border:1px solid #ddd; font-size:0.9rem; background:white; color:#555;">
+                    style="padding:10px; border-radius:12px; border:1px solid #cbd5e1; font-size:0.9rem; background:white; color:#334155; font-weight:500;">
                     <option value="new">최신순</option>
                     <option value="old">오래된순</option>
                     <option value="name">이름순</option>
@@ -361,64 +470,88 @@
         <div class="music-list" id="music-list">
             <div style="text-align:center; padding: 40px; color:#999;">로딩중...</div>
         </div>
+
+        <!-- Load More -->
+        <button id="load-more-btn" class="load-more-btn" onclick="loadMore()" style="display:none;">더 보기 (+10)</button>
     </div>
 
-    <!-- Modals (Player Only) -->
+    <!-- Player Overlay (Refactored) -->
     <div id="player-overlay" class="player-overlay">
         <div class="player-container">
+            <!-- 1. Header -->
             <div class="player-header">
                 <span id="player-title"
                     style="font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:80%; font-size:1.1rem;">Title</span>
                 <button onclick="closePlayer()" type="button"
-                    style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">✕ 닫기</button>
+                    style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">✕</button>
             </div>
+
+            <!-- 2. Video -->
             <div class="video-box">
                 <div id="youtube-embed-container"></div>
             </div>
-            <div class="comment-section">
-                <div style="margin-bottom:20px; text-align:center;">
-                    <h3 id="info-title" style="margin:0 0 5px 0; font-size:1.2rem; color:#333;">Title</h3>
+
+            <!-- 3. Scrollable Content -->
+            <div class="player-scroll-content">
+                <div style="margin-bottom:20px;">
+                    <h3 id="info-title" style="margin:0 0 8px 0; font-size:1.3rem; color:#1e293b;">Title</h3>
                     <p id="info-desc"
-                        style="margin:0; font-size:0.9rem; color:#666; background:#eee; display:inline-block; padding:4px 8px; border-radius:8px;">
+                        style="margin:0; font-size:0.95rem; color:#64748b; background:white; display:inline-block; padding:6px 12px; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
                         Description</p>
                 </div>
+
+                <!-- Reactions -->
                 <div class="reaction-bar">
-                    <button class="react-btn" onclick="addReaction('❤️')">❤️ <span id="count-heart"
-                            style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
-                    <button class="react-btn" onclick="addReaction('🔥')">🔥 <span id="count-fire"
-                            style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
-                    <button class="react-btn" onclick="addReaction('👏')">👏 <span id="count-clap"
-                            style="font-size:0.9rem; color:#666; font-weight:bold;">0</span></button>
+                    <button class="react-btn" onclick="addReaction('❤️')">
+                        <div style="font-size:1.8rem;">❤️</div>
+                        <span id="count-heart">0</span>
+                    </button>
+                    <button class="react-btn" onclick="addReaction('🔥')">
+                        <div style="font-size:1.8rem;">🔥</div>
+                        <span id="count-fire">0</span>
+                    </button>
+                    <button class="react-btn" onclick="addReaction('👏')">
+                        <div style="font-size:1.8rem;">👏</div>
+                        <span id="count-clap">0</span>
+                    </button>
                 </div>
-                <div style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333;">💬 댓글</div>
+
+                <div
+                    style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333; display:flex; align-items:center; gap:5px;">
+                    💬 댓글 <span id="comment-count" style="font-size:0.8rem; color:#94a3b8; font-weight:normal;"></span>
+                </div>
                 <div id="comment-list" class="comment-list"></div>
-                <form onsubmit="postComment(event)" style="display:flex; gap:10px;">
-                    <input type="text" id="comment-input" class="input-field" placeholder="댓글을 남겨보세요!"
-                        style="margin:0; padding:12px; border-radius:12px;">
-                    <button type="submit" class="btn btn-primary"
-                        style="width:auto; white-space:nowrap; border-radius:12px; padding:0 20px;">전송</button>
-                </form>
+                <div style="height: 20px;"></div> <!-- visual spacing at end of scroll -->
             </div>
+
+            <!-- 4. Fixed Footer Input -->
+            <form class="player-footer" onsubmit="postComment(event)">
+                <input type="text" id="comment-input" placeholder="따뜻한 댓글을 남겨주세요!" autocomplete="off">
+                <button type="submit">전송</button>
+            </form>
         </div>
     </div>
 
-    <!-- Global Helpers -->
+    <!-- Scripts -->
     <script>
-        // No modal logic needed for write anymore
         window.closePlayer = function () {
             document.getElementById('player-overlay').style.display = 'none';
             document.getElementById('youtube-embed-container').innerHTML = '';
+            document.body.style.overflow = ''; // Restore scroll
         }
     </script>
 
-    <!-- Main Module -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=23';
+        import { auth, db } from '../../src/firebase.js?v=24';
         const COLLECTION = 'sound_garden_posts';
+
+        // State
         let allPosts = [];
+        let filteredPosts = [];
         let currentCat = 'all';
         let sortMode = 'new';
         let currentUser = null;
+        let visibleCount = 10;
         let isAdmin = false;
 
         auth.onAuthStateChanged(user => {
@@ -426,8 +559,6 @@
             else {
                 currentUser = user;
                 isAdmin = (user.email === 'kukky@family.com');
-
-                // Show Admin Panel Inline
                 if (isAdmin) {
                     const panel = document.getElementById('admin-panel');
                     if (panel) panel.style.display = 'block';
@@ -440,20 +571,47 @@
             try {
                 const snapshot = await db.collection(COLLECTION).orderBy('createdAt', 'desc').get();
                 allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAll();
+                // Initial Filter/Sort
+                applyFilterAndSort();
             } catch (e) { document.getElementById('music-list').innerHTML = '로딩 실패'; }
         }
 
-        function renderAll() { renderFeatured(); renderCategories(); renderList(); }
+        // Central Filter logic
+        function applyFilterAndSort() {
+            // 1. Filter
+            filteredPosts = allPosts.slice();
+            if (currentCat !== 'all') {
+                filteredPosts = filteredPosts.filter(p => p.category === currentCat);
+            }
+
+            // 2. Sort
+            filteredPosts.sort((a, b) => {
+                const dA = new Date(a.createdAt), dB = new Date(b.createdAt);
+                if (sortMode === 'new') return dB - dA;
+                if (sortMode === 'old') return dA - dB;
+                return a.title.localeCompare(b.title);
+            });
+
+            // 3. Reset Pagination on Filter/Sort Change
+            visibleCount = 10;
+
+            renderUI();
+        }
+
+        function renderUI() {
+            renderFeatured();
+            renderCategories();
+            renderList();
+        }
 
         function renderFeatured() {
             const featured = allPosts.slice(0, 3);
             const container = document.getElementById('featured-list');
-            if (featured.length === 0) { container.innerHTML = '<div style="color:#999; grid-column:1/-1; text-align:center;">음악 없음</div>'; return; }
+            if (featured.length === 0) { container.innerHTML = '<div style="color:#999; grid-column:1/-1; text-align:center; padding:20px;">등록된 음악이 없습니다.</div>'; return; }
             container.innerHTML = featured.map(post => `
                 <div class="video-card" onclick="playMusic('${post.id}')">
-                    <div class="thumb-area"><img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg"><div class="play-icon">▶</div></div>
-                    <div class="v-info"><div class="v-title">${post.title}</div><div class="v-desc">${post.description}</div></div>
+                    <div class="thumb-area"><img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg" loading="lazy"><div class="play-icon">▶</div></div>
+                    <div class="v-info"><div class="v-title">${post.title}</div><div class="v-desc">${post.description || post.category}</div></div>
                 </div>
             `).join('');
         }
@@ -466,82 +624,105 @@
             ).join('');
         }
 
-        window.filterCat = (cat) => { currentCat = cat; renderCategories(); renderList(); }
-        window.changeSort = () => { sortMode = document.getElementById('sort-select').value; renderList(); }
-
-        window.renderList = () => {
+        function renderList() {
             const listEl = document.getElementById('music-list');
-            let res = allPosts.slice();
-            if (currentCat !== 'all') res = res.filter(p => p.category === currentCat);
-            res.sort((a, b) => {
-                const dA = new Date(a.createdAt), dB = new Date(b.createdAt);
-                if (sortMode === 'new') return dB - dA;
-                if (sortMode === 'old') return dA - dB;
-                return a.title.localeCompare(b.title);
-            });
-            if (res.length == 0) { listEl.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">없음</div>'; return; }
-            listEl.innerHTML = res.map(post => `
+            const btnEl = document.getElementById('load-more-btn');
+
+            // Slice for Pagination
+            const displayList = filteredPosts.slice(0, visibleCount);
+
+            if (displayList.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:50px; color:#aaa;">조건에 맞는 음악이 없습니다 🥲</div>';
+                btnEl.style.display = 'none';
+                return;
+            }
+
+            listEl.innerHTML = displayList.map(post => `
                 <div class="music-item" onclick="playMusic('${post.id}')">
-                    <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg">
+                    <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg" loading="lazy">
                     <div class="m-info"><div class="m-title">${post.title}</div><div class="m-meta">${post.category} • ${post.description}</div></div>
-                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:red; background:none; border:none; padding:10px;">✕</button>` : ''}
+                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:#ef4444; background:none; border:none; padding:10px; font-weight:bold;">삭제</button>` : ''}
                 </div>
             `).join('');
+
+            // Handle Button Visibility
+            if (visibleCount < filteredPosts.length) {
+                btnEl.style.display = 'block';
+                btnEl.innerText = `더 보기 (+${Math.min(10, filteredPosts.length - visibleCount)})`;
+            } else {
+                btnEl.style.display = 'none';
+            }
         }
 
-        window.playMusic = (id) => {
-            const p = allPosts.find(x => x.id === id); if (!p) return;
-            window.currentPlayingId = id; // global for comment/reaction
-            document.getElementById('player-title').innerText = p.title;
-            document.getElementById('info-title').innerText = p.title;
-            document.getElementById('info-desc').innerText = p.description;
-            document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
-            updateReactions(p); loadComments(id);
-            document.getElementById('player-overlay').style.display = 'flex';
-        }
+        // Global functions exposed via window
+        window.filterCat = (cat) => { currentCat = cat; applyFilterAndSort(); }
+        window.changeSort = () => { sortMode = document.getElementById('sort-select').value; applyFilterAndSort(); }
+        window.loadMore = () => { visibleCount += 10; renderList(); }
 
-        // --- Inline Submit ---
         window.submitMusicInline = async (e) => {
             e.preventDefault();
             const [url, title, desc, cat] = ['in-url', 'in-title', 'in-desc', 'in-cat'].map(x => document.getElementById(x).value);
             const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
             if (!match || match[2].length !== 11) { alert('유튜브 링크 확인 필요'); return; }
-
             try {
                 await db.collection(COLLECTION).add({
                     videoId: match[2], title, description: desc, category: cat, author: 'kukky',
                     createdAt: new Date().toISOString(), hearts: 0, fires: 0, claps: 0
                 });
-                alert('등록되었습니다!');
-                // Clear inputs
+                alert('등록 완료!');
                 ['in-url', 'in-title', 'in-desc', 'in-cat'].forEach(x => document.getElementById(x).value = '');
                 loadPosts();
             } catch (e) { alert('에러: ' + e.message); }
         }
 
-        window.deletePost = async (id) => { if (confirm('삭제?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
+        window.playMusic = (id) => {
+            const p = allPosts.find(x => x.id === id); if (!p) return;
+            window.currentPlayingId = id;
+            document.getElementById('player-title').innerText = p.title;
+            document.getElementById('info-title').innerText = p.title;
+            document.getElementById('info-desc').innerText = p.description + (p.category ? ` | ${p.category}` : '');
+            document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
 
-        // --- Comments & Reactions (Global helpers reused) ---
-        async function loadComments(id) {
-            const list = document.getElementById('comment-list'); list.innerHTML = '...';
-            const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
-            list.innerHTML = snap.empty ? '<div style="color:#ccc">댓글 없음</div>' : snap.docs.map(d => `<div class="comment-bubble"><b>${d.data().author}</b>: ${d.data().text}</div>`).join('');
+            document.getElementById('player-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+
+            updateReactions(p);
+            loadComments(id);
         }
+
+        window.deletePost = async (id) => { if (confirm('이 음악을 삭제하시겠습니까?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
+
+        async function loadComments(id) {
+            const list = document.getElementById('comment-list'); list.innerHTML = '<div style="color:#aaa; font-size:0.9rem;">로딩중...</div>';
+            const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
+            list.innerHTML = snap.empty ? '<div style="color:#ccc; padding:10px 0;">첫 댓글을 남겨주세요! 👇</div>' :
+                snap.docs.map(d => `<div class="comment-bubble"><b>${d.data().author}</b>: ${d.data().text}</div>`).join('');
+
+            // Scroll to bottom of comments
+            const scrollArea = document.querySelector('.player-scroll-content');
+            if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
+        }
+
         window.postComment = async (e) => {
-            e.preventDefault(); const val = document.getElementById('comment-input').value.trim();
+            e.preventDefault(); const input = document.getElementById('comment-input');
+            const val = input.value.trim();
             if (!val || !window.currentPlayingId) return;
             await db.collection(COLLECTION).doc(window.currentPlayingId).collection('comments').add({
                 text: val, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
             });
-            document.getElementById('comment-input').value = ''; loadComments(window.currentPlayingId);
+            input.value = ''; loadComments(window.currentPlayingId);
         }
+
         window.addReaction = async (type) => {
             if (!window.currentPlayingId) return;
             const field = type === '❤️' ? 'hearts' : (type === '🔥' ? 'fires' : 'claps');
             await db.collection(COLLECTION).doc(window.currentPlayingId).update({ [field]: firebase.firestore.FieldValue.increment(1) });
+
+            // Local Optimistic Update
             const span = document.getElementById(type === '❤️' ? 'count-heart' : (type === '🔥' ? 'count-fire' : 'count-clap'));
             span.innerText = parseInt(span.innerText) + 1;
         }
+
         function updateReactions(p) {
             document.getElementById('count-heart').innerText = p.hearts || 0;
             document.getElementById('count-fire').innerText = p.fires || 0;
