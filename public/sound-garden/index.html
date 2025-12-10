@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=25">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=26">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -17,13 +17,13 @@
         }
 
         .container {
-            max-width: 768px;
+            max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        /* Fixed Width Match */
+        /* Standardized to 600px */
 
         /* Feature Specific Styles */
         .featured-section {
@@ -42,15 +42,11 @@
 
         .featured-scroll {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
 
-        @media (max-width: 600px) {
-            .featured-scroll {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* 2 Columns */
 
         .video-card {
             background: white;
@@ -258,13 +254,15 @@
 
         .player-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             height: 100%;
             display: flex;
             flex-direction: column;
             background: white;
         }
+
+        /* Matched Width */
 
         .player-header {
             padding: 15px 20px;
@@ -466,8 +464,6 @@
                         Description</p>
                 </div>
 
-                <!-- Removed Reaction Bar -->
-
                 <div
                     style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333; display:flex; align-items:center; gap:5px;">
                     💬 댓글 <span id="comment-count" style="font-size:0.8rem; color:#94a3b8; font-weight:normal;"></span>
@@ -483,7 +479,6 @@
                     <button class="emoji-btn" onclick="appendEmoji('🔥')">🔥</button>
                     <button class="emoji-btn" onclick="appendEmoji('👏')">👏</button>
                     <button class="emoji-btn" onclick="appendEmoji('👍')">👍</button>
-                    <!-- <button class="emoji-btn" onclick="appendEmoji('😍')">😍</button> -->
                     <button class="emoji-btn" onclick="appendEmoji('🤣')">🤣</button>
                 </div>
                 <form class="input-bar" onsubmit="postComment(event)">
@@ -510,7 +505,7 @@
     </script>
 
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=25';
+        import { auth, db } from '../../src/firebase.js?v=26';
         const COLLECTION = 'sound_garden_posts';
 
         // State
@@ -572,7 +567,8 @@
         }
 
         function renderFeatured() {
-            const featured = allPosts.slice(0, 3);
+            // Slice 2 items instead of 3
+            const featured = allPosts.slice(0, 2);
             const container = document.getElementById('featured-list');
             if (featured.length === 0) { container.innerHTML = '<div style="color:#999; grid-column:1/-1; text-align:center; padding:20px;">등록된 음악이 없습니다.</div>'; return; }
             container.innerHTML = featured.map(post => `
