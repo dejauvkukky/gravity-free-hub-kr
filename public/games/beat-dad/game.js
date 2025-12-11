@@ -383,7 +383,7 @@ async function endGame() {
 
     const msgBox = document.getElementById('win-lose-msg');
     if (won) {
-        msgBox.innerText = "🎉 아빠를 이겼어요! 대단해요!";
+        msgBox.innerText = "🎉 아빠AI를 이겼어요! 대단해요!";
         msgBox.className = "msg-box win";
     } else {
         msgBox.innerText = "😢 아쉽네요... 다시 도전해보세요!";
