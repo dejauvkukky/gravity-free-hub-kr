@@ -117,6 +117,349 @@
         </div>
     </div>
 
+    <!-- Notice Popup -->
+    <div id="notice-popup" class="notice-overlay hidden">
+        <div class="notice-modal">
+            <div class="notice-header">
+                <h3>📢 공지사항</h3>
+            </div>
+            <div class="notice-body">
+                <p id="notice-content"></p>
+            </div>
+            <div class="notice-footer">
+                <button id="notice-confirm-btn" class="notice-btn">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimized Notice Button -->
+    <div id="notice-minimized" class="notice-minimized hidden">
+        <span>📢 공지</span>
+    </div>
+
+    <!-- Admin UI (kukky only) -->
+    <div id="notice-admin" class="notice-admin hidden">
+        <div class="notice-admin-header">
+            <h4>⚙️ 공지사항 관리</h4>
+            <button id="notice-admin-close" class="notice-admin-close">✕</button>
+        </div>
+        <div class="notice-admin-body">
+            <textarea id="notice-edit-content" placeholder="공지사항 내용을 입력하세요..."></textarea>
+            <label class="notice-toggle">
+                <input type="checkbox" id="notice-visible-toggle">
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">화면에 표시하기</span>
+            </label>
+            <button id="notice-save-btn" class="notice-admin-btn">💾 저장하기</button>
+        </div>
+    </div>
+
+    <!-- Admin Toggle Button (kukky only) -->
+    <button id="notice-admin-toggle" class="notice-admin-toggle hidden">⚙️</button>
+
+    <style>
+        /* Notice Popup Overlay */
+        .notice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .notice-overlay.hidden {
+            display: none;
+        }
+
+        /* Notice Modal */
+        .notice-modal {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        .notice-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .notice-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .notice-body {
+            padding: 30px 25px;
+            line-height: 1.8;
+            color: #334155;
+            font-size: 1rem;
+            min-height: 100px;
+        }
+
+        .notice-body p {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .notice-footer {
+            padding: 15px 25px 25px;
+            text-align: center;
+        }
+
+        .notice-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Minimized Notice Button */
+        .notice-minimized {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+            z-index: 9998;
+            animation: bounce 2s infinite;
+            transition: all 0.2s;
+        }
+
+        .notice-minimized:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        }
+
+        .notice-minimized.hidden {
+            display: none;
+        }
+
+        /* Admin UI */
+        .notice-admin {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+
+        .notice-admin.hidden {
+            display: none;
+        }
+
+        .notice-admin-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .notice-admin-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .notice-admin-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .notice-admin-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .notice-admin-body {
+            padding: 20px;
+        }
+
+        #notice-edit-content {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        #notice-edit-content:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .notice-toggle {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .notice-toggle input[type="checkbox"] {
+            display: none;
+        }
+
+        .toggle-slider {
+            width: 50px;
+            height: 26px;
+            background: #cbd5e1;
+            border-radius: 13px;
+            position: relative;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+
+        .notice-toggle input:checked+.toggle-slider {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        }
+
+        .notice-toggle input:checked+.toggle-slider::after {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .notice-admin-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notice-admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Admin Toggle Button */
+        .notice-admin-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+            z-index: 9997;
+            transition: all 0.2s;
+        }
+
+        .notice-admin-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .notice-admin-toggle.hidden {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+
     <!-- Scripts -->
     <script src="../src/auth.js?v=7"></script>
     <script type="module">
@@ -148,8 +491,115 @@
                     sessionStorage.setItem('user_name', displayName);
                 }
                 document.getElementById('user-name').innerText = displayName;
+
+                // Initialize Notice System
+                initNoticeSystem(displayName);
             }
         });
+
+        // Notice System Functions
+        async function initNoticeSystem(userName) {
+            const db = firebase.firestore();
+            const isAdmin = userName === 'kukky';
+
+            // Show admin UI if kukky
+            if (isAdmin) {
+                document.getElementById('notice-admin-toggle').classList.remove('hidden');
+
+                // Admin Toggle Button
+                document.getElementById('notice-admin-toggle').onclick = () => {
+                    document.getElementById('notice-admin').classList.remove('hidden');
+                    loadNoticeForEdit(db);
+                };
+
+                // Admin Close Button
+                document.getElementById('notice-admin-close').onclick = () => {
+                    document.getElementById('notice-admin').classList.add('hidden');
+                };
+
+                // Save Button
+                document.getElementById('notice-save-btn').onclick = async () => {
+                    const content = document.getElementById('notice-edit-content').value;
+                    const visible = document.getElementById('notice-visible-toggle').checked;
+
+                    try {
+                        await db.collection('notices').doc('main').set({
+                            content,
+                            visible,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        alert('공지사항이 저장되었습니다!');
+                        document.getElementById('notice-admin').classList.add('hidden');
+
+                        // Reload notice if visible
+                        if (visible) {
+                            showNotice(content);
+                        } else {
+                            hideNotice();
+                        }
+                    } catch (error) {
+                        console.error('Notice save error:', error);
+                        alert('저장 중 오류가 발생했습니다.');
+                    }
+                };
+            }
+
+            // Load and show notice for all users
+            loadNotice(db);
+
+            // Popup Confirm Button
+            document.getElementById('notice-confirm-btn').onclick = () => {
+                document.getElementById('notice-popup').classList.add('hidden');
+                document.getElementById('notice-minimized').classList.remove('hidden');
+            };
+
+            // Minimized Button
+            document.getElementById('notice-minimized').onclick = () => {
+                document.getElementById('notice-minimized').classList.add('hidden');
+                document.getElementById('notice-popup').classList.remove('hidden');
+            };
+        }
+
+        async function loadNotice(db) {
+            try {
+                const doc = await db.collection('notices').doc('main').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.visible && data.content) {
+                        showNotice(data.content);
+                    }
+                }
+            } catch (error) {
+                console.error('Notice load error:', error);
+            }
+        }
+
+        async function loadNoticeForEdit(db) {
+            try {
+                const doc = await db.collection('notices').doc('main').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('notice-edit-content').value = data.content || '';
+                    document.getElementById('notice-visible-toggle').checked = data.visible || false;
+                } else {
+                    document.getElementById('notice-edit-content').value = '';
+                    document.getElementById('notice-visible-toggle').checked = false;
+                }
+            } catch (error) {
+                console.error('Notice load for edit error:', error);
+            }
+        }
+
+        function showNotice(content) {
+            document.getElementById('notice-content').textContent = content;
+            document.getElementById('notice-popup').classList.remove('hidden');
+            document.getElementById('notice-minimized').classList.add('hidden');
+        }
+
+        function hideNotice() {
+            document.getElementById('notice-popup').classList.add('hidden');
+            document.getElementById('notice-minimized').classList.add('hidden');
+        }
     </script>
 </body>
 <script>
