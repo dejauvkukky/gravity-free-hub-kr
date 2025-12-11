@@ -132,6 +132,10 @@
                 <p id="notice-content"></p>
             </div>
             <div class="notice-footer">
+                <label class="notice-dont-show">
+                    <input type="checkbox" id="notice-dont-show-today">
+                    <span>오늘 그만보기</span>
+                </label>
                 <button id="notice-confirm-btn" class="notice-btn">확인</button>
             </div>
         </div>
@@ -204,6 +208,21 @@
         .notice-footer {
             padding: 0 25px 20px;
             text-align: center;
+        }
+
+        .notice-dont-show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .notice-dont-show input[type="checkbox"] {
+            cursor: pointer;
         }
 
         .notice-btn {
@@ -540,6 +559,13 @@
 
             // Popup Confirm Button
             document.getElementById('notice-confirm-btn').onclick = () => {
+                const dontShowToday = document.getElementById('notice-dont-show-today').checked;
+
+                if (dontShowToday) {
+                    const today = new Date().toDateString();
+                    localStorage.setItem('notice_dont_show_date', today);
+                }
+
                 document.getElementById('notice-popup').classList.add('hidden');
                 document.getElementById('notice-minimized').classList.remove('hidden');
             };
@@ -553,6 +579,15 @@
 
         async function loadNotice(db) {
             try {
+                // Check if user opted not to see today
+                const dontShowDate = localStorage.getItem('notice_dont_show_date');
+                const today = new Date().toDateString();
+
+                if (dontShowDate === today) {
+                    // Don't auto-show, but keep minimized button available
+                    return;
+                }
+
                 const doc = await db.collection('notices').doc('main').get();
                 if (doc.exists) {
                     const data = doc.data();
