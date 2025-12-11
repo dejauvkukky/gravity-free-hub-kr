@@ -572,6 +572,11 @@
 
             // Minimized Button
             document.getElementById('notice-minimized').onclick = () => {
+                // Set checkbox state based on localStorage
+                const dontShowDate = localStorage.getItem('notice_dont_show_date');
+                const today = new Date().toDateString();
+                document.getElementById('notice-dont-show-today').checked = (dontShowDate === today);
+
                 document.getElementById('notice-minimized').classList.add('hidden');
                 document.getElementById('notice-popup').classList.remove('hidden');
             };
