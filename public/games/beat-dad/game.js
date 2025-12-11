@@ -159,7 +159,16 @@ async function loadStartScreenRanking() {
             const scoreColor = isZero ? '#cbd5e1' : '#2563eb';
             const scoreText = item.score + '층';
 
-            li.innerHTML = `<span>${item.nickname}</span> <span style="font-weight:bold; color:${scoreColor}">${scoreText}</span>`;
+            // Crown for highest score (if > 0)
+            // Since displayData is sorted, the first one is the winner if scores are mixed. 
+            // But we need to check if there is a score.
+            let crown = '';
+            // Checking if this item is the MAX score of the group (first item) and score > 0
+            if (displayData[0].score > 0 && item.score === displayData[0].score) {
+                crown = ' 👑';
+            }
+
+            li.innerHTML = `<span>${item.nickname}</span> <span style="font-weight:bold; color:${scoreColor}">${scoreText}${crown}</span>`;
             listEl.appendChild(li);
         });
 
@@ -471,7 +480,11 @@ async function loadResultRanking() {
         } else {
             top5.forEach((r, i) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span class="rank-num">${i + 1}</span> <span>${r.nickname}</span> <span>${r.score}층</span>`;
+                const rank = i + 1;
+                let crown = '';
+                if (rank === 1) crown = ' 👑';
+
+                li.innerHTML = `<span class="rank-num">${rank}${crown}</span> <span>${r.nickname}</span> <span>${r.score}층</span>`;
                 list.appendChild(li);
             });
         }
