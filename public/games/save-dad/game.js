@@ -55,6 +55,13 @@ const SKILLS = [
         effect: (player) => { player.skills.lightning = (player.skills.lightning || 0) + 1; }
     },
     {
+        id: 'shield',
+        name: '보호막',
+        desc: '임시 보호막 생성',
+        type: 'active',
+        effect: (player) => { player.skills.shield = (player.skills.shield || 0) + 1; }
+    },
+    {
         id: 'heal',
         name: '회복',
         desc: 'HP +20 회복',
@@ -103,14 +110,18 @@ let state = {
         exp: 0,
         level: 1,
         skills: {},
-        lastAttackTime: 0
+        lastAttackTime: 0,
+        lastBoomerangTime: 0,
+        lastLightningTime: 0,
+        lastShieldTime: 0,
+        shieldActive: false
     },
 
     enemies: [],
     projectiles: [],
+    boomerangs: [],
     expOrbs: [],
 
-    input: { left: false, right: false, up: false, down: false },
     joystick: { active: false, dx: 0, dy: 0 },
 
     lastTime: 0,
@@ -130,11 +141,7 @@ function initGame() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Input
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    // Touch for mobile
+    // Touch for mobile (PC keyboard removed)
     setupJoystick();
 
     // UI Bindings
@@ -144,6 +151,9 @@ function initGame() {
 
     // Load ranking
     loadStartScreenRanking();
+
+    // Always show joystick
+    document.getElementById('joystick-container').classList.remove('hidden');
 }
 
 function resizeCanvas() {
@@ -170,11 +180,16 @@ function startGame() {
         exp: 0,
         level: 1,
         skills: {},
-        lastAttackTime: 0
+        lastAttackTime: 0,
+        lastBoomerangTime: 0,
+        lastLightningTime: 0,
+        lastShieldTime: 0,
+        shieldActive: false
     };
 
     state.enemies = [];
     state.projectiles = [];
+    state.boomerangs = [];
     state.expOrbs = [];
 
     // Hide screens
@@ -182,10 +197,8 @@ function startGame() {
     document.getElementById('result-screen').classList.add('hidden');
     document.getElementById('skill-screen').classList.add('hidden');
 
-    // Show joystick on mobile
-    if ('ontouchstart' in window) {
-        document.getElementById('joystick-container').classList.remove('hidden');
-    }
+    // Show joystick (mobile only)
+    document.getElementById('joystick-container').classList.remove('hidden');
 
     updateHUD();
 
@@ -225,6 +238,9 @@ function update(dt, timestamp) {
     // Auto attack
     updateAutoAttack(timestamp);
 
+    // Active skills
+    updateActiveSkills(timestamp);
+
     // Spawn enemies
     updateEnemySpawning(timestamp);
 
@@ -233,6 +249,9 @@ function update(dt, timestamp) {
 
     // Update projectiles
     updateProjectiles(dt, timestamp);
+
+    // Update boomerangs
+    updateBoomerangs(dt, timestamp);
 
     // Update exp orbs
     updateExpOrbs(dt);
@@ -253,13 +272,7 @@ function updatePlayerMovement(dt) {
     const p = state.player;
     let dx = 0, dy = 0;
 
-    // Keyboard
-    if (state.input.left) dx -= 1;
-    if (state.input.right) dx += 1;
-    if (state.input.up) dy -= 1;
-    if (state.input.down) dy += 1;
-
-    // Joystick
+    // Joystick only (PC keyboard removed)
     if (state.joystick.active) {
         dx += state.joystick.dx;
         dy += state.joystick.dy;
@@ -313,6 +326,76 @@ function fireProjectile(x, y, tx, ty, damage) {
         damage,
         spawnTime: performance.now()
     });
+}
+
+// Active Skills System
+function updateActiveSkills(timestamp) {
+    const p = state.player;
+
+    // Boomerang
+    if (p.skills.boomerang && timestamp - p.lastBoomerangTime > 3000) {
+        spawnBoomerang();
+        p.lastBoomerangTime = timestamp;
+    }
+
+    // Lightning
+    if (p.skills.lightning && timestamp - p.lastLightningTime > 5000) {
+        castLightning();
+        p.lastLightningTime = timestamp;
+    }
+
+    // Shield
+    if (p.skills.shield && timestamp - p.lastShieldTime > 10000) {
+        activateShield();
+        p.lastShieldTime = timestamp;
+    }
+
+    // Shield duration
+    if (p.shieldActive && timestamp - p.lastShieldTime > 3000) {
+        p.shieldActive = false;
+    }
+}
+
+function spawnBoomerang() {
+    state.boomerangs.push({
+        x: state.player.x,
+        y: state.player.y,
+        angle: 0,
+        radius: 50,
+        speed: 0.1,
+        damage: state.player.attackDamage * 2,
+        spawnTime: performance.now()
+    });
+}
+
+function castLightning() {
+    if (state.enemies.length === 0) return;
+
+    // Hit random 3 enemies
+    const targets = [...state.enemies]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+
+    targets.forEach(e => {
+        e.hp -= state.player.attackDamage * 5;
+    });
+}
+
+function activateShield() {
+    state.player.shieldActive = true;
+}
+
+function updateBoomerangs(dt, timestamp) {
+    state.boomerangs.forEach(b => {
+        b.angle += b.speed;
+        b.x = state.player.x + Math.cos(b.angle) * b.radius;
+        b.y = state.player.y + Math.sin(b.angle) * b.radius;
+    });
+
+    // Remove old
+    state.boomerangs = state.boomerangs.filter(b =>
+        timestamp - b.spawnTime < 5000
+    );
 }
 
 function updateEnemySpawning(timestamp) {
@@ -416,13 +499,32 @@ function checkCollisions() {
     });
     state.projectiles = state.projectiles.filter(p => p.damage > 0);
 
-    // Player vs Enemy
-    state.enemies.forEach(e => {
-        const dist = Math.hypot(e.x - p.x, e.y - p.y);
-        if (dist < 25) {
-            p.hp -= e.damage * 0.016; // Damage over time
-        }
+    // Boomerang vs Enemy
+    state.boomerangs.forEach(boom => {
+        state.enemies.forEach(e => {
+            const dist = Math.hypot(boom.x - e.x, boom.y - e.y);
+            if (dist < 20 && boom.damage > 0) {
+                e.hp -= boom.damage;
+                boom.damage = 0;
+
+                if (e.hp <= 0) {
+                    state.kills++;
+                    dropExpOrb(e.x, e.y, e.exp);
+                }
+            }
+        });
     });
+    state.boomerangs = state.boomerangs.filter(b => b.damage > 0);
+
+    // Player vs Enemy (with shield check)
+    if (!p.shieldActive) {
+        state.enemies.forEach(e => {
+            const dist = Math.hypot(e.x - p.x, e.y - p.y);
+            if (dist < 25) {
+                p.hp -= e.damage * 0.016; // Damage over time
+            }
+        });
+    }
 
     // Player vs Exp Orb
     state.expOrbs.forEach((orb, i) => {
@@ -562,6 +664,14 @@ function render() {
         ctx.fill();
     });
 
+    // Boomerangs
+    state.boomerangs.forEach(b => {
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
     // Enemies
     state.enemies.forEach(e => {
         ctx.fillStyle = e.color;
@@ -586,6 +696,15 @@ function render() {
     ctx.arc(state.player.x, state.player.y, 20, 0, Math.PI * 2);
     ctx.fill();
 
+    // Shield effect
+    if (state.player.shieldActive) {
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(state.player.x, state.player.y, 30, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
     // Player face
     ctx.fillStyle = '#fff';
     ctx.font = '24px Arial';
@@ -596,20 +715,7 @@ function render() {
     ctx.fillText(face, state.player.x, state.player.y);
 }
 
-// --- Input Handlers ---
-function handleKeyDown(e) {
-    if (e.key === 'ArrowLeft' || e.key === 'a') state.input.left = true;
-    if (e.key === 'ArrowRight' || e.key === 'd') state.input.right = true;
-    if (e.key === 'ArrowUp' || e.key === 'w') state.input.up = true;
-    if (e.key === 'ArrowDown' || e.key === 's') state.input.down = true;
-}
-
-function handleKeyUp(e) {
-    if (e.key === 'ArrowLeft' || e.key === 'a') state.input.left = false;
-    if (e.key === 'ArrowRight' || e.key === 'd') state.input.right = false;
-    if (e.key === 'ArrowUp' || e.key === 'w') state.input.up = false;
-    if (e.key === 'ArrowDown' || e.key === 's') state.input.down = false;
-}
+// --- Input Handlers (Keyboard removed, mobile only) ---
 
 function setupJoystick() {
     const base = document.getElementById('joystick-base');

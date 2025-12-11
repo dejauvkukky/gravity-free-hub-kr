@@ -231,6 +231,15 @@ body {
     margin: 20px 0;
 }
 
+.start-ranking-board h3 {
+    color: #f1f5f9 !important;
+    font-weight: bold;
+}
+
+.start-ranking-board li {
+    color: #e2e8f0 !important;
+}
+
 .btn-primary,
 .btn-secondary {
     width: 100%;
