@@ -48,11 +48,11 @@ const SKILLS = [
         effect: (player) => { player.skills.boomerang = (player.skills.boomerang || 0) + 1; }
     },
     {
-        id: 'lightning',
-        name: '번개',
-        desc: '랜덤 적에게 강타',
+        id: 'shockwave',
+        name: '충격파',
+        desc: '주변 범위 공격',
         type: 'active',
-        effect: (player) => { player.skills.lightning = (player.skills.lightning || 0) + 1; }
+        effect: (player) => { player.skills.shockwave = (player.skills.shockwave || 0) + 1; }
     },
     {
         id: 'shield',
@@ -112,7 +112,7 @@ let state = {
         skills: {},
         lastAttackTime: 0,
         lastBoomerangTime: 0,
-        lastLightningTime: 0,
+        lastShockwaveTime: 0,
         lastShieldTime: 0,
         shieldActive: false,
         shieldHits: 0
@@ -121,7 +121,7 @@ let state = {
     enemies: [],
     projectiles: [],
     boomerangs: [],
-    lightningEffects: [],
+    shockwaves: [],
     expOrbs: [],
 
     joystick: { active: false, dx: 0, dy: 0, centerX: 0, centerY: 0 },
@@ -132,10 +132,10 @@ let state = {
 
 // --- Enemy Types ---
 const ENEMY_TYPES = {
-    zombie: { hp: 20, speed: 2, damage: 10, exp: 10, color: '#4ade80' },
-    runner: { hp: 15, speed: 5, damage: 15, exp: 15, color: '#f59e0b' },
-    shooter: { hp: 25, speed: 1.6, damage: 5, exp: 20, color: '#ef4444' },
-    elite: { hp: 100, speed: 4, damage: 25, exp: 50, color: '#8b5cf6' },
+    zombie: { hp: 20, speed: 1.5, damage: 10, exp: 10, color: '#4ade80' },
+    runner: { hp: 15, speed: 3, damage: 15, exp: 15, color: '#f59e0b' },
+    shooter: { hp: 25, speed: 1.2, damage: 5, exp: 20, color: '#ef4444' },
+    elite: { hp: 100, speed: 2.5, damage: 25, exp: 50, color: '#8b5cf6' },
     boss: { hp: 500, speed: 1.5, damage: 40, exp: 100, color: '#dc2626', size: 30 }
 };
 
@@ -185,7 +185,7 @@ function startGame() {
         skills: {},
         lastAttackTime: 0,
         lastBoomerangTime: 0,
-        lastLightningTime: 0,
+        lastShockwaveTime: 0,
         lastShieldTime: 0,
         shieldActive: false,
         shieldHits: 0
@@ -194,7 +194,7 @@ function startGame() {
     state.enemies = [];
     state.projectiles = [];
     state.boomerangs = [];
-    state.lightningEffects = [];
+    state.shockwaves = [];
     state.expOrbs = [];
 
     // Hide screens
@@ -337,28 +337,29 @@ function fireProjectile(x, y, tx, ty, damage) {
 function updateActiveSkills(timestamp) {
     const p = state.player;
 
-    // Boomerang
+    // Boomerang (multiple based on skill level)
     if (p.skills.boomerang && timestamp - p.lastBoomerangTime > 3000) {
-        spawnBoomerang();
+        const count = p.skills.boomerang;
+        for (let i = 0; i < count; i++) {
+            spawnBoomerang(i, count);
+        }
         p.lastBoomerangTime = timestamp;
     }
 
-    // Lightning
-    if (p.skills.lightning && timestamp - p.lastLightningTime > 5000) {
-        castLightning();
-        p.lastLightningTime = timestamp;
+    // Shockwave
+    if (p.skills.shockwave && timestamp - p.lastShockwaveTime > 5000) {
+        castShockwave();
+        p.lastShockwaveTime = timestamp;
     }
 
-    // Shield
-    if (p.skills.shield && timestamp - p.lastShieldTime > 10000) {
+    // Shield (no auto-deactivation, deactivates after 3 hits)
+    if (p.skills.shield && !p.shieldActive && timestamp - p.lastShieldTime > 10000) {
         activateShield();
         p.lastShieldTime = timestamp;
     }
 
-    // Shield duration
-    if (p.shieldActive && timestamp - p.lastShieldTime > 3000) {
-        p.shieldActive = false;
-    }
+    // Update shockwave effects
+    state.shockwaves = state.shockwaves.filter(s => timestamp - s.time < 300);
 }
 
 function spawnBoomerang(index, total) {
@@ -374,16 +375,30 @@ function spawnBoomerang(index, total) {
     });
 }
 
-function castLightning() {
-    if (state.enemies.length === 0) return;
+function castShockwave() {
+    const p = state.player;
+    const range = 100 + (p.skills.shockwave * 20); // Increases with level
+    const damage = p.attackDamage * 3;
 
-    // Hit random 3 enemies
-    const targets = [...state.enemies]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3);
+    // Add visual effect
+    state.shockwaves.push({
+        x: p.x,
+        y: p.y,
+        radius: 0,
+        maxRadius: range,
+        time: performance.now()
+    });
 
-    targets.forEach(e => {
-        e.hp -= state.player.attackDamage * 5;
+    // Damage enemies in range
+    state.enemies.forEach(e => {
+        const dist = Math.hypot(e.x - p.x, e.y - p.y);
+        if (dist <= range) {
+            e.hp -= damage;
+            if (e.hp <= 0) {
+                state.kills++;
+                dropExpOrb(e.x, e.y, e.exp);
+            }
+        }
     });
 }
 
@@ -631,7 +646,7 @@ function updateHUD() {
     document.getElementById('hp-text').innerText = `${Math.max(0, Math.floor(p.hp))}/${p.maxHp}`;
 
     // Exp
-    const required = p.level * 30;
+    const required = p.level * 20;
     const expPercent = (p.exp / required) * 100;
     document.getElementById('exp-bar').style.width = expPercent + '%';
 
@@ -705,6 +720,19 @@ function render() {
         ctx.beginPath();
         ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
         ctx.fill();
+    });
+
+    // Shockwaves
+    state.shockwaves.forEach(shock => {
+        const elapsed = performance.now() - shock.time;
+        const progress = Math.min(elapsed / 300, 1);
+        const currentRadius = shock.maxRadius * progress;
+
+        ctx.strokeStyle = `rgba(34, 211, 238, ${1 - progress})`;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(shock.x, shock.y, currentRadius, 0, Math.PI * 2);
+        ctx.stroke();
     });
 
     // Enemies
