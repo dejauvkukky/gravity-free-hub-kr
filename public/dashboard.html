@@ -240,15 +240,16 @@
         /* Minimized Notice Button */
         .notice-minimized {
             position: fixed;
-            bottom: 20px;
+            bottom: 80px;
             right: 20px;
+            max-width: 600px;
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             color: white;
             padding: 12px 20px;
             border-radius: 25px;
             cursor: pointer;
             box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
-            z-index: 9998;
+            z-index: 100;
             animation: bounce 2s infinite;
             transition: all 0.2s;
         }
@@ -282,7 +283,7 @@
         }
 
         .notice-admin-header {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -326,6 +327,7 @@
             font-family: inherit;
             resize: vertical;
             transition: border-color 0.2s;
+            box-sizing: border-box;
         }
 
         #notice-edit-content:focus {
@@ -381,7 +383,7 @@
 
         .notice-admin-btn {
             width: 100%;
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             color: white;
             border: none;
             padding: 12px;
@@ -394,30 +396,31 @@
 
         .notice-admin-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
         /* Admin Toggle Button */
         .notice-admin-toggle {
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
+            max-width: 600px;
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             color: white;
             border: none;
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
-            z-index: 9997;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            z-index: 100;
             transition: all 0.2s;
         }
 
         .notice-admin-toggle:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.6);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.6);
         }
 
         .notice-admin-toggle.hidden {
