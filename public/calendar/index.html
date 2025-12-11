@@ -516,7 +516,7 @@
 
                 let titleHtml = evt.title;
                 if (evt.isHoliday) {
-                    titleHtml = `<span class="holiday-badge">🎌 공휴일</span> <span style="color:#ef4444; font-weight:bold;">${evt.title}</span>`;
+                    titleHtml = `<span class="holiday-badge">공휴일</span> <span style="color:#ef4444; font-weight:bold;">${evt.title}</span>`;
                 }
 
                 let html = `
@@ -632,7 +632,7 @@
                 let rowStyle = '';
 
                 if (evt.isHoliday) {
-                    titleHtml = `<span style="color:#ef4444; font-weight:bold;">🎌 ${evt.title}</span>`;
+                    titleHtml = `<span style="color:#ef4444; font-weight:bold;">${evt.title}</span>`;
                     rowStyle = 'background:#fef2f2;';
                 }
 

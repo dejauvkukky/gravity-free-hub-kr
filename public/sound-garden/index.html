@@ -444,6 +444,34 @@
         </div> <!-- End content-body -->
     </div>
 
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="player-overlay"
+        style="z-index: 2100; justify-content: center; align-items: center; background: rgba(0,0,0,0.8);">
+        <div style="background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 16px;">
+            <h3 style="margin-top:0; color:#333;">📝 게시글 수정</h3>
+            <form onsubmit="updatePost(event)" style="display:grid; gap:10px;">
+                <input type="hidden" id="edit-id">
+                <label style="font-size:0.9rem; font-weight:bold;">제목</label>
+                <input type="text" id="edit-title" required
+                    style="padding:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <label style="font-size:0.9rem; font-weight:bold;">설명</label>
+                <input type="text" id="edit-desc" style="padding:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <label style="font-size:0.9rem; font-weight:bold;">카테고리</label>
+                <input list="cat-options" id="edit-cat" required
+                    style="padding:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button type="button" onclick="document.getElementById('edit-modal').style.display='none'"
+                        style="flex:1; padding:10px; background:#f1f5f9; border:none; border-radius:8px; cursor:pointer;">취소</button>
+                    <button type="submit"
+                        style="flex:1; padding:10px; background:var(--color-primary, #6366f1); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Player Overlay -->
     <div id="player-overlay" class="player-overlay">
         <div class="player-container">
@@ -622,7 +650,12 @@
                         </div>
                         <div class="m-meta">${post.category} • ${post.description}</div>
                     </div>
-                    ${isAdmin ? `<button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:#ef4444; background:none; border:none; padding:10px; font-weight:bold;">삭제</button>` : ''}
+                    ${isAdmin ? `
+                        <div style="display:flex; flex-direction:column; gap:5px;">
+                            <button onclick="event.stopPropagation(); openEdit('${post.id}')" style="color:#3b82f6; background:none; border:none; padding:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">수정</button>
+                            <button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:#ef4444; background:none; border:none; padding:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">삭제</button>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
 
@@ -675,7 +708,23 @@
             const list = document.getElementById('comment-list'); list.innerHTML = '<div style="color:#aaa; font-size:0.9rem;">로딩중...</div>';
             const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
             list.innerHTML = snap.empty ? '<div style="color:#ccc; padding:10px 0;">첫 댓글을 남겨주세요! 👇</div>' :
-                snap.docs.map(d => `<div class="comment-bubble"><b>${d.data().author}</b>: ${d.data().text}</div>`).join('');
+                snap.docs.map(d => {
+                    const data = d.data();
+                    const date = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
+                    const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+                    const isMine = (currentUser && currentUser.uid === data.uid) || isAdmin;
+
+                    return `
+                    <div class="comment-bubble">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="font-weight:bold;">${data.author}</span>
+                            <span style="font-size:0.75rem; color:#aaa;">${dateStr}</span>
+                        </div>
+                        <div style="word-break:break-all;">${data.text}</div>
+                        ${isMine ? `<button onclick="deleteComment('${id}', '${d.id}')" style="color:#ef4444; background:none; border:none; padding:0; font-size:0.8rem; margin-top:5px; cursor:pointer;">삭제</button>` : ''}
+                    </div>
+                    `;
+                }).join('');
             const scrollArea = document.querySelector('.player-scroll-content');
             if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
         }
@@ -718,6 +767,47 @@
                 alert('에러 발생: ' + e.message);
             }
         }
+        window.deleteComment = async (postId, commentId) => {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+            try {
+                await db.collection(COLLECTION).doc(postId).collection('comments').doc(commentId).delete();
+                // Decrement count
+                await db.collection(COLLECTION).doc(postId).update({
+                    commentCount: firebase.firestore.FieldValue.increment(-1)
+                });
+                loadComments(postId);
+                loadPosts(); // sync list count
+            } catch (e) { alert('삭제 실패'); }
+        };
+
+        window.openEdit = (id) => {
+            const p = allPosts.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-title').value = p.title;
+            document.getElementById('edit-desc').value = p.description || '';
+            document.getElementById('edit-cat').value = p.category || '';
+            document.getElementById('edit-modal').style.display = 'flex';
+        };
+
+        window.updatePost = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('edit-title').value;
+            const desc = document.getElementById('edit-desc').value;
+            const cat = document.getElementById('edit-cat').value;
+
+            try {
+                await db.collection(COLLECTION).doc(id).update({
+                    title: title,
+                    description: desc,
+                    category: cat
+                });
+                document.getElementById('edit-modal').style.display = 'none';
+                loadPosts();
+            } catch (err) { alert('수정 실패: ' + err.message); }
+        };
+
     </script>
 </body>
 <script>

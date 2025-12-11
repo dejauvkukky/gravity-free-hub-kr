@@ -396,7 +396,17 @@
                 }));
 
                 renderTabs();
+                renderTabs();
                 renderTotalChart();
+
+                // [NEW] Auto-select tab for logged-in user
+                const storedName = sessionStorage.getItem('user_name');
+                if (storedName) {
+                    const myIdx = membersData.findIndex(m => m.name === storedName);
+                    if (myIdx !== -1) {
+                        switchTab(myIdx);
+                    }
+                }
 
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('content').classList.remove('hidden');
@@ -515,7 +525,7 @@
             // 1. Static Info (Zodiac)
             const z1 = getZodiac(member.birthdate);
             const z2 = getChineseZodiac(member.birthdate);
-            document.getElementById('zodiac-text').innerText = `${z1} / ${z2}`;
+            document.getElementById('zodiac-text').innerText = `${member.birthdate} (${z1}/${z2})`;
 
             // 2. Daily Keyword (Seeded by Name + Date)
             const dateStr = `${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
