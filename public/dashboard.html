@@ -579,20 +579,22 @@
 
         async function loadNotice(db) {
             try {
-                // Check if user opted not to see today
-                const dontShowDate = localStorage.getItem('notice_dont_show_date');
-                const today = new Date().toDateString();
-
-                if (dontShowDate === today) {
-                    // Don't auto-show, but keep minimized button available
-                    return;
-                }
-
                 const doc = await db.collection('notices').doc('main').get();
                 if (doc.exists) {
                     const data = doc.data();
                     if (data.visible && data.content) {
-                        showNotice(data.content);
+                        // Check if user opted not to see today
+                        const dontShowDate = localStorage.getItem('notice_dont_show_date');
+                        const today = new Date().toDateString();
+
+                        if (dontShowDate === today) {
+                            // Don't auto-popup, but show minimized button
+                            document.getElementById('notice-content').textContent = data.content;
+                            document.getElementById('notice-minimized').classList.remove('hidden');
+                        } else {
+                            // Show popup normally
+                            showNotice(data.content);
+                        }
                     }
                 }
             } catch (error) {
