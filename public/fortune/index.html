@@ -214,12 +214,47 @@
                         <span id="zodiac-text" class="zodiac-badge">별자리 / 띠</span>
                     </div>
 
-                    <!-- Text Fortune -->
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                        <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--color-secondary);">🌟 오늘의 별자리&띠
-                            운세
-                        </h4>
-                        <div id="daily-keyword" style="font-size: 0.9rem; color: #555; margin-bottom: 0;">로딩 중...</div>
+                    <!-- Western Horoscope (Galaxy Theme) -->
+                    <div class="fortune-card western"
+                        style="background: linear-gradient(135deg, #312e81 0%, #4338ca 100%); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(49, 46, 129, 0.3);">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                            <h4 style="margin:0; font-size:1.1rem; display:flex; align-items:center;">
+                                <span style="margin-right:8px;">🌌</span> 별들의 속삭임
+                            </h4>
+                            <span id="western-sign"
+                                style="font-size:0.85rem; background:rgba(255,255,255,0.2); padding:4px 12px; border-radius:20px;"></span>
+                        </div>
+                        <div id="western-text"
+                            style="line-height:1.7; font-size:0.95rem; opacity:0.95; margin-bottom:15px;">운세 로딩 중...
+                        </div>
+                        <div id="western-badge" style="text-align:right;">
+                            <span id="western-el-badge"
+                                style="font-size:0.8rem; background:rgba(0,0,0,0.3); padding:4px 10px; border-radius:8px; color:#e0e7ff;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Eastern Fortune (Paper Theme) -->
+                    <div class="fortune-card eastern"
+                        style="background: #fffdf5; border: 1px solid #e7e5e4; padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div
+                            style="position:absolute; top:20px; right:20px; font-size:3rem; opacity:0.05; font-family:serif; pointer-events:none;">
+                            運</div>
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #e7e5e4; padding-bottom:10px;">
+                            <h4 style="margin:0; font-size:1.1rem; color:#44403c; display:flex; align-items:center;">
+                                <span style="margin-right:8px;">📜</span> 오늘의 띠별 운세
+                            </h4>
+                            <span id="eastern-sign"
+                                style="font-size:0.85rem; color:#57534e; background:#f5f5f4; padding:4px 12px; border-radius:20px; border:1px solid #d6d3d1;"></span>
+                        </div>
+                        <div id="eastern-text"
+                            style="line-height:1.7; font-size:0.95rem; color:#292524; margin-bottom:15px;">운세 로딩 중...
+                        </div>
+                        <div id="eastern-badge" style="text-align:right;">
+                            <span id="eastern-el-badge"
+                                style="font-size:0.8rem; background:#efebe9; padding:4px 10px; border-radius:8px; color:#5d4037;"></span>
+                        </div>
                     </div>
 
                     <h3 class="card-title">🧬 바이오리듬 상세</h3>
@@ -259,7 +294,7 @@
     <script type="module">
         import { auth, db } from '../../src/firebase.js?v=7';
         import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
-        import { getDailyFortune } from '../../src/fortune_engine.js?v=1';
+        import { getDailyHoroscope, getDailyOrientalFortune } from '../../src/fortune_engine.js?v=2';
 
         // Expanded Data 
         const fortuneCookies = [

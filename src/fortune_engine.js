@@ -1,139 +1,135 @@
 
-// Fortune Engine
-// 🚀 근거 기반 자동 생성형 운세 엔진
-// Pure Logic, No API Costs.
+// Fortune Engine 2.0 (Expert Edition)
+// 🚀 Dual-Engine: Horoscope & Oriental
+// Expert Tone & Logic-Based
 
-// --- 1. Static Data (Basic Properties) ---
+// --- 1. Static Data & Expert Knowledge ---
 const ZODIAC_DATA = {
-    "양자리": { element: "fire", traits: ["도전적", "열정적", "직설적"] },
-    "황소자리": { element: "earth", traits: ["신중함", "현실적", "끈기"] },
-    "쌍둥이자리": { element: "air", traits: ["호기심", "재치", "변화무쌍"] },
-    "게자리": { element: "water", traits: ["감성적", "보호본능", "공감"] },
-    "사자자리": { element: "fire", traits: ["자신감", "리더십", "화려함"] },
-    "처녀자리": { element: "earth", traits: ["분석적", "섬세함", "실용적"] },
-    "천칭자리": { element: "air", traits: ["조화", "사교적", "우아함"] },
-    "전갈자리": { element: "water", traits: ["통찰력", "집중력", "신비로움"] },
-    "사수자리": { element: "fire", traits: ["자유로움", "긍정적", "모험"] },
-    "염소자리": { element: "earth", traits: ["성실함", "책임감", "목표지향"] },
-    "물병자리": { element: "air", traits: ["독창적", "이성적", "독립적"] },
-    "물고기자리": { element: "water", traits: ["상상력", "예술적", "다정함"] }
+    "양자리": { element: "fire", traits: ["개척하는 불꽃", "꺼지지 않는 열정", "직관적인 행동"] },
+    "황소자리": { element: "earth", traits: ["비옥한 대지", "흔들리지 않는 평온", "감각적인 안목"] },
+    "쌍둥이자리": { element: "air", traits: ["자유로운 바람", "반짝이는 지성", "유연한 적응력"] },
+    "게자리": { element: "water", traits: ["포근한 파도", "섬세한 감수성", "깊은 공감 능력"] },
+    "사자자리": { element: "fire", traits: ["태양의 중심", "당당한 리더십", "화려한 오라"] },
+    "처녀자리": { element: "earth", traits: ["정갈한 숲", "완벽을 향한 눈", "실용적인 지혜"] },
+    "천칭자리": { element: "air", traits: ["조화로운 산들바람", "우아한 균형 감각", "사교적인 매력"] },
+    "전갈자리": { element: "water", traits: ["심해의 고요", "꿰뚫어 보는 통찰", "강렬한 집중력"] },
+    "사수자리": { element: "fire", traits: ["멀리 쏘아 올린 화살", "낙관적인 철학", "자유로운 영혼"] },
+    "염소자리": { element: "earth", traits: ["견고한 바위", "성실한 야망", "책임감 있는 태도"] },
+    "물병자리": { element: "air", traits: ["차가운 지성", "독창적인 혁명", "인류애적 시선"] },
+    "물고기자리": { element: "water", traits: ["꿈꾸는 바다", "예술적인 영감", "무한한 상상력"] }
 };
 
-const ZODIAC_CHINESE_DATA = {
-    "쥐띠": { element: "water", traits: ["지혜", "적응력"] },
-    "소띠": { element: "earth", traits: ["성실", "우직함"] },
-    "호랑이띠": { element: "wood", traits: ["용기", "리더십"] },
-    "토끼띠": { element: "wood", traits: ["신중", "평화"] },
-    "용띠": { element: "earth", traits: ["강인함", "이상"] },
-    "뱀띠": { element: "fire", traits: ["지적", "차분함"] },
-    "말띠": { element: "fire", traits: ["자유", "열정"] },
-    "양띠": { element: "earth", traits: ["온화", "이해심"] },
-    "원숭이띠": { element: "metal", traits: ["재주", "임기응변"] },
-    "닭띠": { element: "metal", traits: ["정확", "부지런함"] },
-    "개띠": { element: "earth", traits: ["충직", "정직"] },
-    "돼지띠": { element: "water", traits: ["여유", "솔직"] }
+const ORIENTAL_ZODIAC_DATA = {
+    "쥐띠": { element: "water", traits: ["지혜로운 물", "기민한 생존력"] },
+    "소띠": { element: "earth", traits: ["묵묵한 흙", "우직한 인내심"] },
+    "호랑이띠": { element: "wood", traits: ["거대한 나무", "용맹한 기백"] },
+    "토끼띠": { element: "wood", traits: ["우거진 풀", "다정한 평화주의"] },
+    "용띠": { element: "earth", traits: ["신비로운 산", "비범한 이상"] },
+    "뱀띠": { element: "fire", traits: ["지성적인 불", "차분한 치밀함"] },
+    "말띠": { element: "fire", traits: ["활활 타는 불꽃", "앞만 보는 열정"] },
+    "양띠": { element: "earth", traits: ["따뜻한 흙", "온화한 배려심"] },
+    "원숭이띠": { element: "metal", traits: ["날카로운 금속", "재치 있는 임기응변"] },
+    "닭띠": { element: "metal", traits: ["정교한 보석", "깔끔한 완벽주의"] },
+    "개띠": { element: "earth", traits: ["충직한 성벽", "정직한 신뢰"] },
+    "돼지띠": { element: "water", traits: ["넓은 호수", "낙천적인 여유"] }
 };
 
-// 상생(Good), 상극(Bad) Logic
-// Fire <-> Water (Bad), Air <-> Earth (Bad)
-// Wood -> Fire -> Earth -> Metal -> Water -> Wood (Good Cycle)
-// Wood x Earth x Water x Fire x Metal x Wood (Bad Cycle/Control)
-
+// Relation Logic
 const ELEMENT_RELATIONS = {
-    // 4 Elements (Western)
     western: {
-        "fire": { good: ["air", "fire"], bad: ["water"], neutral: ["earth"] },
-        "water": { good: ["earth", "water"], bad: ["fire"], neutral: ["air"] },
-        "air": { good: ["fire", "air"], bad: ["earth"], neutral: ["water"] },
-        "earth": { good: ["water", "earth"], bad: ["air"], neutral: ["fire"] }
+        "fire": { good: ["air", "fire"], bad: ["water", "earth"] },
+        "earth": { good: ["water", "earth"], bad: ["fire", "air"] },
+        "air": { good: ["fire", "air"], bad: ["water", "earth"] },
+        "water": { good: ["earth", "water"], bad: ["fire", "air"] }
     },
-    // 5 Elements (Eastern)
     eastern: {
-        "wood": { good: ["water", "fire"], bad: ["metal", "earth"] },
-        "fire": { good: ["wood", "earth"], bad: ["water", "metal"] },
-        "earth": { good: ["fire", "metal"], bad: ["wood", "water"] },
-        "metal": { good: ["earth", "water"], bad: ["fire", "wood"] },
-        "water": { good: ["metal", "wood"], bad: ["earth", "fire"] }
+        // 상생: 수생목, 목생화, 화생토, 토생금, 금생수
+        // 상극: 수극화, 화극금, 금극목, 목극토, 토극수
+        "wood": { good: ["water", "fire", "wood"], bad: ["metal", "earth"] },
+        "fire": { good: ["wood", "earth", "fire"], bad: ["water", "metal"] },
+        "earth": { good: ["fire", "metal", "earth"], bad: ["wood", "water"] },
+        "metal": { good: ["earth", "water", "metal"], bad: ["fire", "wood"] },
+        "water": { good: ["metal", "wood", "water"], bad: ["earth", "fire"] }
     }
 };
 
-
-// --- 2. Rich Templates (Massive Pool) ---
-// Using string replacement: {trait}, {element}, {lucky_item}, {color}
-const TEMPLATES = {
-    high: [ // Good compatibility
-        "[최고의 날] 오늘은 {element}의 기운이 당신의 {trait} 성향을 환하게 비춰줍니다. 망설이지 말고 리드해보세요!",
-        "[행운 가득] 우주가 당신을 돕고 있어요. 평소 생각만 했던 일에 도전하면 기대 이상의 성과가 따릅니다.",
-        "[자신감 상승] 에너지가 넘치는 하루입니다. 당신의 장점인 {trait} 면모가 빛을 발하여 주변의 인정을 받게 됩니다.",
-        "[순풍] 하는 일마다 순조롭게 풀리는 기분 좋은 날입니다. 귀인의 도움이 있을 수 있으니 주변을 잘 살펴보세요.",
-        "[쾌청] 마음이 맑고 평온합니다. 오늘은 당신의 직관이 정확하니 믿고 따라가도 좋습니다.",
-        "[성취의 날] 노력한 만큼, 아니 그 이상의 보상이 따르는 날입니다. 작은 성공들이 모여 큰 기쁨이 됩니다.",
-        "[활력 충전] 신체 리듬이 최상입니다. 미뤄왔던 운동이나 활동적인 취미를 즐기기에 완벽합니다.",
-        "[인기 폭발] 대인관계 운이 아주 좋습니다. 당신의 {trait} 매력에 사람들이 자연스럽게 모여듭니다.",
-        "[금전운 상승] 뜻밖의 이득이나 기분 좋은 선물이 들어올 수 있습니다. 지갑을 열어도 기분이 좋은 날입니다.",
-        "[사랑의 기운] 애정운이 따스합니다. 소중한 사람과 깊은 대화를 나누면 관계가 한층 돈독해집니다.",
-        "[막힘 없음] 마치 고속도로를 달리는 듯합니다. 장애물이 스스로 비켜가는 신기한 하루를 경험해보세요.",
-        "[창의력 발휘] 아이디어가 샘솟는 날입니다. 메모하는 습관이 뜻밖의 행운을 가져다줄 것입니다.",
-        "[힐링 데이] 가만히 있어도 에너지가 차오릅니다. 자신을 위한 작은 사치를 부려도 좋은 날입니다.",
-        "[긍정의 힘] 긍정적인 말 한마디가 천 냥 빚을 갚습니다. 오늘은 당신이 행운의 전달자입니다.",
-        "[리더십] 무리를 이끄는 힘이 생깁니다. 중요한 결정을 내려야 한다면 오늘이 적기입니다."
-    ],
-    mid: [ // Neutral
-        "[평온한 하루] 특별한 사건 없이 물 흐르듯 편안한 하루입니다. 일상의 소소한 행복을 찾아보세요.",
-        "[안정감] 큰 변화보다는 현재를 유지하는 것이 좋습니다. {trait} 성향을 살려 차분하게 하루를 정리해보세요.",
-        "[균형] 일과 휴식의 밸런스가 중요한 날입니다. 무리하지 말고 자기만의 속도를 유지하세요.",
-        "[관망] 서두르지 않는 것이 이득입니다. 한 발짝 물러서서 상황을 지켜보면 더 좋은 길이 보입니다.",
-        "[소소한 행복] 거창한 계획보다는 맛있는 식사나 따뜻한 차 한 잔이 큰 위로가 되는 날입니다.",
-        "[정리 정돈] 마음이나 주변을 정리하기 좋은 날입니다. 불필요한 것을 비우면 새로운 운이 들어옵니다.",
-        "[준비] 도약을 위한 도움닫기 시기입니다. 결과를 재촉하지 말고 과정을 즐겨보세요.",
-        "[협력] 독단적인 결정보다는 주변의 의견을 경청하는 것이 좋습니다. 함께하면 더 쉽습니다.",
-        "[유연함] 계획대로 되지 않아도 괜찮습니다. 유연하게 대처하면 오히려 전화위복이 됩니다.",
-        "[건강 관리] 오늘은 내 몸의 소리에 귀 기울여 보세요. 가벼운 스트레칭이 활력을 되찾아줍니다.",
-        "[배움] 새로운 지식이나 정보를 얻기에 무난한 날입니다. 책을 읽거나 다큐멘터리를 보는 건 어떨까요?",
-        "[겸손] 자신을 낮추면 오히려 존중받는 날입니다. 듣는 자세가 행운을 부릅니다.",
-        "[신중] 돌다리도 두들겨 보고 건너세요. 익숙한 일이라도 한 번 더 확인하면 실수를 막습니다.",
-        "[중용] 지나치지도 모자라지도 않은 상태를 유지하세요. 평범함이 비범함이 되는 날입니다.",
-        "[휴식] 잠시 쉬어가는 쉼표 같은 하루입니다. 재충전의 시간을 가지세요."
-    ],
-    low: [ // Bad/Caution
-        "[신중 필요] 오늘은 {element}의 기운이 강해 감정 기복이 있을 수 있습니다. 심호흡하고 차분해지세요.",
-        "[주의] 예상치 못한 변수가 생길 수 있습니다. 당신의 {trait} 성향을 잠시 내려놓고 유연하게 대처하세요.",
-        "[충돌 주의] 사소한 오해가 다툼으로 번질 수 있습니다. 오늘은 말조심이 최고의 부적입니다.",
-        "[휴식 권장] 컨디션이 다소 저조할 수 있습니다. 무리한 약속은 잡지 말고 일찍 귀가하여 쉬는 게 좋습니다.",
-        "[스트레스] 생각보다 일이 더디게 진행될 수 있습니다. 조급해하지 말고 '그럴 수도 있지'라고 넘겨보세요.",
-        "[지출 관리] 충동적인 지출 욕구가 생길 수 있습니다. 지갑을 열기 전에 세 번만 더 생각해보세요.",
-        "[건강 유의] 면역력이 떨어질 수 있으니 옷차림에 신경 쓰고 따뜻한 물을 자주 마시세요.",
-        "[고집 금물] 내 생각만 옳다고 주장하면 고립될 수 있습니다. 오늘은 져주는 게 이기는 것입니다.",
-        "[판단 보류] 중요한 계약이나 결정은 내일로 미루는 것이 현명합니다. 오늘은 안개가 낀 상태입니다.",
-        "[겸손] 벼는 익을수록 고개를 숙입니다. 자존심을 조금만 내려놓으면 화를 면할 수 있습니다.",
-        "[안전 제일] 활동적인 일보다는 정적인 활동이 유리합니다. 다치지 않도록 조심하세요.",
-        "[멘탈 관리] 주변의 소음에 흔들리지 마세요. 명상이나 조용한 음악으로 마음의 중심을 잡으세요.",
-        "[오해] 의도와 다르게 말이 전달될 수 있습니다. 문자로 남기기보단 직접 얼굴 보고 대화하세요.",
-        "[인내심] 참을 인(忍) 자 세 번이면 살인도 면한다고 했습니다. 오늘은 인내심이 당신을 구합니다.",
-        "[비움] 억지로 잡으려 할수록 빠져나갑니다. 흐름에 몸을 맡기고 순리대로 따르세요."
+// --- Part 1: Expert Horoscope Templates ---
+const HORO_TEMPLATES = {
+    // [오늘의 원소 평가]
+    elements: {
+        fire: ["타오르는 불의 기운이 지배하는 날입니다.", "열정과 에너지가 넘쳐흐르는 태양의 날입니다.", "행동력이 앞서는 강렬한 불꽃의 하루입니다."],
+        earth: ["대지가 호흡하듯 차분하고 안정적인 날입니다.", "현실적인 감각이 깨어나는 흙의 기운이 강합니다.", "기반을 다지기에 더없이 좋은 단단한 날입니다."],
+        air: ["상쾌한 바람처럼 소식과 정보가 오가는 날입니다.", "생각의 흐름이 자유로운 공기의 기운이 감돕니다.", "이성적인 판단이 빛을 발하는 맑은 하루입니다."],
+        water: ["깊은 감수성이 밀려오는 물의 기운이 흐릅니다.", "직관과 무의식이 예민해지는 신비로운 날입니다.", "마음과 마음이 연결되는 촉촉한 하루입니다."]
+    },
+    // [성향 조언 - Good/Mid/Bad]
+    advice: {
+        good: [
+            "당신이 가진 {trait} 성향이 우주의 기운과 공명하여 시너지를 냅니다.",
+            "오늘은 당신의 {trait} 본능을 믿고 과감하게 나아가셔도 좋습니다.",
+            "별들이 당신의 {trait} 매력을 비추고 있으니, 자연스럽게 주목받게 될 것입니다."
+        ],
+        mid: [
+            "당신의 {trait} 특성을 차분하게 발휘하면 무난하고 평화로운 하루가 됩니다.",
+            "{trait} 본연의 모습을 잃지 않으면서 주변 흐름에 유연하게 대처하세요.",
+            "너무 튀지 않게, 당신의 {trait} 장점을 조용히 갈고닦는 시간이 필요합니다."
+        ],
+        bad: [
+            "오늘은 기운이 충돌할 수 있으니, {trait} 성향을 조금 억누르는 지혜가 필요합니다.",
+            "주변 상황이 당신의 {trait} 방식과는 다르게 흘러갈 수 있으니 주의하세요.",
+            "잠시 멈춰서 심호흡하세요. {trait} 고집을 내려놓으면 오히려 길이 보입니다."
+        ]
+    },
+    // [구체적 상황 예시 카테고리]
+    situations: [
+        "특히 **대인관계**에서 예상치 못한 기쁨이 기다리고 있습니다. 먼저 손을 내밀어 보세요.",
+        "오늘은 **업무나 학업**에서 놀라운 집중력을 발휘할 수 있는 타이밍입니다.",
+        "**금전적인 결정**에 있어서 직관보다는 데이터를 신뢰하는 것이 이롭습니다.",
+        "오래된 **친구**에게서 반가운 연락이 올 수 있습니다. 마음을 열어두세요.",
+        "**새로운 시작**을 하기에 적합합니다. 미뤄왔던 계획을 작게라도 실행해보세요."
     ]
 };
 
-const LUCKY_ITEMS = [
-    "텀블러", "이어폰", "손목시계", "선그라스", "향수", "물티슈", "초콜릿", "동전", "거울", "모자",
-    "다이어리", "볼펜", "핸드크림", "우산", "스카프", "반지", "비타민", "책", "커피", "운동화"
-];
+// --- Part 2: Expert Oriental Templates ---
+const ORIENTAL_TEMPLATES = {
+    // [오행의 흐름]
+    elements: {
+        wood: ["생명이 싹트는 '목(나무)'의 기운이 강하게 뻗어 나가는 날입니다.", "새로운 시작과 성장을 알리는 푸른 기운이 감돕니다."],
+        fire: ["열정이 타오르는 '화(불)'의 기운이 하늘을 수놓는 날입니다.", "모든 것이 명확하게 드러나는 밝은 기운이 가득합니다."],
+        earth: ["만물을 포용하는 '토(흙)'의 기운이 중심을 잡는 날입니다.", "변화보다는 안정을 추구하는 묵직한 기운이 흐릅니다."],
+        metal: ["결실을 맺는 '금(쇠)'의 기운이 냉철하게 작용하는 날입니다.", "가지치기를 하듯 맺고 끊음이 확실한 기운입니다."],
+        water: ["지혜가 흐르는 '수(물)'의 기운이 유유히 흐르는 날입니다.", "겉보다 속이 깊어지는 차분한 침묵의 기운입니다."]
+    },
+    // [띠 반응 - Good/Mid/Bad]
+    reaction: {
+        good: [
+            "당신 띠의 {trait} 기질이 오늘의 기운을 만나 물 만난 고기처럼 활력을 얻습니다.",
+            "오행이 상생하니, 당신의 {trait} 장점이 십분 발휘되어 도처에 귀인이 따릅니다.",
+            "하늘의 기운이 당신을 돕습니다. {trait} 태도로 임하면 큰 성과가 있을 것입니다."
+        ],
+        mid: [
+            "큰 파도 없이 잔잔합니다. {trait} 성향대로 꾸준히 밀고 나가면 길합니다.",
+            "좋음과 나쁨이 섞여 있으니, {trait} 지혜를 발휘하여 중심을 잡아야 합니다.",
+            "무리하지 않는 것이 최선입니다. {trait} 미덕을 지키며 수성(守城)하세요."
+        ],
+        bad: [
+            "오늘은 기운이 상충하니, {trait} 기질을 잠시 감추고 겸손하게 행동해야 합니다.",
+            "역풍이 불 수 있습니다. {trait} 고집보다는 유연함이 위기를 기회로 바꿉니다.",
+            "돌다리도 두들겨 보아야 합니다. {trait} 성급함을 경계하고 신중을 기하세요."
+        ]
+    },
+    // [실천적 조언]
+    action: [
+        "오늘의 행운은 **동쪽**에서 불어옵니다. 아침 일찍 창문을 열어 환기하세요.",
+        "대화보다는 **경청**이 복을 부릅니다. 상대방의 눈을 바라보며 이야기하세요.",
+        "잠시 **자연**과 가까이하는 시간이 필요합니다. 짧은 산책이 막힌 기운을 뚫어줍니다.",
+        "**따뜻한 차 한 잔**의 여유가 꼬인 실타래를 푸는 열쇠가 됩니다.",
+        "중요한 약속은 **오후**로 잡는 것이 유리합니다. 오전에는 내실을 다지세요."
+    ]
+};
 
-const LUCKY_COLORS = [
-    "빨강", "파랑", "노랑", "초록", "보라", "주황", "분홍", "하늘", "남색", "베이지",
-    "민트", "라임", "차콜", "화이트", "블랙", "골드", "실버", "브라운", "와인", "코랄"
-];
+// --- 3. Engine Logic ---
 
-const LUCKY_ACTIONS = [
-    "스트레칭하기", "물 한 잔 마시기", "하늘 쳐다보기", "부모님께 연락하기", "좋아하는 노래 듣기",
-    "책상 정리하기", "산책하기", "심호흡 3번", "감사일기 쓰기", "과일 먹기", "사진 찍기",
-    "칭찬 한마디", "뉴스 보기", "일찍 잠들기", "계단 이용하기", "웃는 연습", "명상하기"
-];
-
-
-// --- 3. Engine Logic (Deterministic) ---
-
-// Seeded Random Helper
 function getSeededRandom(seed) {
     let hash = 0;
     for (let i = 0; i < seed.length; i++) {
@@ -145,83 +141,130 @@ function getSeededRandom(seed) {
     return x - Math.floor(x);
 }
 
-// Generate Today's Element/Energy based on Date
-function getDailyEnergy(dateObj) {
+function getDailyEnergies(dateObj) {
     const dateStr = `${dateObj.getFullYear()}${dateObj.getMonth()}${dateObj.getDate()}`;
-    const rand = getSeededRandom("DAILY_ENERGY_" + dateStr);
+    const rand = getSeededRandom("DAILY_MASTER_" + dateStr);
 
-    const wList = ["fire", "water", "air", "earth"];
-    const eList = ["wood", "fire", "earth", "metal", "water"];
+    // Western Element
+    const wElements = ["fire", "earth", "air", "water"];
+    const wEl = wElements[Math.floor(rand * wElements.length)];
 
-    return {
-        western: wList[Math.floor(rand * wList.length)],
-        eastern: eList[Math.floor(rand * eList.length)],
-        dateStr: dateStr
-    };
+    // Eastern Five Elements
+    const eElements = ["wood", "fire", "earth", "metal", "water"];
+    // Offset rand slightly for eastern to avoid obvious correlation
+    const eRand = getSeededRandom("EASTERN_" + dateStr + rand);
+    const eEl = eElements[Math.floor(eRand * eElements.length)];
+
+    return { wEl, eEl, dateStr };
 }
 
-// Main Function
-export function getDailyFortune(memberName, birthDateStr) {
+// Helper: Trait Select
+function pickTrait(list, seed) {
+    const idx = Math.floor(getSeededRandom(seed) * list.length);
+    return list[idx];
+}
+
+// ----------------------------------------------------
+// Export 1: Western Horoscope
+// ----------------------------------------------------
+export function getDailyHoroscope(memberName, birthDateStr) {
     if (!birthDateStr) return null;
 
     const today = new Date();
-    const daily = getDailyEnergy(today);
+    const { wEl, dateStr } = getDailyEnergies(today);
 
-    // 1. User Info
     const zodiacName = getZodiacName(birthDateStr);
-    const zodiacInfo = ZODIAC_DATA[zodiacName] || ZODIAC_DATA["양자리"];
+    const zData = ZODIAC_DATA[zodiacName];
 
-    // 2. Compatibility Check (Western mainly)
-    const relation = ELEMENT_RELATIONS.western[zodiacInfo.element];
-    let score = 50; // default mid
+    // Compatibility
+    const relation = ELEMENT_RELATIONS.western[zData.element];
     let status = "mid";
 
-    // Check relationship with today's element
-    if (relation.good.includes(daily.western)) {
-        score = 80; status = "high";
-    } else if (relation.bad.includes(daily.western)) {
-        score = 30; status = "low";
-    }
+    // Logic: Same element is Good too in this engine? Or Neutral?
+    // Let's follow relation map.
+    if (relation.good.includes(wEl)) status = "good";
+    else if (relation.bad.includes(wEl)) status = "bad";
+    // Else mid (neutral)
 
-    // 3. Template Selection (Deterministic Mix)
-    // Seed: Date + Name + Status -> Ensures same user gets same text all day
-    const seedStr = daily.dateStr + memberName + "FORTUNE";
-    const rand = getSeededRandom(seedStr);
+    // Build Sentence
+    const seed = dateStr + memberName + "WEST";
 
-    // Select Template Array
-    const targetTemplates = TEMPLATES[status];
-    const templateIdx = Math.floor(rand * targetTemplates.length);
-    let text = targetTemplates[templateIdx];
+    // 1. Element Intro
+    const introList = HORO_TEMPLATES.elements[wEl];
+    const intro = introList[Math.floor(getSeededRandom(seed + "intro") * introList.length)];
 
-    // 4. Slot Filling
-    // {trait}
-    const traitIdx = Math.floor(getSeededRandom(seedStr + "trait") * zodiacInfo.traits.length);
-    text = text.replace("{trait}", zodiacInfo.traits[traitIdx]);
+    // 2. Trait Advice
+    const trait = pickTrait(zData.traits, seed + "trait");
+    const adviceList = HORO_TEMPLATES.advice[status];
+    let advice = adviceList[Math.floor(getSeededRandom(seed + "adv") * adviceList.length)];
+    advice = advice.replace("{trait}", trait);
 
-    // {element} - Friendly Name
-    const elementMap = { fire: "불꽃", water: "흐르는 물", air: "상쾌한 바람", earth: "단단한 대지" };
-    text = text.replace("{element}", elementMap[daily.western]);
-
-    // Lucky Items
-    const itemIdx = Math.floor(getSeededRandom(seedStr + "item") * LUCKY_ITEMS.length);
-    const colorIdx = Math.floor(getSeededRandom(seedStr + "color") * LUCKY_COLORS.length);
-    const actionIdx = Math.floor(getSeededRandom(seedStr + "action") * LUCKY_ACTIONS.length);
+    // 3. Situation
+    const sitList = HORO_TEMPLATES.situations;
+    const sit = sitList[Math.floor(getSeededRandom(seed + "sit") * sitList.length)];
 
     return {
-        zodiac: zodiacName,
-        element: daily.western,
-        status: status, // high, mid, low
-        score: score,  // Numeric feeling
-        text: text,
-        lucky: {
-            item: LUCKY_ITEMS[itemIdx],
-            color: LUCKY_COLORS[colorIdx],
-            action: LUCKY_ACTIONS[actionIdx]
-        }
+        type: "western",
+        sign: zodiacName,
+        element: wEl,
+        status: status,
+        text: `${intro} ${advice} ${sit}`
     };
 }
 
-// Helpers
+// ----------------------------------------------------
+// Export 2: Oriental Fortune (Zodiac)
+// ----------------------------------------------------
+export function getDailyOrientalFortune(memberName, birthDateStr) {
+    if (!birthDateStr) return null;
+
+    const today = new Date();
+    const { eEl, dateStr } = getDailyEnergies(today);
+
+    const zodiacName = getChineseZodiacName(birthDateStr);
+    const zData = ORIENTAL_ZODIAC_DATA[zodiacName];
+
+    // Compatibility
+    const relation = ELEMENT_RELATIONS.eastern[zData.element.split(" ")[1] || "earth"];
+    // Data has "water" etc as key directly in ORIENTAL_ZODIAC_DATA? 
+    // Wait, defined as "쥐띠": { element: "water" ... } 
+
+    // Logic check: zData.element is "water"
+    let status = "mid";
+    const myEl = zData.element;
+    const relData = ELEMENT_RELATIONS.eastern[myEl];
+
+    if (relData.good.includes(eEl)) status = "good";
+    else if (relData.bad.includes(eEl)) status = "bad";
+
+    // Build Sentence
+    const seed = dateStr + memberName + "EAST";
+
+    // 1. Element Intro
+    const introList = ORIENTAL_TEMPLATES.elements[eEl];
+    const intro = introList[Math.floor(getSeededRandom(seed + "intro") * introList.length)];
+
+    // 2. Reaction
+    const trait = pickTrait(zData.traits, seed + "trait");
+    const reactList = ORIENTAL_TEMPLATES.reaction[status];
+    let react = reactList[Math.floor(getSeededRandom(seed + "react") * reactList.length)];
+    react = react.replace("{trait}", trait);
+
+    // 3. Action
+    const actList = ORIENTAL_TEMPLATES.action;
+    const act = actList[Math.floor(getSeededRandom(seed + "act") * actList.length)];
+
+    return {
+        type: "eastern",
+        sign: zodiacName,
+        element: eEl,
+        status: status,
+        text: `${intro} ${react} ${act}`
+    };
+}
+
+
+// --- Helpers ---
 function getZodiacName(dateStr) {
     const date = new Date(dateStr);
     const m = date.getMonth() + 1;
@@ -239,4 +282,10 @@ function getZodiacName(dateStr) {
     if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return "염소자리";
     if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return "물병자리";
     return "물고기자리";
+}
+
+function getChineseZodiacName(dateStr) {
+    const year = new Date(dateStr).getFullYear();
+    const animals = ["원숭이띠", "닭띠", "개띠", "돼지띠", "쥐띠", "소띠", "호랑이띠", "토끼띠", "용띠", "뱀띠", "말띠", "양띠"];
+    return animals[year % 12];
 }
