@@ -2,9 +2,21 @@
  * 아빠를 이겨라 (Beat Dad) - Stack Tower Game
  */
 
-// Import Firebase (db is exported from src/firebase.js)
-// Note: Relative path from public/games/beat-dad/game.js to src/firebase.js
-import { db } from '../../../src/firebase.js?v=2';
+// Firebase Configuration (Directly in file to avoid import issues)
+const firebaseConfig = {
+    apiKey: "AIzaSyANrUXwBGvmbDeVF2eqTeCb8oXPNaBIIAk",
+    authDomain: "familly-fun-service.firebaseapp.com",
+    projectId: "familly-fun-service",
+    storageBucket: "familly-fun-service.firebasestorage.app",
+    messagingSenderId: "257202552832",
+    appId: "1:257202552832:web:add8b7eb7672889dbdd8e5"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
