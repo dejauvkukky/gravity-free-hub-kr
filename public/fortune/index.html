@@ -322,325 +322,384 @@
         </div>
     </div>
 
-    import { auth, db } from '../../src/firebase.js?v=7';
-    import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
-    import { getDailyHoroscope, getDailyOrientalFortune, getLuckyPrescription } from '../../src/fortune_engine.js?v=3';
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js?v=7';
+        import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
+        import { getDailyHoroscope, getDailyOrientalFortune, getLuckyPrescription } from '../../src/fortune_engine.js?v=3';
 
-    // Expanded Data
-    const fortuneCookies = [
-    // 🍀 마음 (유지) - Existing Cookie Data preserved for scratch card
-    "5분만 쉬어도 하루가 달라집니다. 진짜예요.",
-    "오늘 기분이 집안 분위기를 만듭니다. 당신이 태양이에요.",
-    "걱정은 습관일 뿐. 오늘은 좋은 상상을 해보세요.",
-    "감사한 마음 하나면 하루가 따뜻해집니다.",
-    "당신 미소 하나로 온 집안이 환해집니다.",
-    "천천히 가도 괜찮아요. 멈추지만 않으면 됩니다.",
-    "마음을 비우면 좋은 일 들어올 자리가 생깁니다.",
-    "조용한 행운이 지금 문 앞까지 와 있습니다.",
+        // Expanded Data
+        const fortuneCookies = [
+            // 🍀 마음 (유지) - Existing Cookie Data preserved for scratch card
+            "5분만 쉬어도 하루가 달라집니다. 진짜예요.",
+            "오늘 기분이 집안 분위기를 만듭니다. 당신이 태양이에요.",
+            "걱정은 습관일 뿐. 오늘은 좋은 상상을 해보세요.",
+            "감사한 마음 하나면 하루가 따뜻해집니다.",
+            "당신 미소 하나로 온 집안이 환해집니다.",
+            "천천히 가도 괜찮아요. 멈추지만 않으면 됩니다.",
+            "마음을 비우면 좋은 일 들어올 자리가 생깁니다.",
+            "조용한 행운이 지금 문 앞까지 와 있습니다.",
 
-    // 👪 가족 (유지)
-    "가족 단톡에 하트 하나, 그것만으로도 충분합니다.",
-    "같이 웃으면 그게 바로 복입니다.",
-    "따뜻한 말 한마디가 하루를 바꿉니다.",
-    "먼저 연락하면 상대도 기다리고 있었을 거예요.",
-    "작은 배려 하나가 관계를 더 단단하게 만듭니다.",
-    "오래된 친구에게 안부 한마디, 서로에게 좋은 날이 됩니다.",
-    "조금만 상대 입장에서 생각하면 대부분 풀립니다.",
-    "진심은 늦어도 반드시 전해집니다.",
+            // 👪 가족 (유지)
+            "가족 단톡에 하트 하나, 그것만으로도 충분합니다.",
+            "같이 웃으면 그게 바로 복입니다.",
+            "따뜻한 말 한마디가 하루를 바꿉니다.",
+            "먼저 연락하면 상대도 기다리고 있었을 거예요.",
+            "작은 배려 하나가 관계를 더 단단하게 만듭니다.",
+            "오래된 친구에게 안부 한마디, 서로에게 좋은 날이 됩니다.",
+            "조금만 상대 입장에서 생각하면 대부분 풀립니다.",
+            "진심은 늦어도 반드시 전해집니다.",
 
-    // 🚀 도전 (유지)
-    "오늘 시작하면 내일이 편해집니다.",
-    "지금 노력은 나중에 이자 붙어서 돌아옵니다.",
-    "한 걸음만 떼면 생각보다 쉽게 풀립니다.",
-    "준비된 사람에게 기회는 꼭 찾아옵니다.",
-    "작게 시작해도 괜찮아요. 시작이 반입니다.",
-    "용기 내면 좋은 결과가 따라옵니다.",
-    "지금 성실함이 나중에 든든한 힘이 됩니다.",
-    "생각보다 훨씬 잘하고 있어요. 자신감 가지세요.",
+            // 🚀 도전 (유지)
+            "오늘 시작하면 내일이 편해집니다.",
+            "지금 노력은 나중에 이자 붙어서 돌아옵니다.",
+            "한 걸음만 떼면 생각보다 쉽게 풀립니다.",
+            "준비된 사람에게 기회는 꼭 찾아옵니다.",
+            "작게 시작해도 괜찮아요. 시작이 반입니다.",
+            "용기 내면 좋은 결과가 따라옵니다.",
+            "지금 성실함이 나중에 든든한 힘이 됩니다.",
+            "생각보다 훨씬 잘하고 있어요. 자신감 가지세요.",
 
-    // 🌱 성장 (유지)
-    "실수는 배우는 과정입니다. 괜찮아요.",
-    "오늘 선택이 내일을 만듭니다. 신중하되 부담 갖지 마세요.",
-    "배우려는 자세면 충분합니다.",
-    "새로운 시도는 새로운 가능성입니다.",
-    "변화는 무섭지만 성장의 기회입니다.",
-    "조금만 다르게 보면 답이 보입니다.",
-    "오늘 배운 것이 내일 힘이 됩니다.",
-    "꾸준함이 재능을 이깁니다.",
+            // 🌱 성장 (유지)
+            "실수는 배우는 과정입니다. 괜찮아요.",
+            "오늘 선택이 내일을 만듭니다. 신중하되 부담 갖지 마세요.",
+            "배우려는 자세면 충분합니다.",
+            "새로운 시도는 새로운 가능성입니다.",
+            "변화는 무섭지만 성장의 기회입니다.",
+            "조금만 다르게 보면 답이 보입니다.",
+            "오늘 배운 것이 내일 힘이 됩니다.",
+            "꾸준함이 재능을 이깁니다.",
 
-    // 🌞 행운 (유지)
-    "오늘 좋은 일 하나 생길 거예요.",
-    "평범한 오늘이 특별해지는 날입니다.",
-    "좋은 소식이 오고 있습니다.",
-    "예상치 못한 곳에서 도움이 옵니다.",
-    "오늘은 모든 일이 잘 풀릴 거예요.",
-    "작은 선택이 큰 행운이 될 수 있습니다.",
-    "이미 많은 행운이 함께하고 있습니다.",
-    "조용한 행복이 하루 종일 함께할 거예요."
-    ];
+            // 🌞 행운 (유지)
+            "오늘 좋은 일 하나 생길 거예요.",
+            "평범한 오늘이 특별해지는 날입니다.",
+            "좋은 소식이 오고 있습니다.",
+            "예상치 못한 곳에서 도움이 옵니다.",
+            "오늘은 모든 일이 잘 풀릴 거예요.",
+            "작은 선택이 큰 행운이 될 수 있습니다.",
+            "이미 많은 행운이 함께하고 있습니다.",
+            "조용한 행복이 하루 종일 함께할 거예요."
+        ];
 
-    let membersData = [];
-    let chartTotal = null;
-    let chartInd = null;
-    let scratchCanvas = null;
-    let scratchCtx = null;
-    let isDrawing = false;
-    let currentScratchMember = null;
+        let membersData = [];
+        let chartTotal = null;
+        let chartInd = null;
+        let scratchCanvas = null;
+        let scratchCtx = null;
+        let isDrawing = false;
+        let currentScratchMember = null;
 
-    // Init
-    const today = new Date();
-    document.getElementById('header-date').innerText = `${today.getMonth() + 1}월 ${today.getDate()}일`;
+        // Init
+        const today = new Date();
+        document.getElementById('header-date').innerText = `${today.getMonth() + 1}월 ${today.getDate()}일`;
 
-    auth.onAuthStateChanged(user => {
-    if (!user) {
-    location.href = '../login.html';
-    } else {
-    loadFamilyData(user);
-    }
-    });
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                location.href = '../login.html';
+            } else {
+                loadFamilyData(user);
+            }
+        });
 
-    // Simple seeded random function
-    function seededRandom(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) { const char=str.charCodeAt(i); hash=((hash << 5) - hash) + char; hash=hash &
-        hash; // Convert to 32bit integer } const x=Math.sin(hash) * 10000; return x - Math.floor(x); } async function
-        loadFamilyData(user) { try { const names=Object.keys(familyData); membersData=names.map(name=> ({
-        name: name,
-        birthdate: familyData[name].birthdate
-        }));
-
-        renderTabs();
-        renderTotalChart();
-
-        // [NEW] Auto-select tab for logged-in user
-        const storedName = sessionStorage.getItem('user_name');
-        if (storedName) {
-        const myIdx = membersData.findIndex(m => m.name === storedName);
-        if (myIdx !== -1) {
-        switchTab(myIdx);
-        }
+        // Simple seeded random function
+        function seededRandom(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            const x = Math.sin(hash) * 10000;
+            return x - Math.floor(x);
         }
 
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('content').classList.remove('hidden');
+        async function loadFamilyData(user) {
+            try {
+                const names = Object.keys(familyData); membersData = names.map(name => ({
+                    name: name,
+                    birthdate: familyData[name].birthdate
+                }));
 
-        } catch (e) {
-        console.error(e);
-        alert("데이터 로딩 실패");
-        }
+                renderTabs();
+                renderTotalChart();
+
+                // [NEW] Auto-select tab for logged-in user
+                const storedName = sessionStorage.getItem('user_name');
+                if (storedName) {
+                    const myIdx = membersData.findIndex(m => m.name === storedName);
+                    if (myIdx !== -1) {
+                        switchTab(myIdx);
+                    }
+                }
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+
+            } catch (e) {
+                console.error(e);
+                alert("데이터 로딩 실패");
+            }
         }
 
         function renderTabs() {
-        const container = document.getElementById('tab-nav');
-        // Reset tabs (keep first one "Total")
-        while (container.children.length > 1) {
-        container.removeChild(container.lastChild);
-        }
+            const container = document.getElementById('tab-nav');
+            // Reset tabs (keep first one "Total")
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
 
-        membersData.forEach((m, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'tab-btn';
-        btn.innerText = m.name;
-        btn.onclick = (e) => switchTab(idx, e);
-        container.appendChild(btn);
-        });
+            membersData.forEach((m, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn';
+                btn.innerText = m.name;
+                btn.onclick = (e) => switchTab(idx, e);
+                container.appendChild(btn);
+            });
         }
 
         window.switchTab = function (tabId, event) {
-        // UI Toggle
-        const btns = document.querySelectorAll('.tab-btn');
-        btns.forEach(b => b.classList.remove('active'));
+            // UI Toggle
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
 
-        if (event) {
-        event.target.classList.add('active');
-        } else {
-        // Fallback or Initial
-        }
+            if (event) {
+                event.target.classList.add('active');
+            } else {
+                // Fallback or Initial
+            }
 
-        if (tabId === 'total') {
-        document.getElementById('section-total').classList.remove('hidden');
-        document.getElementById('section-individual').classList.add('hidden');
-        document.getElementById('total-scratch-section').classList.remove('hidden'); // Show Guide
-        renderTotalChart();
-        } else {
-        document.getElementById('section-total').classList.add('hidden');
-        document.getElementById('section-individual').classList.remove('hidden');
-        document.getElementById('total-scratch-section').classList.add('hidden'); // Hide Guide
-        renderIndividual(membersData[tabId]);
-        }
+            if (tabId === 'total') {
+                document.getElementById('section-total').classList.remove('hidden');
+                document.getElementById('section-individual').classList.add('hidden');
+                document.getElementById('total-scratch-section').classList.remove('hidden'); // Show Guide
+                renderTotalChart();
+            } else {
+                document.getElementById('section-total').classList.add('hidden');
+                document.getElementById('section-individual').classList.remove('hidden');
+                document.getElementById('total-scratch-section').classList.add('hidden'); // Hide Guide
+                renderIndividual(membersData[tabId]);
+            }
         }
 
         function getBiorhythm(birthStr, targetDate) {
-        const birth = new Date(birthStr);
-        const diffTime = targetDate - birth;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const birth = new Date(birthStr);
+            const diffTime = targetDate - birth;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-        const phys = Math.sin(2 * Math.PI * diffDays / 23) * 100;
-        const emo = Math.sin(2 * Math.PI * diffDays / 28) * 100;
-        const intel = Math.sin(2 * Math.PI * diffDays / 33) * 100;
+            const phys = Math.sin(2 * Math.PI * diffDays / 23) * 100;
+            const emo = Math.sin(2 * Math.PI * diffDays / 28) * 100;
+            const intel = Math.sin(2 * Math.PI * diffDays / 33) * 100;
 
-        return { phys, emo, intel, avg: (phys + emo + intel) / 3 };
+            return { phys, emo, intel, avg: (phys + emo + intel) / 3 };
         }
 
         function renderTotalChart() {
-        if (chartTotal) chartTotal.destroy();
+            if (chartTotal) chartTotal.destroy();
 
-        const labels = [];
-        const dataScores = [];
-        const bgColors = [];
+            const labels = [];
+            const dataScores = [];
+            const bgColors = [];
 
-        membersData.forEach(m => {
-        if (!m.birthdate) return;
-        const bio = getBiorhythm(m.birthdate, new Date());
-        labels.push(m.name);
-        dataScores.push(bio.avg);
+            membersData.forEach(m => {
+                if (!m.birthdate) return;
+                const bio = getBiorhythm(m.birthdate, new Date());
+                labels.push(m.name);
+                dataScores.push(bio.avg);
 
-        if (bio.avg > 50) bgColors.push('#22c55e');
-        else if (bio.avg > 0) bgColors.push('#fbbf24');
-        else bgColors.push('#ef4444');
-        });
+                if (bio.avg > 50) bgColors.push('#22c55e');
+                else if (bio.avg > 0) bgColors.push('#fbbf24');
+                else bgColors.push('#ef4444');
+            });
 
-        let maxScore = -100;
-        let bestMember = "";
-        dataScores.forEach((s, i) => {
-        if (s > maxScore) { maxScore = s; bestMember = labels[i]; }
-        });
+            let maxScore = -100;
+            let bestMember = "";
+            dataScores.forEach((s, i) => {
+                if (s > maxScore) { maxScore = s; bestMember = labels[i]; }
+            });
 
-        document.getElementById('total-comment').innerText =
-        `오늘 컨디션 왕은 👑 ${bestMember}님! (${Math.round(maxScore)}점)`;
+            document.getElementById('total-comment').innerText =
+                `오늘 컨디션 왕은 👑 ${bestMember}님! (${Math.round(maxScore)}점)`;
 
-        const ctx = document.getElementById('totalChart').getContext('2d');
-        chartTotal = new Chart(ctx, {
-        type: 'bar',
-        data: {
-        labels: labels,
-        datasets: [{
-        label: '종합 컨디션 점수',
-        data: dataScores,
-        backgroundColor: bgColors,
-        borderRadius: 8
-        }]
-        },
-        options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-        y: { min: -100, max: 100, grid: { color: '#f0f0f0' } },
-        x: { grid: { display: false } }
-        },
-        plugins: { legend: { display: false } }
-        }
-        });
+            const ctx = document.getElementById('totalChart').getContext('2d');
+            chartTotal = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '종합 컨디션 점수',
+                        data: dataScores,
+                        backgroundColor: bgColors,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: -100, max: 100, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
         }
 
         function renderIndividual(member) {
-        if (!member || !member.birthdate) return;
+            if (!member || !member.birthdate) return;
 
-        document.getElementById('ind-name-title').innerText = `${member.name}님의 운세`;
+            document.getElementById('ind-name-title').innerText = `${member.name}님의 운세`;
 
-        // 1. Static Info (Zodiac)
-        const z1 = getZodiac(member.birthdate);
-        const z2 = getChineseZodiac(member.birthdate);
-        document.getElementById('zodiac-text').innerText = `${member.birthdate} (${z1}/${z2})`;
+            // 1. Static Info (Zodiac)
+            const z1 = getZodiac(member.birthdate);
+            const z2 = getChineseZodiac(member.birthdate);
+            document.getElementById('zodiac-text').innerText = `${member.birthdate} (${z1}/${z2})`;
 
-        // 2. Fortune Engine 2.0 (Dual Display)
+            // 2. Fortune Engine 2.0 (Dual Display)
 
-        // A. Western Horoscope
-        const horo = getDailyHoroscope(member.name, member.birthdate);
-        if (horo) {
-        document.getElementById('western-sign').innerText = horo.sign;
-        document.getElementById('western-text').innerHTML = formatFortuneText(horo.text);
+            // A. Western Horoscope
+            const horo = getDailyHoroscope(member.name, member.birthdate);
+            if (horo) {
+                document.getElementById('western-sign').innerText = horo.sign;
+                document.getElementById('western-text').innerHTML = formatFortuneText(horo.text);
 
-        // Element Badge Map
-        const wMap = { fire: "🔥 불의 날", earth: "⛰️ 흙의 날", air: "💨 바람의 날", water: "💧 물의 날" };
-        document.getElementById('western-el-badge').innerText = wMap[horo.element] || horo.element;
-        }
-
-        // B. Oriental Fortune
-        const oriental = getDailyOrientalFortune(member.name, member.birthdate);
-        if (oriental) {
-        document.getElementById('eastern-sign').innerText = oriental.sign;
-        document.getElementById('eastern-text').innerHTML = formatFortuneText(oriental.text);
-
-        // Element Badge Map
-        const eMap = { wood: "🌲 목(나무)의 흐름", fire: "🔥 화(불)의 흐름", earth: "⛰️ 토(흙)의 흐름", metal: "⚔️ 금(쇠)의 흐름", water: "🌊
-        수(물)의 흐름" };
-        document.getElementById('eastern-el-badge').innerText = eMap[oriental.element] || oriental.element;
-        }
-
-        function formatFortuneText(text) {
-        if (!text) return "";
-        // Highlight bold parts **text** -> <b>text</b>
-        return text.replace(/\*\*(.*?)\*\*/g, '<b style="color:inherit; opacity:1;">$1</b>');
-        }
-
-        // C. Lucky Prescription (NEW)
-        const lucky = getLuckyPrescription(member.name, member.birthdate);
-        if (lucky) {
-        document.getElementById('lucky-color').innerText = lucky.color;
-        document.getElementById('lucky-item').innerText = lucky.item;
-        document.getElementById('lucky-dir').innerText = lucky.direction;
-        document.getElementById('lucky-num').innerText = lucky.number;
-        }
-
-        // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
-        const dateStr = `${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
-        const seed = member.name + dateStr;
-        const cookieSeed = seed + 'cookie';
-        const cookieRand = seededRandom(cookieSeed);
-        const cookieIdx = Math.floor(cookieRand * fortuneCookies.length);
-
-        document.getElementById('fortune-msg').innerText = `"${fortuneCookies[cookieIdx]}"`;
-
-        // 4. Scratch Canvas Reset
-        // [FIX] Add delay to ensure DOM is visible and has dimensions before init
-        setTimeout(() => {
-        initScratchCanvas(member.name);
-        }, 100);
-
-        // 5. Bio Chart
-        if (chartInd) chartInd.destroy();
-
-        const labels = [];
-        const dP = [], dE = [], dI = [];
-        const todayD = new Date();
-
-        for (let i = -3; i <= 3; i++) { const d=new Date(todayD); d.setDate(todayD.getDate() + i);
-            labels.push(`${d.getMonth() + 1}/${d.getDate()}`); const bio=getBiorhythm(member.birthdate, d);
-            dP.push(bio.phys); dE.push(bio.emo); dI.push(bio.intel); } const
-            ctx=document.getElementById('indChart').getContext('2d'); chartInd=new Chart(ctx, { type: 'line' , data: {
-            labels: labels, datasets: [ { label: '신체' , data: dP, borderColor: '#22c55e' , tension: 0.4, pointRadius: 3
-            }, { label: '감성' , data: dE, borderColor: '#ef4444' , tension: 0.4, pointRadius: 3 }, { label: '지성' , data:
-            dI, borderColor: '#3b82f6' , tension: 0.4, pointRadius: 3 } ] }, options: { responsive: true,
-            maintainAspectRatio: false, scales: { y: { min: -100, max: 100, grid: { color: '#f0f0f0' } }, x: { grid: {
-            display: false } } }, plugins: { legend: { display: false } } } }); } // --- Scratch Logic --- function
-            initScratchCanvas(memberName) { // Need to check if user switched tab, scratch should be reset? // Yes, user
-            wants "scratch card" experience effectively per member view. const
-            canvas=document.getElementById('scratchCanvas'); const parent=document.getElementById('scratch-wrapper');
-            const hint=document.getElementById('scratch-hint'); if (!canvas || !parent) return;
-            scratchCtx=canvas.getContext('2d'); // Set canvas size canvas.width=parent.offsetWidth;
-            canvas.height=parent.offsetHeight; // Fill with gray/silver
-            scratchCtx.globalCompositeOperation='source-over' ; scratchCtx.fillStyle='#cccccc' ; // silver
-            scratchCtx.fillRect(0, 0, canvas.width, canvas.height); // Decoration text "Scratch Me"
-            scratchCtx.fillStyle='#999' ; scratchCtx.font='20px sans-serif' ; scratchCtx.textAlign='center' ;
-            scratchCtx.fillText("🍀 긁어서 행운 확인!", canvas.width / 2, canvas.height / 2); // Reset Drawing State
-            isDrawing=false; hint.style.display='block' ; // Show hint again // Event Listeners (ensure we don't
-            duplicate if called multiple times) // It's safer to recreate or remove old listeners, but for simplicity
-            here we assume simple switching. // Using 'on' properties to override previous handlers easily.
-            canvas.onmousedown=startScratch; canvas.onmousemove=scratch; canvas.onmouseup=endScratch;
-            canvas.onmouseleave=endScratch; // Touch support canvas.ontouchstart=(e)=> { e.preventDefault();
-            startScratch(e.touches[0]); };
-            canvas.ontouchmove = (e) => { e.preventDefault(); scratch(e.touches[0]); };
-            canvas.ontouchend = endScratch;
+                // Element Badge Map
+                const wMap = { fire: "🔥 불의 날", earth: "⛰️ 흙의 날", air: "💨 바람의 날", water: "💧 물의 날" };
+                document.getElementById('western-el-badge').innerText = wMap[horo.element] || horo.element;
             }
 
-            function startScratch(e) {
+            // B. Oriental Fortune
+            const oriental = getDailyOrientalFortune(member.name, member.birthdate);
+            if (oriental) {
+                document.getElementById('eastern-sign').innerText = oriental.sign;
+                document.getElementById('eastern-text').innerHTML = formatFortuneText(oriental.text);
+
+                // Element Badge Map
+                const eMap = {
+                    wood: "🌲 목(나무)의 흐름",
+                    fire: "🔥 화(불)의 흐름",
+                    earth: "⛰️ 토(흙)의 흐름",
+                    metal: "⚔️ 금(쇠)의 흐름",
+                    water: "🌊 수(물)의 흐름"
+                };
+                document.getElementById('eastern-el-badge').innerText = eMap[oriental.element] || oriental.element;
+            }
+
+            function formatFortuneText(text) {
+                if (!text) return "";
+                // Highlight bold parts **text** -> <b>text</b>
+                return text.replace(/\*\*(.*?)\*\*/g, '<b style="color:inherit; opacity:1;">$1</b>');
+            }
+
+            // C. Lucky Prescription (NEW)
+            const lucky = getLuckyPrescription(member.name, member.birthdate);
+            if (lucky) {
+                document.getElementById('lucky-color').innerText = lucky.color;
+                document.getElementById('lucky-item').innerText = lucky.item;
+                document.getElementById('lucky-dir').innerText = lucky.direction;
+                document.getElementById('lucky-num').innerText = lucky.number;
+            }
+
+            // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
+            const dateStr = `${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+            const seed = member.name + dateStr;
+            const cookieSeed = seed + 'cookie';
+            const cookieRand = seededRandom(cookieSeed);
+            const cookieIdx = Math.floor(cookieRand * fortuneCookies.length);
+
+            document.getElementById('fortune-msg').innerText = `"${fortuneCookies[cookieIdx]}"`;
+
+            // 4. Scratch Canvas Reset
+            // [FIX] Add delay to ensure DOM is visible and has dimensions before init
+            setTimeout(() => {
+                initScratchCanvas(member.name);
+            }, 100);
+
+            // 5. Bio Chart
+            if (chartInd) chartInd.destroy();
+
+            const labels = [];
+            const dP = [], dE = [], dI = [];
+            const todayD = new Date();
+
+            for (let i = -3; i <= 3; i++) {
+                const d = new Date(todayD);
+                d.setDate(todayD.getDate() + i);
+                labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+                const bio = getBiorhythm(member.birthdate, d);
+                dP.push(bio.phys);
+                dE.push(bio.emo);
+                dI.push(bio.intel);
+            }
+
+            const ctx = document.getElementById('indChart').getContext('2d');
+            chartInd = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '신체', data: dP, borderColor: '#22c55e', tension: 0.4, pointRadius: 3
+                    }, { label: '감성', data: dE, borderColor: '#ef4444', tension: 0.4, pointRadius: 3 }, {
+                        label: '지성', data:
+                            dI, borderColor: '#3b82f6', tension: 0.4, pointRadius: 3
+                    }]
+                }, options: {
+                    responsive: true,
+                    maintainAspectRatio: false, scales: {
+                        y: { min: -100, max: 100, grid: { color: '#f0f0f0' } }, x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }, plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- Scratch Logic ---
+        function initScratchCanvas(memberName) {
+            const canvas = document.getElementById('scratchCanvas');
+            const parent = document.getElementById('scratch-wrapper');
+            const hint = document.getElementById('scratch-hint');
+
+            if (!canvas || !parent) return;
+
+            scratchCtx = canvas.getContext('2d');
+            canvas.width = parent.offsetWidth;
+            canvas.height = parent.offsetHeight;
+
+            // Fill with gray/silver
+            scratchCtx.globalCompositeOperation = 'source-over';
+            scratchCtx.fillStyle = '#cccccc';
+            scratchCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Decoration text "Scratch Me"
+            scratchCtx.fillStyle = '#999';
+            scratchCtx.font = '20px sans-serif';
+            scratchCtx.textAlign = 'center';
+            scratchCtx.fillText("🍀 긁어서 행운 확인!", canvas.width / 2, canvas.height / 2);
+
+            // Reset Drawing State
+            isDrawing = false;
+            hint.style.display = 'block';
+
+            // Event Listeners
+            canvas.onmousedown = startScratch;
+            canvas.onmousemove = scratch;
+            canvas.onmouseup = endScratch;
+            canvas.onmouseleave = endScratch;
+
+            // Touch support
+            canvas.ontouchstart = (e) => { e.preventDefault(); startScratch(e.touches[0]); };
+            canvas.ontouchmove = (e) => { e.preventDefault(); scratch(e.touches[0]); };
+            canvas.ontouchend = endScratch;
+        }
+
+        function startScratch(e) {
             isDrawing = true;
             document.getElementById('scratch-hint').style.display = 'none'; // Hide hint once started
             scratch(e);
-            }
+        }
 
-            function scratch(e) {
+        function scratch(e) {
             if (!isDrawing) return;
 
             const canvas = document.getElementById('scratchCanvas');
@@ -652,29 +711,29 @@
             scratchCtx.beginPath();
             scratchCtx.arc(x, y, 20, 0, Math.PI * 2); // Brush size
             scratchCtx.fill();
-            }
+        }
 
-            function endScratch() {
+        function endScratch() {
             isDrawing = false;
             // Check percent cleared? (Optional enhancement)
-            }
+        }
 
-            // Handle window resize
-            window.addEventListener('resize', () => {
+        // Handle window resize
+        window.addEventListener('resize', () => {
             // Ideally resize canvas but that would clear it. Let's ignore for MVP.
-            });
-
-            </script>
-</body>
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('../sw.js')
-                .then(reg => console.log('SW registered!', reg))
-                .catch(err => console.log('SW registration failed: ', err));
         });
-    }
-</script>
+
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js')
+                    .then(reg => console.log('SW registered!', reg))
+                    .catch(err => console.log('SW registration failed: ', err));
+            });
+        }
+    </script>
 </body>
 
 </html>
