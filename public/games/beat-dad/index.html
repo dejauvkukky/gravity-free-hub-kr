@@ -35,9 +35,11 @@
             <div class="modal">
                 <h1>🏗️ 아빠를 이겨라</h1>
                 <p class="desc">움직이는 블록을 타이밍 맞춰 쌓아보세요!<br>아빠의 기록을 넘을 수 있을까요?</p>
-                <div class="dad-preview">
-                    <span>이번 판 아빠 기록은?</span>
-                    <strong style="color:#d97706; font-size:1.4rem;">❓❓ 층</strong>
+                <div class="start-ranking-board">
+                    <h3 id="week-title" style="margin:0 0 10px 0; color:#475569; font-size:1rem;">📅 0월 0주 주간랭킹</h3>
+                    <ul id="start-ranking-list" style="list-style:none; padding:0; margin:0; text-align:left;">
+                        <!-- JS Populated -->
+                    </ul>
                 </div>
                 <button id="btn-start" class="btn-primary">게임 시작</button>
                 <button class="btn-secondary" onclick="location.href='../../dashboard.html'">나가기</button>

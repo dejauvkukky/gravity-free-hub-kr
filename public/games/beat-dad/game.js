@@ -85,10 +85,49 @@ function initGame() {
         canvas.addEventListener(evt, handleInput, { passive: false })
     );
 
-    // Initial Dad Preview (Dummy)
-    document.querySelector('.dad-preview strong').innerText = `❓❓ 층`;
-    loadRanking();
+    // Start Screen Ranking logic
+    loadStartScreenRanking();
 }
+
+function loadStartScreenRanking() {
+    // 1. Calculate Date (M월 W주)
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    // Simple week calculation: ceil(date / 7)
+    const week = Math.ceil(now.getDate() / 7);
+
+    document.getElementById('week-title').innerText = `📅 ${month}월 ${week}주 주간랭킹`;
+
+    // 2. Get Data
+    let history = JSON.parse(localStorage.getItem('beatDad_weekly_scores') || '[]');
+    // Filter last 7 days roughly
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const weeklyData = history.filter(r => new Date(r.date) > oneWeekAgo);
+
+    // 3. Target Users
+    const targets = ['kukky', 'soony', 'joowon', 'raim'];
+    const listEl = document.getElementById('start-ranking-list');
+    listEl.innerHTML = '';
+
+    targets.forEach((user, idx) => {
+        // Find Best Score for this user
+        const userRecords = weeklyData.filter(r => r.nickname === user);
+        let bestScore = '-';
+        if (userRecords.length > 0) {
+            bestScore = Math.max(...userRecords.map(r => r.score)) + '층';
+        }
+
+        const li = document.createElement('li');
+        li.style.cssText = "display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:0.95rem;";
+
+        // Medal for Top 3 (visual only, list is fixed order but we can highlight score?)
+        // Actually request is just to SHOW them.
+        // Let's simple format:
+        li.innerHTML = `<span>${user}</span> <span style="font-weight:bold; color:${bestScore === '-' ? '#cbd5e1' : '#2563eb'}">${bestScore}</span>`;
+        listEl.appendChild(li);
+    });
+}
+
 
 function resizeCanvas() {
     canvas.width = canvas.parentElement.offsetWidth;
