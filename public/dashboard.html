@@ -128,9 +128,6 @@
     <!-- Notice Popup -->
     <div id="notice-popup" class="notice-overlay hidden">
         <div class="notice-modal">
-            <div class="notice-header">
-                <h3>📢 공지사항</h3>
-            </div>
             <div class="notice-body">
                 <p id="notice-content"></p>
             </div>
@@ -143,7 +140,7 @@
     <!-- Admin UI (kukky only) -->
     <div id="notice-admin" class="notice-admin hidden">
         <div class="notice-admin-header">
-            <h4>⚙️ 공지사항 관리</h4>
+            <h4>공지사항 관리</h4>
             <button id="notice-admin-close" class="notice-admin-close">✕</button>
         </div>
         <div class="notice-admin-body">
@@ -153,7 +150,7 @@
                 <span class="toggle-slider"></span>
                 <span class="toggle-label">화면에 표시하기</span>
             </label>
-            <button id="notice-save-btn" class="notice-admin-btn">💾 저장하기</button>
+            <button id="notice-save-btn" class="notice-admin-btn">저장하기</button>
         </div>
     </div>
 
@@ -180,34 +177,23 @@
 
         /* Notice Modal */
         .notice-modal {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
             width: 90%;
             overflow: hidden;
             animation: slideUp 0.3s ease;
-        }
-
-        .notice-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .notice-header h3 {
-            margin: 0;
-            font-size: 1.3rem;
-            font-weight: bold;
+            border: 2px solid #10b981;
         }
 
         .notice-body {
-            padding: 30px 25px;
-            line-height: 1.8;
-            color: #334155;
+            padding: 25px;
+            line-height: 1.7;
+            color: #1f2937;
             font-size: 1rem;
-            min-height: 100px;
+            min-height: 80px;
+            text-align: center;
         }
 
         .notice-body p {
@@ -216,25 +202,26 @@
         }
 
         .notice-footer {
-            padding: 15px 25px 25px;
+            padding: 0 25px 20px;
             text-align: center;
         }
 
         .notice-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: #10b981;
             color: white;
             border: none;
-            padding: 12px 40px;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .notice-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
         /* Minimized Notice Button */
@@ -242,20 +229,21 @@
             position: absolute;
             top: 70px;
             left: 10px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: #10b981;
             color: white;
             padding: 10px 16px;
             border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
             z-index: 100;
             transition: all 0.2s;
             font-size: 0.9rem;
         }
 
         .notice-minimized:hover {
+            background: #059669;
             transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
         }
 
         .notice-minimized.hidden {
@@ -282,7 +270,7 @@
         }
 
         .notice-admin-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: #10b981;
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -368,7 +356,7 @@
         }
 
         .notice-toggle input:checked+.toggle-slider {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: #10b981;
         }
 
         .notice-toggle input:checked+.toggle-slider::after {
@@ -382,43 +370,45 @@
 
         .notice-admin-btn {
             width: 100%;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: #10b981;
             color: white;
             border: none;
             padding: 12px;
             border-radius: 10px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .notice-admin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
         /* Admin Toggle Button */
         .notice-admin-toggle {
             position: absolute;
-            top: 70px;
-            left: 90px;
+            bottom: 10px;
+            right: 10px;
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: #10b981;
             color: white;
             border: none;
             border-radius: 50%;
             font-size: 1.3rem;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
             z-index: 100;
             transition: all 0.2s;
         }
 
         .notice-admin-toggle:hover {
+            background: #059669;
             transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.6);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
         }
 
         .notice-admin-toggle.hidden {
