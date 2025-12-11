@@ -543,7 +543,10 @@
             document.getElementById('fortune-msg').innerText = `"${fortuneCookies[cookieIdx]}"`;
 
             // 4. Scratch Canvas Reset
-            initScratchCanvas(member.name); // Reset scratch for this user
+            // [FIX] Add delay to ensure DOM is visible and has dimensions before init
+            setTimeout(() => {
+                initScratchCanvas(member.name);
+            }, 100);
 
             // 5. Bio Chart
             if (chartInd) chartInd.destroy();
