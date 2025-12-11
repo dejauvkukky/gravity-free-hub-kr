@@ -165,10 +165,10 @@ async function loadStartScreenRanking() {
             let crown = '';
             // Checking if this item is the MAX score of the group (first item) and score > 0
             if (displayData[0].score > 0 && item.score === displayData[0].score) {
-                crown = ' 👑';
+                crown = '👑 ';
             }
 
-            li.innerHTML = `<span>${item.nickname}</span> <span style="font-weight:bold; color:${scoreColor}">${scoreText}${crown}</span>`;
+            li.innerHTML = `<span>${crown}${item.nickname}</span> <span style="font-weight:bold; color:${scoreColor}">${scoreText}</span>`;
             listEl.appendChild(li);
         });
 
@@ -482,9 +482,9 @@ async function loadResultRanking() {
                 const li = document.createElement('li');
                 const rank = i + 1;
                 let crown = '';
-                if (rank === 1) crown = ' 👑';
+                if (rank === 1) crown = '👑 ';
 
-                li.innerHTML = `<span class="rank-num">${rank}${crown}</span> <span>${r.nickname}</span> <span>${r.score}층</span>`;
+                li.innerHTML = `<span class="rank-num">${rank}</span> <span>${crown}${r.nickname}</span> <span>${r.score}층</span>`;
                 list.appendChild(li);
             });
         }
