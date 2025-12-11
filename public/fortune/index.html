@@ -523,32 +523,34 @@
             const z2 = getChineseZodiac(member.birthdate);
             document.getElementById('zodiac-text').innerText = `${member.birthdate} (${z1}/${z2})`;
 
-            // 2. Daily Fortune (Engine)
-            const fortune = getDailyFortune(member.name, member.birthdate);
-            const keywordEl = document.getElementById('daily-keyword');
+            // 2. Fortune Engine 2.0 (Dual Display)
 
-            if (fortune) {
-                // Colorize status
-                const colorMap = { high: '#22c55e', mid: '#3b82f6', low: '#ef4444' };
-                const color = colorMap[fortune.status] || '#555';
+            // A. Western Horoscope
+            const horo = getDailyHoroscope(member.name, member.birthdate);
+            if (horo) {
+                document.getElementById('western-sign').innerText = horo.sign;
+                document.getElementById('western-text').innerHTML = formatFortuneText(horo.text);
 
-                keywordEl.innerHTML = `
-                    <div style="text-align:center; padding:5px 0 10px 0;">
-                        <div style="font-size:1.1rem; font-weight:bold; color:${color}; margin-bottom:5px;">
-                            ${fortune.text.split(']')[0]}]
-                        </div>
-                        <div style="line-height:1.6; color:#333;">
-                            ${fortune.text.split(']')[1] || fortune.text}
-                        </div>
-                        <div style="margin-top:15px; padding-top:10px; border-top:1px dashed #eee; font-size:0.85rem; color:#666; display:flex; justify-content:space-around;">
-                            <span>✨ 행운색: <b>${fortune.lucky.color}</b></span>
-                            <span>👜 아이템: <b>${fortune.lucky.item}</b></span>
-                            <span>🏃 액션: <b>${fortune.lucky.action}</b></span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                keywordEl.innerText = "운세 데이터를 불러올 수 없습니다.";
+                // Element Badge Map
+                const wMap = { fire: "🔥 불의 날", earth: "⛰️ 흙의 날", air: "💨 바람의 날", water: "💧 물의 날" };
+                document.getElementById('western-el-badge').innerText = wMap[horo.element] || horo.element;
+            }
+
+            // B. Oriental Fortune
+            const oriental = getDailyOrientalFortune(member.name, member.birthdate);
+            if (oriental) {
+                document.getElementById('eastern-sign').innerText = oriental.sign;
+                document.getElementById('eastern-text').innerHTML = formatFortuneText(oriental.text);
+
+                // Element Badge Map
+                const eMap = { wood: "🌲 목(나무)의 흐름", fire: "🔥 화(불)의 흐름", earth: "⛰️ 토(흙)의 흐름", metal: "⚔️ 금(쇠)의 흐름", water: "🌊 수(물)의 흐름" };
+                document.getElementById('eastern-el-badge').innerText = eMap[oriental.element] || oriental.element;
+            }
+
+            function formatFortuneText(text) {
+                if (!text) return "";
+                // Highlight bold parts **text** -> <b>text</b>
+                return text.replace(/\*\*(.*?)\*\*/g, '<b style="color:inherit; opacity:1;">$1</b>');
             }
 
             // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
