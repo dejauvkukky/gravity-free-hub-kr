@@ -114,15 +114,17 @@ let state = {
         lastBoomerangTime: 0,
         lastLightningTime: 0,
         lastShieldTime: 0,
-        shieldActive: false
+        shieldActive: false,
+        shieldHits: 0
     },
 
     enemies: [],
     projectiles: [],
     boomerangs: [],
+    lightningEffects: [],
     expOrbs: [],
 
-    joystick: { active: false, dx: 0, dy: 0 },
+    joystick: { active: false, dx: 0, dy: 0, centerX: 0, centerY: 0 },
 
     lastTime: 0,
     lastSpawnTime: 0
@@ -130,10 +132,11 @@ let state = {
 
 // --- Enemy Types ---
 const ENEMY_TYPES = {
-    zombie: { hp: 20, speed: 1, damage: 10, exp: 10, color: '#4ade80' },
-    runner: { hp: 15, speed: 2.5, damage: 15, exp: 15, color: '#f59e0b' },
-    shooter: { hp: 25, speed: 0.8, damage: 5, exp: 20, color: '#ef4444' },
-    elite: { hp: 100, speed: 2, damage: 25, exp: 50, color: '#8b5cf6' }
+    zombie: { hp: 20, speed: 2, damage: 10, exp: 10, color: '#4ade80' },
+    runner: { hp: 15, speed: 5, damage: 15, exp: 15, color: '#f59e0b' },
+    shooter: { hp: 25, speed: 1.6, damage: 5, exp: 20, color: '#ef4444' },
+    elite: { hp: 100, speed: 4, damage: 25, exp: 50, color: '#8b5cf6' },
+    boss: { hp: 500, speed: 1.5, damage: 40, exp: 100, color: '#dc2626', size: 30 }
 };
 
 // --- Initialization ---
@@ -184,12 +187,14 @@ function startGame() {
         lastBoomerangTime: 0,
         lastLightningTime: 0,
         lastShieldTime: 0,
-        shieldActive: false
+        shieldActive: false,
+        shieldHits: 0
     };
 
     state.enemies = [];
     state.projectiles = [];
     state.boomerangs = [];
+    state.lightningEffects = [];
     state.expOrbs = [];
 
     // Hide screens
@@ -356,11 +361,12 @@ function updateActiveSkills(timestamp) {
     }
 }
 
-function spawnBoomerang() {
+function spawnBoomerang(index, total) {
+    const angleOffset = (Math.PI * 2 / total) * index;
     state.boomerangs.push({
         x: state.player.x,
         y: state.player.y,
-        angle: 0,
+        angle: angleOffset,
         radius: 50,
         speed: 0.1,
         damage: state.player.attackDamage * 2,
@@ -383,6 +389,7 @@ function castLightning() {
 
 function activateShield() {
     state.player.shieldActive = true;
+    state.player.shieldHits = 0;
 }
 
 function updateBoomerangs(dt, timestamp) {
@@ -427,6 +434,21 @@ function spawnEnemy(type) {
     state.enemies.push({
         x, y,
         type,
+        hp: template.hp,
+        maxHp: template.hp,
+        speed: template.speed,
+        damage: template.damage,
+        exp: template.exp,
+        color: template.color
+    });
+}
+
+function spawnBoss() {
+    const template = ENEMY_TYPES.boss;
+    state.enemies.push({
+        x: canvas.width / 2,
+        y: -50,
+        type: 'boss',
         hp: template.hp,
         maxHp: template.hp,
         speed: template.speed,
@@ -517,14 +539,21 @@ function checkCollisions() {
     state.boomerangs = state.boomerangs.filter(b => b.damage > 0);
 
     // Player vs Enemy (with shield check)
-    if (!p.shieldActive) {
-        state.enemies.forEach(e => {
-            const dist = Math.hypot(e.x - p.x, e.y - p.y);
-            if (dist < 25) {
+    state.enemies.forEach(e => {
+        const dist = Math.hypot(e.x - p.x, e.y - p.y);
+        const enemySize = e.type === 'boss' ? 30 : 15;
+        if (dist < (20 + enemySize)) {
+            if (p.shieldActive) {
+                p.shieldHits++;
+                if (p.shieldHits >= 3) {
+                    p.shieldActive = false;
+                    p.shieldHits = 0;
+                }
+            } else {
                 p.hp -= e.damage * 0.016; // Damage over time
             }
-        });
-    }
+        }
+    });
 
     // Player vs Exp Orb
     state.expOrbs.forEach((orb, i) => {
@@ -542,10 +571,16 @@ function dropExpOrb(x, y, value) {
 }
 
 function checkLevelUp() {
-    const required = state.player.level * 10;
+    const required = state.player.level * 30; // 3x exp requirement
     if (state.player.exp >= required) {
         state.player.exp -= required;
         state.player.level++;
+
+        // Spawn boss every 5 levels
+        if (state.player.level % 5 === 0) {
+            spawnBoss();
+        }
+
         showSkillSelection();
     }
 }
@@ -596,7 +631,7 @@ function updateHUD() {
     document.getElementById('hp-text').innerText = `${Math.max(0, Math.floor(p.hp))}/${p.maxHp}`;
 
     // Exp
-    const required = p.level * 10;
+    const required = p.level * 30;
     const expPercent = (p.exp / required) * 100;
     document.getElementById('exp-bar').style.width = expPercent + '%';
 
@@ -674,20 +709,36 @@ function render() {
 
     // Enemies
     state.enemies.forEach(e => {
+        const size = e.type === 'boss' ? 30 : 15;
         ctx.fillStyle = e.color;
         ctx.beginPath();
-        ctx.arc(e.x, e.y, 15, 0, Math.PI * 2);
+        ctx.arc(e.x, e.y, size, 0, Math.PI * 2);
         ctx.fill();
 
         // HP bar
         if (e.hp < e.maxHp) {
-            const barWidth = 30;
+            const barWidth = e.type === 'boss' ? 60 : 30;
             const barHeight = 4;
             ctx.fillStyle = '#333';
-            ctx.fillRect(e.x - barWidth / 2, e.y - 25, barWidth, barHeight);
+            ctx.fillRect(e.x - barWidth / 2, e.y - (size + 10), barWidth, barHeight);
             ctx.fillStyle = '#ef4444';
-            ctx.fillRect(e.x - barWidth / 2, e.y - 25, barWidth * (e.hp / e.maxHp), barHeight);
+            ctx.fillRect(e.x - barWidth / 2, e.y - (size + 10), barWidth * (e.hp / e.maxHp), barHeight);
         }
+    });
+
+    // Lightning effects
+    state.lightningEffects.forEach(eff => {
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(eff.x, 0);
+        ctx.lineTo(eff.x, eff.y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(eff.x, eff.y, 10, 0, Math.PI * 2);
+        ctx.fill();
     });
 
     // Player
@@ -718,26 +769,40 @@ function render() {
 // --- Input Handlers (Keyboard removed, mobile only) ---
 
 function setupJoystick() {
+    const container = document.getElementById('joystick-container');
     const base = document.getElementById('joystick-base');
     const stick = document.getElementById('joystick-stick');
 
-    let startX = 0, startY = 0;
-
-    base.addEventListener('touchstart', (e) => {
+    container.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        const rect = base.getBoundingClientRect();
-        startX = rect.left + rect.width / 2;
-        startY = rect.top + rect.height / 2;
+        const touch = e.touches[0];
+        const containerRect = container.getBoundingClientRect();
+
+        // Set joystick center at touch position
+        const centerX = touch.clientX - containerRect.left;
+        const centerY = touch.clientY - containerRect.top;
+
+        state.joystick.centerX = centerX;
+        state.joystick.centerY = centerY;
         state.joystick.active = true;
+
+        // Position base at touch point
+        base.style.left = (centerX - 60) + 'px';
+        base.style.top = (centerY - 60) + 'px';
+        base.style.opacity = '1';
     });
 
-    base.addEventListener('touchmove', (e) => {
+    container.addEventListener('touchmove', (e) => {
         if (!state.joystick.active) return;
         e.preventDefault();
 
         const touch = e.touches[0];
-        const dx = touch.clientX - startX;
-        const dy = touch.clientY - startY;
+        const containerRect = container.getBoundingClientRect();
+        const touchX = touch.clientX - containerRect.left;
+        const touchY = touch.clientY - containerRect.top;
+
+        const dx = touchX - state.joystick.centerX;
+        const dy = touchY - state.joystick.centerY;
         const dist = Math.hypot(dx, dy);
         const maxDist = 40;
 
@@ -752,11 +817,12 @@ function setupJoystick() {
         }
     });
 
-    base.addEventListener('touchend', () => {
+    container.addEventListener('touchend', () => {
         state.joystick.active = false;
         state.joystick.dx = 0;
         state.joystick.dy = 0;
         stick.style.transform = 'translate(0, 0)';
+        base.style.opacity = '0';
     });
 }
 
