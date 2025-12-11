@@ -33,7 +33,7 @@ const CONFIG = {
     perfectBonus: 1, // Bonus score for perfect placement
     consecutiveBonus: 3, // Bonus for 3 consecutive perfects
     dadBaseMin: 25,
-    dadBaseMax: 30
+    dadBaseMax: 35
 };
 
 // --- Level System ---
