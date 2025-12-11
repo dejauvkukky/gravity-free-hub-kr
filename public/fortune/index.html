@@ -216,9 +216,10 @@
 
                     <!-- Text Fortune -->
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                        <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--color-secondary);">🌟 오늘의 키워드
+                        <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--color-secondary);">🌟 오늘의 별자리&띠
+                            운세
                         </h4>
-                        <p id="daily-keyword" style="font-size: 0.9rem; color: #555; margin-bottom: 0;">로딩 중...</p>
+                        <div id="daily-keyword" style="font-size: 0.9rem; color: #555; margin-bottom: 0;">로딩 중...</div>
                     </div>
 
                     <h3 class="card-title">🧬 바이오리듬 상세</h3>
@@ -258,10 +259,11 @@
     <script type="module">
         import { auth, db } from '../../src/firebase.js?v=7';
         import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
+        import { getDailyFortune } from '../../src/fortune_engine.js?v=1';
 
         // Expanded Data 
         const fortuneCookies = [
-            // 🍀 마음 & 감정 (8)
+            // 🍀 마음 (유지) - Existing Cookie Data preserved for scratch card
             "5분만 쉬어도 하루가 달라집니다. 진짜예요.",
             "오늘 기분이 집안 분위기를 만듭니다. 당신이 태양이에요.",
             "걱정은 습관일 뿐. 오늘은 좋은 상상을 해보세요.",
@@ -271,7 +273,7 @@
             "마음을 비우면 좋은 일 들어올 자리가 생깁니다.",
             "조용한 행운이 지금 문 앞까지 와 있습니다.",
 
-            // 👪 가족 & 관계 (8)
+            // 👪 가족 (유지)
             "가족 단톡에 하트 하나, 그것만으로도 충분합니다.",
             "같이 웃으면 그게 바로 복입니다.",
             "따뜻한 말 한마디가 하루를 바꿉니다.",
@@ -281,7 +283,7 @@
             "조금만 상대 입장에서 생각하면 대부분 풀립니다.",
             "진심은 늦어도 반드시 전해집니다.",
 
-            // 🚀 도전 & 성취 (8)
+            // 🚀 도전 (유지)
             "오늘 시작하면 내일이 편해집니다.",
             "지금 노력은 나중에 이자 붙어서 돌아옵니다.",
             "한 걸음만 떼면 생각보다 쉽게 풀립니다.",
@@ -291,7 +293,7 @@
             "지금 성실함이 나중에 든든한 힘이 됩니다.",
             "생각보다 훨씬 잘하고 있어요. 자신감 가지세요.",
 
-            // 🌱 성장 & 깨달음 (8)
+            // 🌱 성장 (유지)
             "실수는 배우는 과정입니다. 괜찮아요.",
             "오늘 선택이 내일을 만듭니다. 신중하되 부담 갖지 마세요.",
             "배우려는 자세면 충분합니다.",
@@ -301,7 +303,7 @@
             "오늘 배운 것이 내일 힘이 됩니다.",
             "꾸준함이 재능을 이깁니다.",
 
-            // 🌞 일상 속 행운 (8)
+            // 🌞 행운 (유지)
             "오늘 좋은 일 하나 생길 거예요.",
             "평범한 오늘이 특별해지는 날입니다.",
             "좋은 소식이 오고 있습니다.",
@@ -311,49 +313,6 @@
             "이미 많은 행운이 함께하고 있습니다.",
             "조용한 행복이 하루 종일 함께할 거예요."
         ];
-
-        const dailyKeywords = [
-            // 💪 활력 & 건강 (8)
-            "가벼운 운동이 큰 활력을 주는 날 🏃",
-            "몸과 마음이 동시에 가벼워지는 하루 🌿",
-            "컨디션이 좋아서 무엇이든 잘 되는 흐름 💧",
-            "규칙적인 리듬이 하루를 더 안정적으로 만들어요 ⏱️",
-            "짧은 산책만으로도 기분이 환해지는 날 🚶",
-            "오늘은 휴식과 활동의 균형이 중요해요 ⚖️",
-            "음식과 수분 관리가 좋은 영향을 주는 날 🍎",
-            "몸이 부드럽게 풀리는 힐링 데이 💆",
-
-            // 😊 감정 & 마음 챙김 (8)
-            "기분 전환이 필요하다면 작은 변화가 효과적이에요 ✨",
-            "마음이 한결 편안해지는 차분한 흐름 ☕",
-            "평소보다 여유가 생겨 생각이 정리되는 날 🧘",
-            "감정의 파도가 잔잔해지는 안정의 하루 🌊",
-            "가볍게 웃을 일이 생길 수 있는 편안한 날 🌼",
-            "바쁜 와중에도 숨 고르기가 잘 어울리는 하루 🌬️",
-            "스스로에게 조금 더 친절해지기 좋은 날 🤗",
-            "마음의 안정을 주는 소소한 행복이 찾아와요 🌙",
-
-            // 👨‍👩‍👧 관계 & 소통 (8)
-            "대화가 자연스럽게 잘 이어지는 소통의 날 🗣️",
-            "함께하는 시간이 큰 의미를 주는 하루 👪",
-            "작은 배려가 서로에게 행복을 전해요 🤝",
-            "따뜻한 말 한마디가 분위기를 바꿉니다 💬",
-            "가까운 사람들과의 공감이 깊어지는 날 💛",
-            "주고받는 마음이 더욱 풍성해지는 하루 🎁",
-            "협력이 자연스레 이루어지는 좋은 흐름 🤗",
-            "누군가와 더 가까워지는 편안한 하루 🌤️",
-
-            // 🚀 집중 & 성취 (8)
-            "집중력이 높아져 계획한 일을 빠르게 끝낼 수 있어요 📚",
-            "작은 목표를 달성하기 좋은 날 ✔️",
-            "정리정돈이 잘 되어 흐름이 정돈되는 하루 🧹",
-            "아이디어가 선명하게 떠오르는 창의적 순간 💡",
-            "효율이 좋아서 시간이 알차게 느껴지는 날 ⏳",
-            "평소 미뤘던 작업을 하기에 최적의 하루 🔧",
-            "새로운 시도를 하기에 부담 없는 편안한 날 🔍",
-            "단순한 일부터 차근차근 풀어나가기 좋은 하루 🔗"
-        ];
-
 
         let membersData = [];
         let chartTotal = null;
@@ -529,15 +488,37 @@
             const z2 = getChineseZodiac(member.birthdate);
             document.getElementById('zodiac-text').innerText = `${member.birthdate} (${z1}/${z2})`;
 
-            // 2. Daily Keyword (Seeded by Name + Date)
-            const dateStr = `${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
-            const seed = member.name + dateStr;
-            const randVal = seededRandom(seed);
+            // 2. Daily Fortune (Engine)
+            const fortune = getDailyFortune(member.name, member.birthdate);
+            const keywordEl = document.getElementById('daily-keyword');
 
-            const keyIdx = Math.floor(randVal * dailyKeywords.length);
-            document.getElementById('daily-keyword').innerText = dailyKeywords[keyIdx];
+            if (fortune) {
+                // Colorize status
+                const colorMap = { high: '#22c55e', mid: '#3b82f6', low: '#ef4444' };
+                const color = colorMap[fortune.status] || '#555';
+
+                keywordEl.innerHTML = `
+                    <div style="text-align:center; padding:5px 0 10px 0;">
+                        <div style="font-size:1.1rem; font-weight:bold; color:${color}; margin-bottom:5px;">
+                            ${fortune.text.split(']')[0]}]
+                        </div>
+                        <div style="line-height:1.6; color:#333;">
+                            ${fortune.text.split(']')[1] || fortune.text}
+                        </div>
+                        <div style="margin-top:15px; padding-top:10px; border-top:1px dashed #eee; font-size:0.85rem; color:#666; display:flex; justify-content:space-around;">
+                            <span>✨ 행운색: <b>${fortune.lucky.color}</b></span>
+                            <span>👜 아이템: <b>${fortune.lucky.item}</b></span>
+                            <span>🏃 액션: <b>${fortune.lucky.action}</b></span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                keywordEl.innerText = "운세 데이터를 불러올 수 없습니다.";
+            }
 
             // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
+            const dateStr = `${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+            const seed = member.name + dateStr;
             const cookieSeed = seed + 'cookie';
             const cookieRand = seededRandom(cookieSeed);
             const cookieIdx = Math.floor(cookieRand * fortuneCookies.length);
