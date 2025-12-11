@@ -459,8 +459,9 @@
                 <input type="text" id="edit-desc" style="padding:10px; border:1px solid #ddd; border-radius:8px;">
 
                 <label style="font-size:0.9rem; font-weight:bold;">카테고리</label>
-                <input list="cat-options" id="edit-cat" required
-                    style="padding:10px; border:1px solid #ddd; border-radius:8px;">
+                <input list="cat-options-edit" id="edit-cat" required
+                    style="padding:10px; border:1px solid #ddd; border-radius:8px;" autocomplete="off">
+                <datalist id="cat-options-edit"></datalist>
 
                 <div style="display:flex; gap:10px; margin-top:10px;">
                     <button type="button" onclick="document.getElementById('edit-modal').style.display='none'"
@@ -568,12 +569,15 @@
                 const snapshot = await db.collection(COLLECTION).orderBy('createdAt', 'desc').get();
                 allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // Populate Category Datalist dynamically
+                // Populate Category Datalist dynamically (Main & Edit)
                 const uniqueCats = new Set(allPosts.map(p => p.category).filter(Boolean));
+                const catHtml = Array.from(uniqueCats).sort().map(c => `<option value="${c}">`).join('');
+
                 const dataList = document.getElementById('cat-options');
-                if (dataList) {
-                    dataList.innerHTML = Array.from(uniqueCats).sort().map(c => `<option value="${c}">`).join('');
-                }
+                if (dataList) dataList.innerHTML = catHtml;
+
+                const dataListEdit = document.getElementById('cat-options-edit');
+                if (dataListEdit) dataListEdit.innerHTML = catHtml;
 
                 // Initial Filter/Sort
                 applyFilterAndSort();
@@ -711,17 +715,21 @@
                 snap.docs.map(d => {
                     const data = d.data();
                     const date = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
-                    const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const mins = String(date.getMinutes()).padStart(2, '0');
+                    const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${hours}:${mins}`;
                     const isMine = (currentUser && currentUser.uid === data.uid) || isAdmin;
 
                     return `
                     <div class="comment-bubble">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <span style="font-weight:bold;">${data.author}</span>
-                            <span style="font-size:0.75rem; color:#aaa;">${dateStr}</span>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px; align-items:center;">
+                            <div>
+                                <span style="font-weight:bold; margin-right:5px;">${data.author}</span>
+                                <span style="font-size:0.75rem; color:#aaa;">${dateStr}</span>
+                            </div>
+                            ${isMine ? `<button onclick="deleteComment('${id}', '${d.id}')" style="color:#ef4444; background:none; border:none; padding:3px 6px; font-size:0.8rem; cursor:pointer;">삭제</button>` : ''}
                         </div>
                         <div style="word-break:break-all;">${data.text}</div>
-                        ${isMine ? `<button onclick="deleteComment('${id}', '${d.id}')" style="color:#ef4444; background:none; border:none; padding:0; font-size:0.8rem; margin-top:5px; cursor:pointer;">삭제</button>` : ''}
                     </div>
                     `;
                 }).join('');
