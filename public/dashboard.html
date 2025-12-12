@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=17">
+    <title>Secret Garden - ?�?�보??/title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=40">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -51,13 +51,13 @@
         <header>
             <a href="#" class="logo">Secret Garden</a>
             <button onclick="AuthService.logout()"
-                style="border:none; background:none; color:inherit; font-size:0.9rem; cursor:pointer;">로그아웃</button>
+                style="border:none; background:none; color:inherit; font-size:0.9rem; cursor:pointer;">로그?�웃</button>
         </header>
 
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <p class="date-display" id="today-date">2023년 00월 00일</p>
-            <h2 class="welcome-msg"><span id="user-name">가족</span>님,<br>오늘도 행복하세요! 😊</h2>
+            <p class="date-display" id="today-date">2023??00??00??/p>
+            <h2 class="welcome-msg"><span id="user-name">가�?/span>??<br>?�늘???�복?�세?? ?��</h2>
         </div>
 
         <!-- Menu Grid -->
@@ -67,43 +67,43 @@
             <!-- Card 1: Fortune -->
             <div class="card" onclick="location.href='fortune/index.html'"
                 style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 1px solid #86efac; margin:0; transition: transform 0.2s;">
-                <div class="card-title" style="color: #15803d;">🍀 오늘의 운세</div>
-                <div class="card-desc">오늘의 운세를 확인하고 <strong>포춘쿠키를 긁어보세요!</strong> 🥠</div>
+                <div class="card-title" style="color: #15803d;">?? ?�늘???�세</div>
+                <div class="card-desc">?�늘???�세�??�인?�고 <strong>?�춘쿠키�?긁어보세??</strong> ?��</div>
             </div>
 
             <!-- Card 2: Calendar -->
             <div class="card" onclick="location.href='calendar/index.html'"
                 style="background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1px solid #bfdbfe; margin:0; transition: transform 0.2s;">
-                <div class="card-title" style="color: #1d4ed8;">📅 가족 일정</div>
-                <div class="card-desc">우리 가족의 중요 행사를 달력에 기록해요!</div>
+                <div class="card-title" style="color: #1d4ed8;">?�� 가�??�정</div>
+                <div class="card-desc">?�리 가족의 중요 ?�사�??�력??기록?�요!</div>
             </div>
 
             <!-- Card 3: MBTI -->
             <div class="card" onclick="location.href='mbti/index.html'"
                 style="background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%); border: 1px solid #ffc9c9; margin:0; transition: transform 0.2s;">
-                <div class="card-title" style="color: #e11d48;">🧩 Secret MBTI </div>
-                <div class="card-desc">우리 가족의 성격 유형을 알아보고 서로를 이해해봐요!</div>
+                <div class="card-title" style="color: #e11d48;">?�� Secret MBTI </div>
+                <div class="card-desc">?�리 가족의 ?�격 ?�형???�아보고 ?�로�??�해?�봐??</div>
             </div>
 
             <!-- Card 4: Sound Garden -->
             <div class="card" onclick="location.href='sound-garden/index.html'"
                 style="background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%); border: 1px solid #ddd6fe; margin:0; transition: transform 0.2s;">
-                <div class="card-title" style="color: #6d28d9;">🎵 Sound Garden</div>
-                <div class="card-desc">가족과 함께 듣는 음악 힐링 공간 🎧</div>
+                <div class="card-title" style="color: #6d28d9;">?�� Sound Garden</div>
+                <div class="card-desc">가족과 ?�께 ?�는 ?�악 ?�링 공간 ?��</div>
             </div>
 
             <!-- Card 5: Beat Dad -->
             <div class="card" onclick="location.href='games/beat-dad/index.html'"
                 style="background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1px solid #bfdbfe; margin:0; transition: transform 0.2s;">
-                <div class="card-title" style="color: #2563eb;">🏗️ 아빠를 이겨라</div>
-                <div class="card-desc">아빠 AI와 스택 쌓기 대결! <strong>최고 기록에 도전하세요!</strong> 💪</div>
+                <div class="card-title" style="color: #2563eb;">?���??�빠�??�겨??/div>
+                <div class="card-desc">?�빠 AI?� ?�택 ?�기 ?��? <strong>최고 기록???�전?�세??</strong> ?��</div>
             </div>
 
             <!-- Card 6: Preference (Hidden) -->
             <div class="card"
                 style="border-left: 5px solid #ccc; margin:0; opacity: 0.7; cursor: default; display: none;">
-                <div class="card-title">⚖️ 취향 분석기 (준비중)</div>
-                <div class="card-desc">짜장 vs 짬뽕? 가족들의 취향 궁합을 알아볼까요?</div>
+                <div class="card-title">?�️ 취향 분석�?(준비중)</div>
+                <div class="card-desc">짜장 vs 짬뽕? 가족들??취향 궁합???�아볼까??</div>
             </div>
 
 
@@ -117,11 +117,11 @@
         </div>
 
         <!-- Admin Toggle Button (kukky only) -->
-        <button id="notice-admin-toggle" class="notice-admin-toggle hidden">⚙️</button>
+        <button id="notice-admin-toggle" class="notice-admin-toggle hidden">?�️</button>
 
         <!-- Minimized Notice Button -->
         <div id="notice-minimized" class="notice-minimized hidden">
-            <span>📢 공지</span>
+            <span>?�� 공�?</span>
         </div>
     </div>
 
@@ -129,17 +129,18 @@
     <div id="notice-popup" class="notice-overlay hidden">
         <div class="notice-admin">
             <div class="notice-admin-header">
-                <h4>공지사항</h4>
-                <button id="notice-popup-close" class="notice-admin-close">✕</button>
+                <h4>공�??�항</h4>
+                <button id="notice-popup-close" class="notice-admin-close">??/button>
             </div>
             <div class="notice-admin-body">
-                <p id="notice-content" style="margin: 0 0 15px 0; line-height: 1.7; color: #1f2937;"></p>
+                <p id="notice-content"
+                    style="margin: 0 0 15px 0; line-height: 1.7; color: #1f2937; white-space: pre-wrap;"></p>
                 <label class="notice-toggle">
                     <input type="checkbox" id="notice-dont-show-today">
                     <span class="toggle-slider"></span>
-                    <span class="toggle-label">오늘 그만보기</span>
+                    <span class="toggle-label">?�늘 그만보기</span>
                 </label>
-                <button id="notice-confirm-btn" class="notice-admin-btn">확인</button>
+                <button id="notice-confirm-btn" class="notice-admin-btn">?�인</button>
             </div>
         </div>
     </div>
@@ -147,17 +148,17 @@
     <!-- Admin UI (kukky only) -->
     <div id="notice-admin" class="notice-admin hidden">
         <div class="notice-admin-header">
-            <h4>공지사항 관리</h4>
-            <button id="notice-admin-close" class="notice-admin-close">✕</button>
+            <h4>공�??�항 관�?/h4>
+            <button id="notice-admin-close" class="notice-admin-close">??/button>
         </div>
         <div class="notice-admin-body">
-            <textarea id="notice-edit-content" placeholder="공지사항 내용을 입력하세요..."></textarea>
+            <textarea id="notice-edit-content" placeholder="공�??�항 ?�용???�력?�세??.."></textarea>
             <label class="notice-toggle">
                 <input type="checkbox" id="notice-visible-toggle">
                 <span class="toggle-slider"></span>
-                <span class="toggle-label">화면에 표시하기</span>
+                <span class="toggle-label">?�면???�시?�기</span>
             </label>
-            <button id="notice-save-btn" class="notice-admin-btn">저장하기</button>
+            <button id="notice-save-btn" class="notice-admin-btn">?�?�하�?/button>
         </div>
     </div>
 
@@ -474,9 +475,9 @@
     </style>
 
     <!-- Scripts -->
-    <script src="../src/auth.js?v=7"></script>
+    <script src="../src/auth.js?v=40"></script>
     <script type="module">
-        import '../src/firebase.js?v=7'; // Ensures Firebase is initialized
+        import '../src/firebase.js?v=40'; // Ensures Firebase is initialized
 
         // Logic executes after imports
         // 1. Init Check
@@ -484,16 +485,16 @@
 
         // 2. Set Date
         const now = new Date();
-        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const days = ['??, '??, '??, '??, '�?, '�?, '??];
         document.getElementById('today-date').innerText =
-            `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+            `${now.getFullYear()}??${now.getMonth() + 1}??${now.getDate()}??(${days[now.getDay()]})`;
 
         // 3. User Name Logic (Robust)
         // Wait for auth state to confirm user info if session is empty
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 const storedName = sessionStorage.getItem('user_name');
-                let displayName = '가족';
+                let displayName = '가�?;
 
                 if (storedName && storedName !== 'null') {
                     displayName = storedName;
@@ -541,7 +542,7 @@
                             visible,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        alert('공지사항이 저장되었습니다!');
+                        alert('공�??�항???�?�되?�습?�다!');
                         document.getElementById('notice-admin').classList.add('hidden');
 
                         // Reload notice if visible
@@ -552,7 +553,7 @@
                         }
                     } catch (error) {
                         console.error('Notice save error:', error);
-                        alert('저장 중 오류가 발생했습니다.');
+                        alert('?�??�??�류가 발생?�습?�다.');
                     }
                 };
             }

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden - 로그인</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=17">
+    <title>Secret Garden - 로그??/title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=40">
     <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -31,18 +31,18 @@
                 -webkit-text-stroke: 1px rgba(13, 148, 136, 0.1);
                 letter-spacing: -1px;
             ">Secret Garden</h1>
-            <p style="color: #666; margin-top: 8px;">우리 가족만의 비밀 정원 🌿</p>
+            <p style="color: #666; margin-top: 8px;">?�리 가족만??비�? ?�원 ?��</p>
         </div>
 
         <div class="card" style="margin: 24px;">
             <form id="login-form">
                 <div class="input-group">
-                    <input type="text" id="email" class="input-field" placeholder="아이디" required>
+                    <input type="text" id="email" class="input-field" placeholder="?�이?? required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="password" class="input-field" placeholder="비밀번호" required>
+                    <input type="password" id="password" class="input-field" placeholder="비�?번호" required>
                 </div>
-                <button type="submit" class="btn btn-primary">로그인</button>
+                <button type="submit" class="btn btn-primary">로그??/button>
             </form>
             <p id="error-msg"
                 style="color: red; font-size: 0.9rem; margin-top: 10px; display: none; text-align: center; word-break: break-all;">
@@ -57,7 +57,7 @@
     <!-- Scripts -->
     <!-- Load Firebase Config First -->
     <script type="module">
-        import { auth } from '../src/firebase.js?v=13'; // This initializes firebase
+        import { auth } from '../src/firebase.js?v=40'; // This initializes firebase
         // Make auth available globally for simple scripts
         window.auth = auth;
     </script>
@@ -80,7 +80,7 @@
             // Auto complete email
             const email = idPart.includes('@') ? idPart : `${idPart}@family.com`;
 
-            errorMsg.innerText = '로그인 중...';
+            errorMsg.innerText = '로그??�?..';
             errorMsg.style.display = 'block';
             errorMsg.style.color = 'gray';
 
@@ -93,7 +93,7 @@
                     errorMsg.style.display = 'block';
                     errorMsg.style.color = 'red';
 
-                    const msg = `로그인 실패:\n${result.message}\n(ID: ${email})`;
+                    const msg = `로그???�패:\n${result.message}\n(ID: ${email})`;
                     errorMsg.innerText = msg;
                     alert(msg); // Force Alert
 

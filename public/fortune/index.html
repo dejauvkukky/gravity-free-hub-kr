@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Garden - 오늘의 운세 & 바이오리듬</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=15">
+    <title>Secret Garden - ?�늘???�세 & 바이?�리??/title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=40">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -170,37 +170,37 @@
 <body>
     <div class="container">
         <header>
-            <a href="../dashboard.html" class="logo">← Secret Garden</a>
-            <span>운세 & 바이오리듬</span>
+            <a href="../dashboard.html" class="logo">??Secret Garden</a>
+            <span>?�세 & 바이?�리??/span>
         </header>
 
-        <div id="loading" class="p-4 text-center">데이터 로딩중...</div>
+        <div id="loading" class="p-4 text-center">?�이??로딩�?..</div>
 
         <!-- Main Content (Hidden until loaded) -->
         <div id="content" class="p-4 hidden">
 
             <div class="text-center" style="margin-bottom: 20px;">
                 <h2 style="font-size: 1.3rem; color: var(--color-primary); margin-bottom: 5px;">
-                    <span id="header-date"></span>의 운세
+                    <span id="header-date"></span>???�세
                 </h2>
-                <p style="color: #666; font-size: 0.9rem;">우리 가족의 오늘 컨디션은?</p>
+                <p style="color: #666; font-size: 0.9rem;">?�리 가족의 ?�늘 컨디?��??</p>
             </div>
 
             <!-- TAB Navigation -->
             <div class="tab-container" id="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('total')">📊 종합</button>
+                <button class="tab-btn active" onclick="switchTab('total')">?�� 종합</button>
             </div>
 
             <!-- 1. Total View Section -->
             <div id="section-total">
                 <div class="fortune-card">
-                    <h3 class="card-title">📈 가족 컨디션 랭킹</h3>
-                    <p style="font-size:0.8rem; color:#888; margin-bottom:15px;">오늘의 신체/감성/지성 평균 점수입니다.</p>
+                    <h3 class="card-title">?�� 가�?컨디????��</h3>
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:15px;">?�늘???�체/감성/지???�균 ?�수?�니??</p>
                     <div style="height: 250px;">
                         <canvas id="totalChart"></canvas>
                     </div>
                     <div class="text-center mt-3" id="total-comment" style="font-size:0.9rem; color:#333;">
-                        분석 중...
+                        분석 �?..
                     </div>
                 </div>
             </div>
@@ -210,8 +210,8 @@
                 <!-- Data for specific user -->
                 <div class="fortune-card">
                     <div class="fortune-header">
-                        <span class="card-title" style="margin:0;" id="ind-name-title">멤버 이름</span>
-                        <span id="zodiac-text" class="zodiac-badge">별자리 / 띠</span>
+                        <span class="card-title" style="margin:0;" id="ind-name-title">멤버 ?�름</span>
+                        <span id="zodiac-text" class="zodiac-badge">별자�?/ ??/span>
                     </div>
 
                     <!-- Western Horoscope (Galaxy Theme) -->
@@ -220,13 +220,13 @@
                         <div
                             style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
                             <h4 style="margin:0; font-size:1.1rem; display:flex; align-items:center;">
-                                <span style="margin-right:8px;">🌌</span> 별들의 속삭임
+                                <span style="margin-right:8px;">?��</span> 별들???�삭??
                             </h4>
                             <span id="western-sign"
                                 style="font-size:0.85rem; background:rgba(255,255,255,0.2); padding:4px 12px; border-radius:20px;"></span>
                         </div>
                         <div id="western-text"
-                            style="line-height:1.7; font-size:0.95rem; opacity:0.95; margin-bottom:15px;">운세 로딩 중...
+                            style="line-height:1.7; font-size:0.95rem; opacity:0.95; margin-bottom:15px;">?�세 로딩 �?..
                         </div>
                         <div id="western-badge" style="text-align:right;">
                             <span id="western-el-badge"
@@ -239,17 +239,17 @@
                         style="background: #fffdf5; border: 1px solid #e7e5e4; padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <div
                             style="position:absolute; top:20px; right:20px; font-size:3rem; opacity:0.05; font-family:serif; pointer-events:none;">
-                            運</div>
+                            ??/div>
                         <div
                             style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #e7e5e4; padding-bottom:10px;">
                             <h4 style="margin:0; font-size:1.1rem; color:#44403c; display:flex; align-items:center;">
-                                <span style="margin-right:8px;">📜</span> 띠별 운세
+                                <span style="margin-right:8px;">?��</span> ?�별 ?�세
                             </h4>
                             <span id="eastern-sign"
                                 style="font-size:0.85rem; color:#57534e; background:#f5f5f4; padding:4px 12px; border-radius:20px; border:1px solid #d6d3d1;"></span>
                         </div>
                         <div id="eastern-text"
-                            style="line-height:1.7; font-size:0.95rem; color:#292524; margin-bottom:15px;">운세 로딩 중...
+                            style="line-height:1.7; font-size:0.95rem; color:#292524; margin-bottom:15px;">?�세 로딩 �?..
                         </div>
                         <div id="eastern-badge" style="text-align:right;">
                             <span id="eastern-el-badge"
@@ -260,32 +260,28 @@
                     <!-- Lucky Prescription (NEW) -->
                     <div class="fortune-card prescription"
                         style="background:#fff; border:2px dashed #e0e7ff; padding:20px; border-radius:16px; margin-bottom:24px; text-align:center;">
-                        <h4 style="margin:0 0 15px 0; font-size:1.0rem; color:#4f46e5;">🍀 오늘의 행운 처방전</h4>
+                        <h4 style="margin:0 0 15px 0; font-size:1.0rem; color:#4f46e5;">?? ?�늘???�운 처방??/h4>
                         <div style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:10px;">
                             <div class="lucky-item">
-                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">🎨</span>
-                                <span style="font-size:0.8rem; color:#666;">색상</span>
-                                <div
-                                    style="display:flex; align-items:center; justify-content:center; gap:6px; margin-top:3px;">
-                                    <span id="lucky-color-chip"
-                                        style="width:18px; height:18px; border-radius:50%; border:2px solid #ddd; display:inline-block;"></span>
-                                    <span id="lucky-color"
-                                        style="font-weight:bold; color:#333; font-size:0.9rem;">-</span>
-                                </div>
+                                <span id="lucky-color-chip"
+                                    style="width:36px; height:36px; border-radius:50%; border:3px solid #e0e7ff; display:block; margin: 0 auto 5px auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"></span>
+                                <span style="font-size:0.8rem; color:#666;">?�상</span>
+                                <span id="lucky-color"
+                                    style="font-weight:bold; color:#333; font-size:0.85rem; display:block; margin-top:3px;">-</span>
                             </div>
                             <div class="lucky-item">
-                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">💍</span>
-                                <span style="font-size:0.8rem; color:#666;">아이템</span>
+                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">?��</span>
+                                <span style="font-size:0.8rem; color:#666;">?�이??/span>
                                 <div id="lucky-item" style="font-weight:bold; color:#333; font-size:0.9rem;">-</div>
                             </div>
                             <div class="lucky-item">
-                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">🧭</span>
+                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">?��</span>
                                 <span style="font-size:0.8rem; color:#666;">방향</span>
                                 <div id="lucky-dir" style="font-weight:bold; color:#333; font-size:0.9rem;">-</div>
                             </div>
                             <div class="lucky-item">
-                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">🔢</span>
-                                <span style="font-size:0.8rem; color:#666;">숫자</span>
+                                <span style="font-size:1.5rem; display:block; margin-bottom:5px;">?��</span>
+                                <span style="font-size:0.8rem; color:#666;">?�자</span>
                                 <div id="lucky-num" style="font-weight:bold; color:#333; font-size:0.9rem;">-</div>
                             </div>
                         </div>
@@ -293,28 +289,28 @@
 
                     <!-- Biorhythm Card (Separated) -->
                     <div class="fortune-card">
-                        <h3 class="card-title">🧬 바이오리듬</h3>
+                        <h3 class="card-title">?�� 바이?�리??/h3>
                         <div style="height: 200px; position: relative;">
                             <canvas id="indChart"></canvas>
                         </div>
                         <div class="bio-legend">
-                            <div class="legend-item"><span class="dot" style="background:#22c55e"></span>신체</div>
+                            <div class="legend-item"><span class="dot" style="background:#22c55e"></span>?�체</div>
                             <div class="legend-item"><span class="dot" style="background:#ef4444"></span>감성</div>
-                            <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지성</div>
+                            <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>지??/div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Individual Scratch Card -->
                 <div class="fortune-card" style="background: linear-gradient(135deg, #fff, #fdfbf7);">
-                    <h3 class="card-title" style="text-align: center;">🥠 오늘의 포춘 쿠키 (긁어보세요!)</h3>
+                    <h3 class="card-title" style="text-align: center;">?�� ?�늘???�춘 쿠키 (긁어보세??)</h3>
 
                     <div class="scratch-wrapper" id="scratch-wrapper">
                         <div class="fortune-cookie-content">
-                            <span id="fortune-msg">행운의 메시지를 확인하세요</span>
+                            <span id="fortune-msg">?�운??메시지�??�인?�세??/span>
                         </div>
                         <canvas id="scratchCanvas"></canvas>
-                        <div class="scratch-hint" id="scratch-hint">👆 슥슥 긁어보세요!</div>
+                        <div class="scratch-hint" id="scratch-hint">?�� ?�슥 긁어보세??</div>
                     </div>
                 </div>
             </div>
@@ -322,68 +318,68 @@
             <!-- Shared Scratch Card Message for Total Tab (Hidden in Individual) -->
             <div id="total-scratch-section" class="fortune-card"
                 style="background: linear-gradient(135deg, #fff, #fdfbf7);">
-                <p style="text-align: center; color:#888;">👆 <strong>개인별 탭</strong>에서 각자의 운세와 포춘 쿠키를 확인해보세요!</p>
+                <p style="text-align: center; color:#888;">?�� <strong>개인�???/strong>?�서 각자???�세?� ?�춘 쿠키�??�인?�보?�요!</p>
             </div>
 
         </div>
     </div>
 
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=7';
-        import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=6';
-        import { getDailyHoroscope, getDailyOrientalFortune, getLuckyPrescription } from '../../src/fortune_engine.js?v=3';
+        import { auth, db } from '../../src/firebase.js?v=40';
+        import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=40';
+        import { getDailyHoroscope, getDailyOrientalFortune, getLuckyPrescription } from '../../src/fortune_engine.js?v=40';
 
         // Expanded Data
         const fortuneCookies = [
-            // 🍀 마음 (유지) - Existing Cookie Data preserved for scratch card
-            "5분만 쉬어도 하루가 달라집니다. 진짜예요.",
-            "오늘 기분이 집안 분위기를 만듭니다. 당신이 태양이에요.",
-            "걱정은 습관일 뿐. 오늘은 좋은 상상을 해보세요.",
-            "감사한 마음 하나면 하루가 따뜻해집니다.",
-            "당신 미소 하나로 온 집안이 환해집니다.",
-            "천천히 가도 괜찮아요. 멈추지만 않으면 됩니다.",
-            "마음을 비우면 좋은 일 들어올 자리가 생깁니다.",
-            "조용한 행운이 지금 문 앞까지 와 있습니다.",
+            // ?? 마음 (?��?) - Existing Cookie Data preserved for scratch card
+            "5분만 ?�어???�루가 ?�라집니?? 진짜?�요.",
+            "?�늘 기분??집안 분위기�? 만듭?�다. ?�신???�양?�에??",
+            "걱정?� ?��???�? ?�늘?� 좋�? ?�상???�보?�요.",
+            "감사??마음 ?�나�??�루가 ?�뜻?�집?�다.",
+            "?�신 미소 ?�나�???집안???�해집니??",
+            "천천??가??괜찮?�요. 멈추지�??�으�??�니??",
+            "마음??비우�?좋�? ???�어???�리가 ?�깁?�다.",
+            "조용???�운??지�?�??�까지 ?� ?�습?�다.",
 
-            // 👪 가족 (유지)
-            "가족 단톡에 하트 하나, 그것만으로도 충분합니다.",
-            "같이 웃으면 그게 바로 복입니다.",
-            "따뜻한 말 한마디가 하루를 바꿉니다.",
-            "먼저 연락하면 상대도 기다리고 있었을 거예요.",
-            "작은 배려 하나가 관계를 더 단단하게 만듭니다.",
-            "오래된 친구에게 안부 한마디, 서로에게 좋은 날이 됩니다.",
-            "조금만 상대 입장에서 생각하면 대부분 풀립니다.",
-            "진심은 늦어도 반드시 전해집니다.",
+            // ?�� 가�?(?��?)
+            "가�??�톡???�트 ?�나, 그것만으로도 충분?�니??",
+            "같이 ?�으�?그게 바로 복입?�다.",
+            "?�뜻??�??�마?��? ?�루�?바꿉?�다.",
+            "먼�? ?�락?�면 ?��???기다리고 ?�었??거예??",
+            "?��? 배려 ?�나가 관계�? ???�단?�게 만듭?�다.",
+            "?�래??친구?�게 ?��? ?�마?? ?�로?�게 좋�? ?�이 ?�니??",
+            "조금�??��? ?�장?�서 ?�각?�면 ?�부�??�립니??",
+            "진심?� ??��??반드???�해집니??",
 
-            // 🚀 도전 (유지)
-            "오늘 시작하면 내일이 편해집니다.",
-            "지금 노력은 나중에 이자 붙어서 돌아옵니다.",
-            "한 걸음만 떼면 생각보다 쉽게 풀립니다.",
-            "준비된 사람에게 기회는 꼭 찾아옵니다.",
-            "작게 시작해도 괜찮아요. 시작이 반입니다.",
-            "용기 내면 좋은 결과가 따라옵니다.",
-            "지금 성실함이 나중에 든든한 힘이 됩니다.",
-            "생각보다 훨씬 잘하고 있어요. 자신감 가지세요.",
+            // ?? ?�전 (?��?)
+            "?�늘 ?�작?�면 ?�일???�해집니??",
+            "지�??�력?� ?�중???�자 붙어???�아?�니??",
+            "??걸음�??�면 ?�각보다 ?�게 ?�립니??",
+            "준비된 ?�람?�게 기회??�?찾아?�니??",
+            "?�게 ?�작?�도 괜찮?�요. ?�작??반입?�다.",
+            "?�기 ?�면 좋�? 결과가 ?�라?�니??",
+            "지�??�실?�이 ?�중???�든???�이 ?�니??",
+            "?�각보다 ?�씬 ?�하�??�어?? ?�신�?가지?�요.",
 
-            // 🌱 성장 (유지)
-            "실수는 배우는 과정입니다. 괜찮아요.",
-            "오늘 선택이 내일을 만듭니다. 신중하되 부담 갖지 마세요.",
-            "배우려는 자세면 충분합니다.",
-            "새로운 시도는 새로운 가능성입니다.",
-            "변화는 무섭지만 성장의 기회입니다.",
-            "조금만 다르게 보면 답이 보입니다.",
-            "오늘 배운 것이 내일 힘이 됩니다.",
-            "꾸준함이 재능을 이깁니다.",
+            // ?�� ?�장 (?��?)
+            "?�수??배우??과정?�니?? 괜찮?�요.",
+            "?�늘 ?�택???�일??만듭?�다. ?�중?�되 부??갖�? 마세??",
+            "배우?�는 ?�세�?충분?�니??",
+            "?�로???�도???�로??가?�성?�니??",
+            "변?�는 무섭지�??�장??기회?�니??",
+            "조금�??�르�?보면 ?�이 보입?�다.",
+            "?�늘 배운 것이 ?�일 ?�이 ?�니??",
+            "꾸�??�이 ?�능???�깁?�다.",
 
-            // 🌞 행운 (유지)
-            "오늘 좋은 일 하나 생길 거예요.",
-            "평범한 오늘이 특별해지는 날입니다.",
-            "좋은 소식이 오고 있습니다.",
-            "예상치 못한 곳에서 도움이 옵니다.",
-            "오늘은 모든 일이 잘 풀릴 거예요.",
-            "작은 선택이 큰 행운이 될 수 있습니다.",
-            "이미 많은 행운이 함께하고 있습니다.",
-            "조용한 행복이 하루 종일 함께할 거예요."
+            // ?�� ?�운 (?��?)
+            "?�늘 좋�? ???�나 ?�길 거예??",
+            "?�범???�늘???�별?��????�입?�다.",
+            "좋�? ?�식???�고 ?�습?�다.",
+            "?�상�?못한 곳에???��????�니??",
+            "?�늘?� 모든 ?�이 ???��?거예??",
+            "?��? ?�택?????�운???????�습?�다.",
+            "?��? 많�? ?�운???�께?�고 ?�습?�다.",
+            "조용???�복???�루 종일 ?�께??거예??"
         ];
 
         let membersData = [];
@@ -396,7 +392,7 @@
 
         // Init
         const today = new Date();
-        document.getElementById('header-date').innerText = `${today.getMonth() + 1}월 ${today.getDate()}일`;
+        document.getElementById('header-date').innerText = `${today.getMonth() + 1}??${today.getDate()}??;
 
         auth.onAuthStateChanged(user => {
             if (!user) {
@@ -442,7 +438,7 @@
 
             } catch (e) {
                 console.error(e);
-                alert("데이터 로딩 실패");
+                alert("?�이??로딩 ?�패");
             }
         }
 
@@ -523,7 +519,7 @@
             });
 
             document.getElementById('total-comment').innerText =
-                `오늘 컨디션 왕은 👑 ${bestMember}님! (${Math.round(maxScore)}점)`;
+                `?�늘 컨디???��? ?�� ${bestMember}?? (${Math.round(maxScore)}??`;
 
             const ctx = document.getElementById('totalChart').getContext('2d');
             chartTotal = new Chart(ctx, {
@@ -531,7 +527,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '종합 컨디션 점수',
+                        label: '종합 컨디???�수',
                         data: dataScores,
                         backgroundColor: bgColors,
                         borderRadius: 8
@@ -552,7 +548,7 @@
         function renderIndividual(member) {
             if (!member || !member.birthdate) return;
 
-            document.getElementById('ind-name-title').innerText = `${member.name}님의 운세`;
+            document.getElementById('ind-name-title').innerText = `${member.name}?�의 ?�세`;
 
             // 1. Static Info (Zodiac)
             const z1 = getZodiac(member.birthdate);
@@ -568,7 +564,7 @@
                 document.getElementById('western-text').innerHTML = formatFortuneText(horo.text);
 
                 // Element Badge Map
-                const wMap = { fire: "🔥 불의 원소 (Fire Element)", earth: "⛰️ 흙의 원소 (Earth Element)", air: "💨 공기의 원소 (Air Element)", water: "💧 물의 원소 (Water Element)" };
+                const wMap = { fire: "?�� 불의 ?�소 (Fire Element)", earth: "?�️ ?�의 ?�소 (Earth Element)", air: "?�� 공기???�소 (Air Element)", water: "?�� 물의 ?�소 (Water Element)" };
                 document.getElementById('western-el-badge').innerText = wMap[horo.element] || horo.element;
             }
 
@@ -580,11 +576,11 @@
 
                 // Element Badge Map
                 const eMap = {
-                    wood: "🌲 목(나무)의 흐름",
-                    fire: "🔥 화(불)의 흐름",
-                    earth: "⛰️ 토(흙)의 흐름",
-                    metal: "⚔️ 금(쇠)의 흐름",
-                    water: "🌊 수(물)의 흐름"
+                    wood: "?�� �??�무)???�름",
+                    fire: "?�� ??�????�름",
+                    earth: "?�️ ???????�름",
+                    metal: "?�️ �??????�름",
+                    water: "?�� ??�????�름"
                 };
                 document.getElementById('eastern-el-badge').innerText = eMap[oriental.element] || oriental.element;
             }
@@ -602,23 +598,23 @@
 
                 // Color chip mapping
                 const colorMap = {
-                    "로열 블루": "#4169E1", "포레스트 그린": "#228B22", "크림 베이지": "#F5F5DC",
-                    "미드나잇 블랙": "#191970", "버건디 레드": "#800020", "머스타드 옐로우": "#FFDB58",
-                    "퓨어 화이트": "#FFFFFF", "차콜 그레이": "#36454F", "라벤더 퍼플": "#E6E6FA",
-                    "스카이 블루": "#87CEEB", "코랄 핑크": "#FF7F7F", "민트 그린": "#98FF98",
-                    "올리브 카키": "#6B8E23", "네이비": "#000080", "초콜릿 브라운": "#7B3F00",
-                    "샴페인 골드": "#F7E7CE", "실버": "#C0C0C0", "로즈 골드": "#B76E79",
-                    "터코이즈": "#40E0D0", "인디고": "#4B0082", "바이올렛": "#EE82EE",
-                    "마젠타": "#FF00FF", "살몬": "#FA8072", "테라코타": "#E2725B",
-                    "아이보리": "#FFFFF0", "샌드 베이지": "#F5DEB3", "모카": "#967969",
-                    "슬레이트 블루": "#6A5ACD", "틸 그린": "#008080", "피치": "#FFCBA4",
-                    "레몬 옐로우": "#FFF44F", "애쉬 그레이": "#B2BEB5", "오션 블루": "#0096FF",
-                    "선셋 오렌지": "#FF4500", "라임": "#00FF00", "퍼시픽 블루": "#1CA9C9",
-                    "딥 그린": "#006400", "펄 화이트": "#F0EAD6", "매트 블랙": "#28282B",
-                    "브론즈": "#CD7F32", "카멜": "#C19A6B", "와인": "#722F37",
-                    "딥 퍼플": "#301934", "파스텔 핑크": "#FFD1DC", "일렉트릭 블루": "#7DF9FF",
-                    "네온 사인": "#FF6EC7", "소프트 핑크": "#FADADD", "웜 그레이": "#808069",
-                    "쿨 그레이": "#8C92AC", "비비드 레드": "#FF0000", "블랙 & 화이트": "linear-gradient(135deg, #000 50%, #fff 50%)"
+                    "로열 블루": "#4169E1", "?�레?�트 그린": "#228B22", "?�림 베이지": "#F5F5DC",
+                    "미드?�잇 블랙": "#191970", "버건???�드": "#800020", "머스?�???�로??: "#FFDB58",
+                    "?�어 ?�이??: "#FFFFFF", "차콜 그레??: "#36454F", "?�벤???�플": "#E6E6FA",
+                    "?�카??블루": "#87CEEB", "코랄 ?�크": "#FF7F7F", "민트 그린": "#98FF98",
+                    "?�리�?카키": "#6B8E23", "?�이�?: "#000080", "초콜�?브라??: "#7B3F00",
+                    "?�페??골드": "#F7E7CE", "?�버": "#C0C0C0", "로즈 골드": "#B76E79",
+                    "?�코?�즈": "#40E0D0", "?�디�?: "#4B0082", "바이?�렛": "#EE82EE",
+                    "마젠?�": "#FF00FF", "?�몬": "#FA8072", "?�라코�?": "#E2725B",
+                    "?�이보리": "#FFFFF0", "?�드 베이지": "#F5DEB3", "모카": "#967969",
+                    "?�레?�트 블루": "#6A5ACD", "??그린": "#008080", "?�치": "#FFCBA4",
+                    "?�몬 ?�로??: "#FFF44F", "?�쉬 그레??: "#B2BEB5", "?�션 블루": "#0096FF",
+                    "?�셋 ?�렌지": "#FF4500", "?�임": "#00FF00", "?�시??블루": "#1CA9C9",
+                    "??그린": "#006400", "???�이??: "#F0EAD6", "매트 블랙": "#28282B",
+                    "브론�?: "#CD7F32", "카멜": "#C19A6B", "?�??: "#722F37",
+                    "???�플": "#301934", "?�스???�크": "#FFD1DC", "?�렉?�릭 블루": "#7DF9FF",
+                    "?�온 ?�인": "#FF6EC7", "?�프???�크": "#FADADD", "??그레??: "#808069",
+                    "�?그레??: "#8C92AC", "비비???�드": "#FF0000", "블랙 & ?�이??: "linear-gradient(135deg, #000 50%, #fff 50%)"
                 };
                 const colorChip = document.getElementById('lucky-color-chip');
                 const mappedColor = colorMap[lucky.color] || "#cccccc";
@@ -671,9 +667,9 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '신체', data: dP, borderColor: '#22c55e', tension: 0.4, pointRadius: 3
+                        label: '?�체', data: dP, borderColor: '#22c55e', tension: 0.4, pointRadius: 3
                     }, { label: '감성', data: dE, borderColor: '#ef4444', tension: 0.4, pointRadius: 3 }, {
-                        label: '지성', data:
+                        label: '지??, data:
                             dI, borderColor: '#3b82f6', tension: 0.4, pointRadius: 3
                     }]
                 }, options: {
@@ -710,7 +706,7 @@
             scratchCtx.fillStyle = '#999';
             scratchCtx.font = '20px sans-serif';
             scratchCtx.textAlign = 'center';
-            scratchCtx.fillText("🍀 긁어서 행운 확인!", canvas.width / 2, canvas.height / 2);
+            scratchCtx.fillText("?? 긁어???�운 ?�인!", canvas.width / 2, canvas.height / 2);
 
             // Reset Drawing State
             isDrawing = false;
