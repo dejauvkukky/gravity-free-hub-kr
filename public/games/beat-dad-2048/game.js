@@ -64,7 +64,7 @@ class Game2048 {
         // Here we'll treat the Weekly Best as "Dad's Record" to beat.
 
         const db = firebase.firestore();
-        const collection = db.collection('game_2048_scores'); // New collection
+        const collection = db.collection('game_2048_records'); // Corrected collection name
 
         // 1. Get Weekly Best (Dad)
         // Logic: Get max score of current week.
@@ -74,11 +74,17 @@ class Game2048 {
         this.dadScore = 2048; // Baseline goal
 
         try {
-            const q = collection.where('weekId', '==', weekId).orderBy('score', 'desc').limit(1);
+            // Index fix: Query by week only, sort in memory
+            const q = collection.where('weekId', '==', weekId);
             const snapshot = await q.get();
+
             if (!snapshot.empty) {
-                const top = snapshot.docs[0].data();
-                if (top.score > this.dadScore) this.dadScore = top.score;
+                let max = 0;
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    if (d.score > max) max = d.score;
+                });
+                if (max > this.dadScore) this.dadScore = max;
             }
         } catch (e) { console.error("Data load err", e); }
 
@@ -478,10 +484,9 @@ class Game2048 {
         const weekId = this.getWeekId();
 
         // Query for 'All' (limit 100 safe for performance)
+        // Index fix: Query by week only, sort in memory
         const q = db.collection('game_2048_records')
-            .where('weekId', '==', weekId)
-            .orderBy('score', 'desc')
-            .limit(100);
+            .where('weekId', '==', weekId);
 
         const snap = await q.get();
         ul.innerHTML = '';
@@ -490,9 +495,12 @@ class Game2048 {
             return;
         }
 
+        let docs = [];
+        snap.forEach(doc => docs.push(doc.data()));
+        docs.sort((a, b) => b.score - a.score);
+
         let rank = 1;
-        snap.forEach(doc => {
-            const data = doc.data();
+        docs.forEach(data => {
             const li = document.createElement('li');
             li.innerHTML = `<span class="rank-num">${rank}</span> <span>${data.email ? data.email.split('@')[0] : '익명'}</span> <span>${data.score}점</span>`;
             ul.appendChild(li);
@@ -541,12 +549,11 @@ async function loadStartRanking() {
     weekTitle.innerText = `📅 ${d.getMonth() + 1}월 ${weekNum}주 주간랭킹`;
 
     try {
-        const db = firebase.firestore(); // Added this line
+        const db = firebase.firestore();
         const weekId = getWeekId();
-        const q = db.collection('game_2048_records')
-            .where('weekId', '==', weekId)
-            .orderBy('score', 'desc')
-            .limit(100);
+
+        // Index fix: Query by week only, sort in memory
+        const q = db.collection('game_2048_records').where('weekId', '==', weekId);
 
         const snap = await q.get();
         ul.innerHTML = '';
@@ -559,9 +566,13 @@ async function loadStartRanking() {
             return;
         }
 
+        // Processing
+        let docs = [];
+        snap.forEach(doc => docs.push(doc.data()));
+        docs.sort((a, b) => b.score - a.score);
+
         let rank = 1;
-        snap.forEach(doc => {
-            const data = doc.data();
+        docs.forEach(data => {
             if (data.score > maxScore) maxScore = data.score;
 
             const li = document.createElement('li');
@@ -571,7 +582,7 @@ async function loadStartRanking() {
             rank++;
         });
 
-        // Determine Dad Score to beat (Max of week or 2048)
+        // Determine Dad Score to beat
         const dadTarget = Math.max(maxScore, 2048);
         dadScoreDisplay.innerText = dadTarget + "점";
 
