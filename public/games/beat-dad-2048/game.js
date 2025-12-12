@@ -476,7 +476,7 @@ async function loadStartRanking() {
 
         displayData.forEach((item, index) => {
             const li = document.createElement('li');
-            li.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:1rem;";
+            li.style.cssText = "display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:0.95rem;";
 
             let crown = '';
             // Crown for 1st place only (if score > 0)
