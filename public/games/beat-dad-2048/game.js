@@ -44,14 +44,14 @@ class Game2048 {
         if (this.tileContainer) this.tileContainer.innerHTML = '';
         this.updateScore(0);
 
-        await this.loadData();
-
+        // Spawn first, then load data background
         this.spawnTile();
         this.spawnTile();
         this.draw();
-
         this.setupInput();
-        this.updateDadFace();
+
+        // Load data in background (non-blocking)
+        this.loadData();
     }
 
     async loadData() {
@@ -70,8 +70,7 @@ class Game2048 {
         // Logic: Get max score of current week.
         const weekId = this.getWeekId();
 
-        // Mock Dad Score for initial gameplay if no DB data
-        this.dadScore = 2048; // Baseline goal
+        this.dadScore = 2048; // Default
 
         try {
             // Index fix: Query by week only, sort in memory
@@ -88,8 +87,12 @@ class Game2048 {
             }
         } catch (e) { console.error("Data load err", e); }
 
-        document.getElementById('dad-score-display').innerText = this.dadScore + "점";
+        if (document.getElementById('dad-score-display'))
+            document.getElementById('dad-score-display').innerText = this.dadScore + "점";
         document.getElementById('start-dad-score').innerText = this.dadScore + "점";
+
+        // Update Dad Face based on new Dad Score
+        this.updateDadFace();
 
         // 2. Personal Best
         // Fetch my best
@@ -290,12 +293,12 @@ class Game2048 {
 
     draw() {
         this.tileContainer.innerHTML = '';
-        const cellWidth = this.tileContainer.clientWidth / 4; // Approx calc valid if responsive
-        // Better: rely on CSS classes .tile-pos-r-c
 
-        // Due to CSS variable/calc complexity, let's just use inline style with %
-        // 4x4 Grid, Gap 10px. 
-        // We know structure.
+        // CSS Grid Layout Logic:
+        // Container: 10px Gap, 10px Padding.
+        // CellPos(i) = 10px + i * (CellSize + 10px)
+        // Check calculation: CellSize% approx (100% - 20 - 30)/4 = ~21%
+        // Formula: 10px + i * (25% - 2.5px) matches perfectly.
 
         for (let r = 0; r < 4; r++) {
             for (let c = 0; c < 4; c++) {
@@ -308,92 +311,16 @@ class Game2048 {
 
                     el.innerText = tile.value;
 
-                    // Position
-                    // 10px padding + (r * (width + gap))
-                    // Let's use CSS grid-area? No, simple absolute.
-                    // gap=10px, padding=10px.
-                    // Size is tricky if dynamic. 
-                    // Let's use simple Grid coordinates via CSS classes?
-                    // Or calc(10px + c * (25% - 2.5px) ?)
+                    // Fixed Alignment Formula
+                    el.style.width = 'calc(25% - 12.5px)'; // (320-20-30)/4 = 67.5.  320/4 = 80. 80 - 12.5 = 67.5. Exact.
+                    el.style.height = 'calc(25% - 12.5px)';
 
-                    // Actually, let's use the .grid-container layout.
-                    // Easier: 
-                    const gap = 10;
-                    const padding = 10;
-                    // We need to know container size? No, keep it % based.
-                    // 4 cells (X) + 5 gaps (10px*5 = 50px).
-                    // If sticky to px, UI breaks on resize.
-
-                    // Use CSS transform translate.
-                    // X = c * 100% + c * gap?
-                    // Pct approach: 
-                    // width: calc(25% - 12.5px) (from CSS)
-                    // left: calc(10px + c * (width + 10px)) ?
-
-                    // Just use exact style from CSS approach.
-                    // left: calc(10px + c * (67.5px + 10px)) for 320px. 
-                    // Responsive is hard with absolute.
-
-                    // Alternative: use transform with %?
-                    // left = 25% * c + padding adjustment?
-
-                    // Let's rely on standard 2048 CSS logic.
-                    // tile-position-1-1 { top: 10px; left: 10px; }
-                    // tile-position-1-2 { top: 10px; left: 87px; } (10+67.5+10)
-
-                    // I will just inject style directly for simplicity, assuming 320px board or relative %
-                    // width: 21.25% (approx (100-50px)/4 ?)
-
-                    // Let's use standard % logic.
-                    // gap 10px is fixed. 320px width.
-                    // (320 - 50) / 4 = 67.5px.
-                    // 67.5 / 320 = 21.09%
-                    // gap = 3.125%
-
-                    // To be safe and responsive:
-                    // I'll calculate standard positions based on index (0-3).
-                    // This assumes css 'grid-cell' matches.
-
-                    // We'll just define classes in JS here for positions.
-                    const step = 25; // %
-                    el.style.left = `calc(${c * 25}% + 5px)`; // Approximation?
-                    el.style.top = `calc(${r * 25}% + 5px)`;
-
-                    // Wait, grid-container has padding 10px.
-                    // gap 10px.
-                    // Just trust me:
-                    // We will set class `tile-pos-${r}-${c}` and add styles to CSS?
-                    // No, too lengthy.
-
-                    // Let's use inline style that matches the grid layout.
-                    // We need to know the tile size.
-                    // Let's assume the CSS handles `.tile` sizes perfectly.
-                    // We just set transform.
-
-                    // Actually, simple way:
-                    // left: (c * (100% + 10px) / 4)? No.
-
-                    // Let's try this:
-                    // tile size is roughly 22%. gap 3%.
-                    // left: 2.5% + c * 24.5% ?
-
-                    // Let's GO WITH PIXELS for MVP stability (since container is max 320/280).
-                    // If container is 320px:
-                    // Pos 0: 10px
-                    // Pos 1: 10 + 67.5 + 10 = 87.5px
-                    // Pos 2: 87.5 + 77.5 = 165px
-
-                    // To support responsive, I'll read clientWidth of container ONCE or on resize.
-                    // But for now, let's use % formula.
-                    // 4 cols. Gap is small.
-                    // left = (100% / 4) * c + adjustment
-
-                    el.style.width = 'calc(25% - 13px)';
-                    el.style.height = 'calc(25% - 13px)';
-                    el.style.left = `calc(${c * 25}% + 10px)`;
-                    el.style.top = `calc(${r * 25}% + 10px)`;
-                    // 10px is padding + partial gap logic. Visual check needed.
-                    // Actually, 2048 CSS usually uses classes.
+                    // Positions
+                    // 10px + c * (Cell + Gap)
+                    // 10px + c * ( (25% - 12.5px) + 10px )
+                    // 10px + c * (25% - 2.5px)
+                    el.style.left = `calc(10px + ${c} * (25% - 2.5px))`;
+                    el.style.top = `calc(10px + ${r} * (25% - 2.5px))`;
 
                     this.tileContainer.appendChild(el);
                 }
@@ -582,20 +509,18 @@ async function loadStartRanking() {
         // Render
         ul.innerHTML = '';
 
-        // Find Max Score for Crown
-        const maxScore = displayData.length > 0 ? displayData[0].score : 0;
-
-        displayData.forEach(item => {
+        displayData.forEach((item, index) => {
             const li = document.createElement('li');
             li.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:1rem;";
 
             let crown = '';
-            if (item.score > 0 && item.score === maxScore) crown = '👑 ';
+            // Crown for 1st place only (if score > 0)
+            if (index === 0 && item.score > 0) crown = '👑 ';
 
             const scoreColor = item.score > 0 ? '#2563eb' : '#cbd5e1';
 
-            // Name Display
-            const dispName = item.name.toUpperCase();
+            // Name Display: Lowercase
+            const dispName = item.name.toLowerCase();
 
             li.innerHTML = `<span>${crown}${dispName}</span> <span style="font-weight:bold; color:${scoreColor}">${item.score}점</span>`;
             ul.appendChild(li);
