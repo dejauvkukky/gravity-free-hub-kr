@@ -1,5 +1,17 @@
+// Firebase direct init to avoid module path issues
+const firebaseConfig = {
+    apiKey: "AIzaSyANrUXwBGvmbDeVF2eqTeCb8oXPNaBIIAk",
+    authDomain: "familly-fun-service.firebaseapp.com",
+    projectId: "familly-fun-service",
+    storageBucket: "familly-fun-service.firebasestorage.app",
+    messagingSenderId: "257202552832",
+    appId: "1:257202552832:web:add8b7eb7672889dbdd8e5"
+};
 
-import { auth } from '../../src/firebase.js?v=202512121515';
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
 
 // --- Game Logic ---
 class Game2048 {
@@ -22,14 +34,14 @@ class Game2048 {
         this.touchStartX = 0;
         this.touchStartY = 0;
 
-        this.init();
+        this.init(); // note: this is async
     }
 
     async init() {
         this.score = 0;
         this.grid = Array(this.boardSize).fill().map(() => Array(this.boardSize).fill(null));
         this.isGameOver = false;
-        this.tileContainer.innerHTML = '';
+        if (this.tileContainer) this.tileContainer.innerHTML = '';
         this.updateScore(0);
 
         await this.loadData();
@@ -465,11 +477,11 @@ class Game2048 {
         const db = firebase.firestore();
         const weekId = this.getWeekId();
 
-        // Simple Top 5 Query
+        // Query for 'All' (limit 100 safe for performance)
         const q = db.collection('game_2048_records')
             .where('weekId', '==', weekId)
             .orderBy('score', 'desc')
-            .limit(5);
+            .limit(100);
 
         const snap = await q.get();
         ul.innerHTML = '';
@@ -502,10 +514,69 @@ document.addEventListener('DOMContentLoaded', () => {
         window.game.init();
     };
 
+
     // Load Start Screen Ranking Preview
     loadStartRanking();
 });
 
+// Helper for Week ID
+function getWeekId() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const onejan = new Date(d.getFullYear(), 0, 1);
+    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+    return `${year}-W${week}`;
+}
+
 async function loadStartRanking() {
-    // ... similar to loadRanking but for start screen
+    const ul = document.getElementById('start-ranking-list');
+    const weekTitle = document.getElementById('week-title');
+    const dadScoreDisplay = document.getElementById('start-dad-score');
+
+    if (!ul) return;
+
+    // Set Week Title
+    const d = new Date();
+    const weekNum = getWeekId().split('-W')[1];
+    weekTitle.innerText = `📅 ${d.getMonth() + 1}월 ${weekNum}주 주간랭킹`;
+
+    try {
+        const db = firebase.firestore(); // Added this line
+        const weekId = getWeekId();
+        const q = db.collection('game_2048_records')
+            .where('weekId', '==', weekId)
+            .orderBy('score', 'desc')
+            .limit(100);
+
+        const snap = await q.get();
+        ul.innerHTML = '';
+
+        let maxScore = 0;
+
+        if (snap.empty) {
+            ul.innerHTML = '<li style="color:#94a3b8; font-size:0.9rem;">아직 기록이 없습니다.<br>첫 번째 주인공이 되어보세요!</li>';
+            dadScoreDisplay.innerText = "2048점"; // Default goal
+            return;
+        }
+
+        let rank = 1;
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (data.score > maxScore) maxScore = data.score;
+
+            const li = document.createElement('li');
+            li.style.cssText = "display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:0.9rem;";
+            li.innerHTML = `<span style="font-weight:bold; color:#3b82f6;">${rank}</span> <span>${data.email ? data.email.split('@')[0] : '익명'}</span> <span>${data.score}점</span>`;
+            ul.appendChild(li);
+            rank++;
+        });
+
+        // Determine Dad Score to beat (Max of week or 2048)
+        const dadTarget = Math.max(maxScore, 2048);
+        dadScoreDisplay.innerText = dadTarget + "점";
+
+    } catch (e) {
+        console.error("Rank Load Error", e);
+        ul.innerHTML = '<li style="color:red;">랭킹 로드 실패</li>';
+    }
 }

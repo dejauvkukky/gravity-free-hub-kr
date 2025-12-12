@@ -367,6 +367,11 @@ html {
     animation: slideUp 0.4s ease-out;
 }
 
+#start-ranking-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
 @keyframes slideUp {
     from {
         transform: translateY(20px);
@@ -484,6 +489,8 @@ html {
     list-style: none;
     padding: 0;
     margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
 #ranking-list li {
