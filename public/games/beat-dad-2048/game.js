@@ -534,57 +534,72 @@ function getWeekId() {
     const onejan = new Date(d.getFullYear(), 0, 1);
     const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
     return `${year}-W${week}`;
+
 }
 
 async function loadStartRanking() {
     const ul = document.getElementById('start-ranking-list');
     const weekTitle = document.getElementById('week-title');
-    const dadScoreDisplay = document.getElementById('start-dad-score');
+
+    // 1. Set Week Title (Month + Week of Month)
+    const d = new Date();
+    const month = d.getMonth() + 1;
+    const weekOfMonth = Math.ceil(d.getDate() / 7);
+    weekTitle.innerText = `📅 ${month}월 ${weekOfMonth}주 주간랭킹`;
 
     if (!ul) return;
-
-    // Set Week Title
-    const d = new Date();
-    const weekNum = getWeekId().split('-W')[1];
-    weekTitle.innerText = `📅 ${d.getMonth() + 1}월 ${weekNum}주 주간랭킹`;
+    ul.innerHTML = '<li style="color:#94a3b8; text-align:center;">로딩중...</li>';
 
     try {
         const db = firebase.firestore();
         const weekId = getWeekId();
 
-        // Index fix: Query by week only, sort in memory
+        // Query by weekId
         const q = db.collection('game_2048_records').where('weekId', '==', weekId);
-
         const snap = await q.get();
-        ul.innerHTML = '';
 
-        let maxScore = 0;
+        // Extract Data
+        let records = [];
+        snap.forEach(doc => records.push(doc.data()));
 
-        if (snap.empty) {
-            ul.innerHTML = '<li style="color:#94a3b8; font-size:0.9rem;">아직 기록이 없습니다.<br>첫 번째 주인공이 되어보세요!</li>';
-            dadScoreDisplay.innerText = "2048점"; // Default goal
-            return;
-        }
+        // Target Users (Family)
+        const targets = ['kukky', 'soony', 'joowon', 'raim'];
 
-        // Processing
-        let docs = [];
-        snap.forEach(doc => docs.push(doc.data()));
-        docs.sort((a, b) => b.score - a.score);
+        // Map Targets to Best Score
+        const displayData = targets.map(target => {
+            const userRecs = records.filter(r => {
+                const name = r.email ? r.email.split('@')[0] : '';
+                return name.toLowerCase().includes(target.toLowerCase());
+            });
 
-        let rank = 1;
-        docs.forEach(data => {
-            if (data.score > maxScore) maxScore = data.score;
-
-            const li = document.createElement('li');
-            li.style.cssText = "display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:0.9rem;";
-            li.innerHTML = `<span style="font-weight:bold; color:#3b82f6;">${rank}</span> <span>${data.email ? data.email.split('@')[0] : '익명'}</span> <span>${data.score}점</span>`;
-            ul.appendChild(li);
-            rank++;
+            const best = userRecs.length > 0 ? Math.max(...userRecs.map(r => r.score)) : 0;
+            return { name: target, score: best };
         });
 
-        // Determine Dad Score to beat
-        const dadTarget = Math.max(maxScore, 2048);
-        dadScoreDisplay.innerText = dadTarget + "점";
+        // Sort by Score Desc
+        displayData.sort((a, b) => b.score - a.score);
+
+        // Render
+        ul.innerHTML = '';
+
+        // Find Max Score for Crown
+        const maxScore = displayData.length > 0 ? displayData[0].score : 0;
+
+        displayData.forEach(item => {
+            const li = document.createElement('li');
+            li.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; color:#334155; font-size:1rem;";
+
+            let crown = '';
+            if (item.score > 0 && item.score === maxScore) crown = '👑 ';
+
+            const scoreColor = item.score > 0 ? '#2563eb' : '#cbd5e1';
+
+            // Name Display
+            const dispName = item.name.toUpperCase();
+
+            li.innerHTML = `<span>${crown}${dispName}</span> <span style="font-weight:bold; color:${scoreColor}">${item.score}점</span>`;
+            ul.appendChild(li);
+        });
 
     } catch (e) {
         console.error("Rank Load Error", e);
