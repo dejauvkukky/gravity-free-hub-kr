@@ -171,98 +171,63 @@ class Game2048 {
     }
 
     move(dir) {
-        /* 
-           Move Logic:
-           1. Rotate grid so we always process 'Slide Left' logic, then rotate back?
-           Or write specific loops. Rotating is cleaner code-wise.
-        */
+        let state = JSON.parse(JSON.stringify(this.grid)); // Deep copy state for comparison
 
-        let rotated = this.grid;
-        if (dir === 'right') rotated = this.rotate(rotated, 2); // Rotate 180? No right needs mirror or unique logic.
-        // Let's use vectors.
+        // Transformation: Orient grid so we always Slide Left
+        // Use slice() to prevent in-place mutation of original grid rows
+        if (dir === 'right') {
+            this.grid = this.grid.map(row => row.slice().reverse());
+        } else if (dir === 'up') {
+            this.grid = this.transpose(this.grid);
+        } else if (dir === 'down') {
+            this.grid = this.transpose(this.grid);
+            this.grid = this.grid.map(row => row.slice().reverse());
+        }
 
-        let vector = { r: 0, c: 0 };
-        if (dir === 'up') vector = { r: -1, c: 0 };
-        if (dir === 'down') vector = { r: 1, c: 0 };
-        if (dir === 'left') vector = { r: 0, c: -1 };
-        if (dir === 'right') vector = { r: 0, c: 1 };
-
-        let moved = false;
+        // Process LEFT (Standard Merge)
         let scoreAdd = 0;
 
-        // Basic 2048 logic without rotation for performance/simplicity in JS
-        // We traverse in the direction ensuring we process merge correctly.
-
-        // Simplification: Extract rows/cols, process list, put back.
-
-        const processList = (list) => {
-            // list ex: [2, null, 2, 4] -> [4, 4, null, null]
-            // 1. remove nulls
-            let filtered = list.filter(t => t !== null);
-            let merged = [];
-            let skipSignal = false; // To prevent double merge 2+2=4+4=8 in one move
-
-            while (filtered.length > 0) {
-                let head = filtered.shift();
-                if (filtered.length > 0 && filtered[0].value === head.value && !head.mergedFrom) {
-                    // Merge
-                    let next = filtered.shift();
-                    let newVal = head.value * 2;
-                    scoreAdd += newVal;
-                    merged.push({ value: newVal, id: head.id, mergedFrom: [head, next], isNew: false });
-                    // ID logic tricky for animation. usually keep one ID.
-                } else {
-                    merged.push(head);
-                }
-            }
-            // Pad with nulls
-            while (merged.length < 4) merged.push(null);
-            return merged;
-        };
-
-        // This requires careful mapping of current grid to lists.
-        // Because of the complexity of 2048 logic from scratch, I'll use a established approach:
-        // Traverse 'traversals' vector.
-
-        // ... Actually, simple rotation approach is best for 'process left' reusability.
-        // Right = Reverse rows, Process Left, Reverse back.
-        // Up = Transpose, Process Left, Transpose back.
-        // Down = Transpose, Reverse rows, Process Left, Reverse rows, Transpose back.
-
-        let state = JSON.parse(JSON.stringify(this.grid)); // Deep copy to check change
-
-        if (dir === 'right') this.grid = this.grid.map(row => row.reverse());
-        else if (dir === 'up') this.grid = this.transpose(this.grid);
-        else if (dir === 'down') { this.grid = this.transpose(this.grid); this.grid = this.grid.map(row => row.reverse()); }
-
-        // Process LEFT for all rows
         this.grid = this.grid.map(row => {
-            // 1. Filter nulls
             let nonNull = row.filter(c => c !== null);
             let newRow = [];
+
             for (let i = 0; i < nonNull.length; i++) {
                 if (i < nonNull.length - 1 && nonNull[i].value === nonNull[i + 1].value) {
                     // Merge
                     let val = nonNull[i].value * 2;
                     scoreAdd += val;
-                    newRow.push({ value: val, id: nonNull[i].id, merged: true }); // New ID?
+                    // Create new merged tile object
+                    newRow.push({
+                        value: val,
+                        id: nonNull[i].id, // Keep ID? Or new? 
+                        merged: true,
+                        isNew: false
+                    });
                     i++; // Skip next
                 } else {
-                    newRow.push(nonNull[i]);
+                    newRow.push({
+                        ...nonNull[i],
+                        isNew: false,
+                        merged: false
+                    });
                 }
-                if (nonNull[i]) nonNull[i].isNew = false; // logic reset
             }
+            // Pad
             while (newRow.length < 4) newRow.push(null);
             return newRow;
         });
 
-        // Restore
-        if (dir === 'right') this.grid = this.grid.map(row => row.reverse());
-        else if (dir === 'up') this.grid = this.transpose(this.grid);
-        else if (dir === 'down') { this.grid = this.grid.map(row => row.reverse()); this.grid = this.transpose(this.grid); } // Inverse order
+        // Restore Orientation
+        if (dir === 'right') {
+            this.grid = this.grid.map(row => row.slice().reverse());
+        } else if (dir === 'up') {
+            this.grid = this.transpose(this.grid);
+        } else if (dir === 'down') {
+            this.grid = this.grid.map(row => row.slice().reverse());
+            this.grid = this.transpose(this.grid);
+        }
 
-        // Check if changed
-        // Simple JSON stringify comparison works for small grid
+        // Check Change
         let changed = JSON.stringify(state) !== JSON.stringify(this.grid);
 
         if (changed) {
