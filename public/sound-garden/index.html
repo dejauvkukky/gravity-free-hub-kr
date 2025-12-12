@@ -584,7 +584,175 @@
         import { auth, db } from '../../src/firebase.js?v=202512121000';
         const COLLECTION = 'sound_garden_posts';
 
-        // ... (existing code) ...
+        // State
+        let allPosts = [];
+        let filteredPosts = [];
+        let currentCat = 'all';
+        let sortMode = 'new';
+        let currentUser = null;
+        let visibleCount = 10;
+        let isAdmin = false;
+
+        auth.onAuthStateChanged(user => {
+            if (!user) location.href = '../login.html';
+            else {
+                currentUser = user;
+                isAdmin = (user.email === 'kukky@family.com');
+                if (isAdmin) {
+                    const panel = document.getElementById('admin-panel');
+                    if (panel) panel.style.display = 'block';
+                }
+                loadPosts();
+            }
+        });
+
+        async function loadPosts() {
+            try {
+                const snapshot = await db.collection(COLLECTION).orderBy('createdAt', 'desc').get();
+                allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Populate Category Datalist dynamically (Main & Edit)
+                const uniqueCats = new Set(allPosts.map(p => p.category).filter(Boolean));
+                const catHtml = Array.from(uniqueCats).sort().map(c => `<option value="${c}">`).join('');
+
+                const dataList = document.getElementById('cat-options');
+                if (dataList) dataList.innerHTML = catHtml;
+
+                const dataListEdit = document.getElementById('cat-options-edit');
+                if (dataListEdit) dataListEdit.innerHTML = catHtml;
+
+                // Initial Filter/Sort
+                applyFilterAndSort();
+            } catch (e) { document.getElementById('music-list').innerHTML = '로딩 실패'; }
+        }
+
+        // Central Filter logic
+        function applyFilterAndSort() {
+            // 1. Filter
+            filteredPosts = allPosts.slice();
+            if (currentCat !== 'all') {
+                filteredPosts = filteredPosts.filter(p => p.category === currentCat);
+            }
+
+            // 2. Sort
+            filteredPosts.sort((a, b) => {
+                const dA = new Date(a.createdAt), dB = new Date(b.createdAt);
+                if (sortMode === 'new') return dB - dA;
+                if (sortMode === 'old') return dA - dB;
+                return a.title.localeCompare(b.title);
+            });
+
+            // 3. Reset Pagination
+            visibleCount = 10;
+            renderUI();
+        }
+
+        function renderUI() {
+            renderFeatured();
+            renderCategories();
+            renderList();
+        }
+
+        function renderFeatured() {
+            // Slice 2 items instead of 3
+            const featured = allPosts.slice(0, 2);
+            const container = document.getElementById('featured-list');
+            if (featured.length === 0) { container.innerHTML = '<div style="color:#999; grid-column:1/-1; text-align:center; padding:20px;">등록된 음악이 없습니다.</div>'; return; }
+            container.innerHTML = featured.map(post => `
+                <div class="video-card" onclick="playMusic('${post.id}')">
+                    <div class="thumb-area"><img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg" loading="lazy"><div class="play-icon">▶</div></div>
+                    <div class="v-info"><div class="v-title">${post.title}</div><div class="v-desc">${post.description || post.category}</div></div>
+                </div>
+            `).join('');
+        }
+
+        function renderCategories() {
+            const used = new Set(allPosts.map(p => p.category).filter(Boolean));
+            const cats = ['all', ...Array.from(used).sort()];
+            document.getElementById('category-list').innerHTML = cats.map(cat =>
+                `<button class="cat-btn ${cat === currentCat ? 'active' : ''}" onclick="filterCat('${cat}')">${cat === 'all' ? '전체' : cat}</button>`
+            ).join('');
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('music-list');
+            const btnEl = document.getElementById('load-more-btn');
+
+            const displayList = filteredPosts.slice(0, visibleCount);
+
+            if (displayList.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:50px; color:#aaa;">조건에 맞는 음악이 없습니다 🥲</div>';
+                btnEl.style.display = 'none';
+                return;
+            }
+
+            listEl.innerHTML = displayList.map(post => `
+                <div class="music-item" onclick="playMusic('${post.id}')">
+                    <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg" loading="lazy">
+                    <div class="m-info">
+                        <div class="m-title">
+                            ${post.title}
+                            ${(post.commentCount || 0) > 0 ? `<span style="font-size:0.8rem; color:#6366f1; margin-left:5px; vertical-align:middle;">💬 ${post.commentCount}</span>` : ''}
+                        </div>
+                        <div class="m-meta">${post.category} • ${post.description}</div>
+                    </div>
+                    ${isAdmin ? `
+                        <div style="display:flex; flex-direction:column; gap:5px;">
+                            <button onclick="event.stopPropagation(); openEdit('${post.id}')" style="color:#3b82f6; background:none; border:none; padding:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">수정</button>
+                            <button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:#ef4444; background:none; border:none; padding:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">삭제</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Handle Button Visibility
+            if (visibleCount < filteredPosts.length) {
+                btnEl.style.display = 'block';
+                btnEl.innerText = `더 보기 (+${Math.min(10, filteredPosts.length - visibleCount)})`;
+            } else {
+                btnEl.style.display = 'none';
+            }
+        }
+
+        window.filterCat = (cat) => { currentCat = cat; applyFilterAndSort(); }
+        window.changeSort = () => { sortMode = document.getElementById('sort-select').value; applyFilterAndSort(); }
+        window.loadMore = () => { visibleCount += 10; renderList(); }
+
+        window.submitMusicInline = async (e) => {
+            e.preventDefault();
+            const [url, title, desc, cat] = ['in-url', 'in-title', 'in-desc', 'in-cat'].map(x => document.getElementById(x).value);
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            if (!match || match[2].length !== 11) { alert('유튜브 링크 확인 필요'); return; }
+            try {
+                await db.collection(COLLECTION).add({
+                    videoId: match[2], title, description: desc, category: cat, author: 'kukky',
+                    createdAt: new Date().toISOString(), hearts: 0, fires: 0, claps: 0
+                });
+                alert('등록 완료!');
+                ['in-url', 'in-title', 'in-desc', 'in-cat'].forEach(x => document.getElementById(x).value = '');
+                loadPosts();
+            } catch (e) { alert('에러: ' + e.message); }
+        }
+
+        window.playMusic = (id) => {
+            const p = allPosts.find(x => x.id === id); if (!p) return;
+            window.currentPlayingId = id;
+            document.getElementById('player-title').innerText = p.title;
+            document.getElementById('info-title').innerText = p.title;
+            document.getElementById('info-desc').innerText = p.description + (p.category ? ` | ${p.category}` : '');
+            document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
+
+            document.getElementById('player-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Show/Update Mini Download Button
+            const btn = document.getElementById('mini-download-btn');
+            if (btn) {
+                btn.onclick = () => startOnlyMP3Flow(p.videoId);
+            }
+
+            loadComments(id);
+        }
 
         // Custom Confirm Logic (Restored)
         window.customConfirm = (message) => {
