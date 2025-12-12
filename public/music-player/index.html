@@ -62,12 +62,18 @@
             <div class="player-header">
                 <button id="player-back-btn" class="icon-btn">↓</button>
                 <span>Now Playing</span>
-                <button id="lyrics-btn" class="icon-btn">💬</button>
+                <div style="width: 44px;"></div> <!-- Spacer -->
             </div>
 
-            <div class="album-art-container">
+            <div class="album-art-container" id="album-art-container">
                 <div id="album-art" class="album-art default-art">
                     <span>🎵</span>
+                </div>
+                <!-- Lyrics Overlay -->
+                <div id="lyrics-overlay" class="lyrics-overlay hidden">
+                    <div id="lyrics-content" class="lyrics-content">
+                        <p class="no-lyrics">가사 없음</p>
+                    </div>
                 </div>
             </div>
 
@@ -93,18 +99,7 @@
             </div>
         </div>
 
-        <!-- 3. Lyrics Modal -->
-        <div id="lyrics-modal" class="modal-overlay hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>가사</h3>
-                    <button id="lyrics-close-btn" class="icon-btn">✕</button>
-                </div>
-                <div id="lyrics-text" class="lyrics-body">
-                    가사 정보가 없습니다.
-                </div>
-            </div>
-        </div>
+
 
         <!-- Loading Overlay -->
         <div id="loading-screen" class="hidden">

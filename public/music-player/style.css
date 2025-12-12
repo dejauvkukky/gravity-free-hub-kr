@@ -191,14 +191,14 @@ body {
     color: #64748b;
 }
 
-/* 2. Player View */
+/* 2. Player View (Dark Theme) */
 .player-view {
-    background: #fff;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
     z-index: 50;
     padding: 20px;
     align-items: center;
     transform: translateY(100%);
-    /* Slide up animation initial state */
+    color: white;
 }
 
 .player-view.active {
@@ -212,7 +212,7 @@ body {
     align-items: center;
     margin-bottom: 30px;
     font-weight: bold;
-    color: #64748b;
+    color: #94a3b8;
 }
 
 .album-art-container {
@@ -221,10 +221,11 @@ body {
     aspect-ratio: 1/1;
     margin-bottom: 40px;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-    /* Soft purple shadow */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     overflow: hidden;
-    background: #f1f5f9;
+    background: #334155;
+    position: relative;
+    cursor: pointer;
 }
 
 .album-art {
@@ -236,11 +237,75 @@ body {
     font-size: 4rem;
     background-size: cover;
     background-position: center;
+    transition: transform 0.3s;
+}
+
+.album-art.blur {
+    filter: blur(8px) brightness(0.6);
+    transform: scale(1.1);
 }
 
 .default-art {
-    background: #e0e7ff;
-    color: #818cf8;
+    background: #1e293b;
+    color: #475569;
+}
+
+/* Lyrics Overlay Styles */
+.lyrics-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    /* Scroll inside content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.lyrics-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.lyrics-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+    font-size: 1rem;
+    line-height: 2;
+    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
+
+.lyrics-line {
+    opacity: 0.6;
+    transition: all 0.2s;
+    margin: 5px 0;
+}
+
+.lyrics-line.active {
+    font-weight: bold;
+    color: #38bdf8;
+    /* Highlight Color */
+    transform: scale(1.05);
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.no-lyrics {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
 }
 
 .track-info {
@@ -251,14 +316,14 @@ body {
 
 #player-title {
     font-size: 1.5rem;
-    margin: 0 0 5px 0;
-    color: #1e293b;
+    margin: 0 0 8px 0;
+    color: #fff;
 }
 
 #player-artist {
     font-size: 1rem;
     margin: 0;
-    color: #64748b;
+    color: #94a3b8;
 }
 
 .progress-area {
@@ -305,86 +370,42 @@ input[type=range] {
     transform: scale(0.9);
 }
 
+
 .control-btn.lg {
-    font-size: 3.5rem;
-    color: var(--primary-color);
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+    color: #fff;
+    background: #38bdf8;
+    /* Blue Theme */
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .control-btn.sm {
     font-size: 1.2rem;
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .control-btn.active {
-    color: var(--primary-color);
+    color: #38bdf8;
 }
 
 .icon-btn {
     background: none;
     border: none;
     font-size: 1.2rem;
-    color: #64748b;
+    color: #cbd5e1;
     cursor: pointer;
     padding: 10px;
 }
 
 .icon-btn:active {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-}
-
-/* Lyrics Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 100;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    /* Slide up from bottom */
-}
-
-.modal-content {
-    width: 100%;
-    height: 80%;
-    background: #fff;
-    border-radius: 20px 20px 0 0;
-    display: flex;
-    flex-direction: column;
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-
-    to {
-        transform: translateY(0);
-    }
-}
-
-.modal-header {
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.lyrics-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 30px 20px;
-    text-align: center;
-    line-height: 1.8;
-    color: #334155;
-    font-size: 1.1rem;
-    white-space: pre-wrap;
 }
 
 /* Utils */

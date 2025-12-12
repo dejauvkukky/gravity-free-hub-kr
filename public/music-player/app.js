@@ -6,9 +6,198 @@ import { AudioEngine } from './audio.js';
 const state = {
     currentFolderId: null,
     folders: [],
-    tracks: []
+    tracks: [],
+    currentTrack: null,
+    isLyricsVisible: false // Overlay state
 };
 
+// ... Init ...
+
+// --- UI Events ---
+function setupEventListeners() {
+    // File Input
+    document.getElementById('folder-input').addEventListener('change', handleFileSelect);
+
+    // Navigation
+    document.getElementById('back-to-folders').onclick = () => {
+        document.getElementById('track-list-container').classList.add('hidden');
+        document.getElementById('folder-list').classList.remove('hidden');
+        state.currentFolderId = null;
+    };
+
+    // Mini Player Click
+    document.getElementById('mini-player').onclick = (e) => {
+        if (e.target.id === 'mini-play-btn') return; // Handled separately
+        showPlayerView();
+    };
+
+    // Player View Back
+    document.getElementById('player-back-btn').onclick = hidePlayerView;
+
+    // Controls
+    document.getElementById('play-btn').onclick = () => audio.togglePlay();
+    document.getElementById('mini-play-btn').onclick = (e) => {
+        e.stopPropagation();
+        audio.togglePlay();
+    };
+
+    document.getElementById('next-btn').onclick = () => audio.next();
+    document.getElementById('prev-btn').onclick = () => audio.prev();
+
+    document.getElementById('shuffle-btn').onclick = () => {
+        audio.isShuffle = !audio.isShuffle;
+        updateControlUI();
+    };
+
+    document.getElementById('repeat-btn').onclick = () => {
+        if (audio.repeatMode === 'none') audio.repeatMode = 'all';
+        else if (audio.repeatMode === 'all') audio.repeatMode = 'one';
+        else audio.repeatMode = 'none';
+        updateControlUI();
+    };
+
+    // Seek
+    const seekBar = document.getElementById('seek-bar');
+    seekBar.addEventListener('input', (e) => {
+        audio.seek(e.target.value);
+    });
+
+    // Toggle Lyrics Overlay
+    document.getElementById('album-art-container').onclick = () => {
+        state.isLyricsVisible = !state.isLyricsVisible;
+        const overlay = document.getElementById('lyrics-overlay');
+        const art = document.getElementById('album-art');
+
+        if (state.isLyricsVisible) {
+            overlay.classList.remove('hidden');
+            art.classList.add('blur');
+        } else {
+            overlay.classList.add('hidden');
+            art.classList.remove('blur');
+        }
+    };
+
+    // Audio Engine Bindings
+    audio.onStateChange = (isPlaying) => {
+        const icon = isPlaying ? '⏸' : '▶'; // CSS makes it round, just text here
+        document.getElementById('play-btn').innerText = icon;
+        document.getElementById('mini-play-btn').innerText = icon;
+    };
+
+    audio.onTimeUpdate = (curr, total) => {
+        if (!total) return;
+        const pct = (curr / total) * 100;
+        document.getElementById('seek-bar').value = pct;
+        document.getElementById('curr-time').innerText = formatTime(curr);
+        document.getElementById('total-time').innerText = formatTime(total);
+
+        // Lyrics Sync Logic
+        if (state.isLyricsVisible && state.currentTrack && state.currentTrack.syncedLyrics) {
+            updateSyncedLyrics(curr);
+        }
+    };
+
+    audio.onTrackChange = (track) => {
+        state.currentTrack = track;
+        updatePlayerUI(track);
+    };
+}
+
+function updateSyncedLyrics(currentTime) {
+    const lyrics = state.currentTrack.syncedLyrics;
+    let activeIndex = -1;
+
+    // Find the latest line that has passed
+    for (let i = 0; i < lyrics.length; i++) {
+        if (lyrics[i].time <= currentTime) {
+            activeIndex = i;
+        } else {
+            break;
+        }
+    }
+
+    // Highlight
+    const lines = document.querySelectorAll('.lyrics-line');
+    lines.forEach((line, idx) => {
+        if (idx === activeIndex) {
+            if (!line.classList.contains('active')) {
+                line.classList.add('active');
+                // Auto Scroll
+                line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            line.classList.remove('active');
+        }
+    });
+}
+
+// --- UI Helpers ---
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+function updateControlUI() {
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const repeatBtn = document.getElementById('repeat-btn');
+
+    shuffleBtn.classList.toggle('active', audio.isShuffle);
+
+    repeatBtn.classList.remove('active');
+    if (audio.repeatMode === 'all') {
+        repeatBtn.classList.add('active');
+        repeatBtn.innerText = '🔁';
+    } else if (audio.repeatMode === 'one') {
+        repeatBtn.classList.add('active');
+        repeatBtn.innerText = '🔂';
+    } else {
+        repeatBtn.innerText = '🔁'; // reset icon
+    }
+}
+
+function updatePlayerUI(track) {
+    // Text
+    document.getElementById('player-title').innerText = track.title;
+    document.getElementById('player-artist').innerText = track.artist;
+
+    document.getElementById('mini-title').innerText = track.title;
+    document.getElementById('mini-artist').innerText = track.artist;
+
+    // Cover
+    const art = document.getElementById('album-art');
+    if (track.cover) {
+        art.style.backgroundImage = `url(${track.cover})`;
+        art.innerHTML = ''; // Remove icon
+        art.classList.remove('default-art');
+    } else {
+        art.style.backgroundImage = '';
+        art.innerHTML = '<span>🎵</span>';
+        art.classList.add('default-art');
+    }
+
+    // Prepare Lyrics (Synced vs Text)
+    const lyricsEl = document.getElementById('lyrics-content');
+    lyricsEl.innerHTML = ''; // Clear
+
+    if (track.syncedLyrics) {
+        // Render Synced Lines
+        track.syncedLyrics.forEach(line => {
+            const p = document.createElement('p');
+            p.className = 'lyrics-line';
+            p.innerText = line.text;
+            lyricsEl.appendChild(p);
+        });
+    } else if (track.lyrics) {
+        // Plain Text
+        lyricsEl.innerHTML = `<div style="white-space: pre-wrap;">${track.lyrics}</div>`;
+    } else {
+        lyricsEl.innerHTML = '<p class="no-lyrics">가사 없음</p>';
+    }
+
+    // Show Mini Player
+    document.getElementById('mini-player').classList.remove('hidden');
+}
 // --- Engine ---
 const audio = new AudioEngine();
 
@@ -192,140 +381,7 @@ async function handleFileSelect(e) {
 }
 
 
-// --- UI Events ---
-function setupEventListeners() {
-    // File Input
-    document.getElementById('folder-input').addEventListener('change', handleFileSelect);
 
-    // Navigation
-    document.getElementById('back-to-folders').onclick = () => {
-        document.getElementById('track-list-container').classList.add('hidden');
-        document.getElementById('folder-list').classList.remove('hidden');
-        state.currentFolderId = null;
-    };
-
-    // Mini Player Click
-    document.getElementById('mini-player').onclick = (e) => {
-        if (e.target.id === 'mini-play-btn') return; // Handled separately
-        showPlayerView();
-    };
-
-    // Player View Back
-    document.getElementById('player-back-btn').onclick = hidePlayerView;
-
-    // Controls
-    document.getElementById('play-btn').onclick = () => audio.togglePlay();
-    document.getElementById('mini-play-btn').onclick = (e) => {
-        e.stopPropagation();
-        audio.togglePlay();
-    };
-
-    document.getElementById('next-btn').onclick = () => audio.next();
-    document.getElementById('prev-btn').onclick = () => audio.prev();
-
-    document.getElementById('shuffle-btn').onclick = () => {
-        audio.isShuffle = !audio.isShuffle;
-        updateControlUI();
-    };
-
-    document.getElementById('repeat-btn').onclick = () => {
-        if (audio.repeatMode === 'none') audio.repeatMode = 'all';
-        else if (audio.repeatMode === 'all') audio.repeatMode = 'one';
-        else audio.repeatMode = 'none';
-        updateControlUI();
-    };
-
-    // Seek
-    const seekBar = document.getElementById('seek-bar');
-    seekBar.addEventListener('input', (e) => {
-        audio.seek(e.target.value);
-    });
-
-    // Lyrics
-    document.getElementById('lyrics-btn').onclick = () => {
-        document.getElementById('lyrics-modal').classList.remove('hidden');
-    };
-    document.getElementById('lyrics-close-btn').onclick = () => {
-        document.getElementById('lyrics-modal').classList.add('hidden');
-    };
-    document.getElementById('lyrics-modal').onclick = (e) => {
-        if (e.target === document.getElementById('lyrics-modal')) {
-            document.getElementById('lyrics-modal').classList.add('hidden');
-        }
-    };
-
-    // Audio Engine Bindings
-    audio.onStateChange = (isPlaying) => {
-        const icon = isPlaying ? '⏸' : '▶';
-        document.getElementById('play-btn').innerText = icon;
-        document.getElementById('mini-play-btn').innerText = icon;
-    };
-
-    audio.onTimeUpdate = (curr, total) => {
-        if (!total) return;
-        const pct = (curr / total) * 100;
-        document.getElementById('seek-bar').value = pct;
-        document.getElementById('curr-time').innerText = formatTime(curr);
-        document.getElementById('total-time').innerText = formatTime(total);
-    };
-
-    audio.onTrackChange = (track) => {
-        updatePlayerUI(track);
-    };
-}
-
-// --- UI Helpers ---
-function formatTime(seconds) {
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-}
-
-function updateControlUI() {
-    const shuffleBtn = document.getElementById('shuffle-btn');
-    const repeatBtn = document.getElementById('repeat-btn');
-
-    shuffleBtn.classList.toggle('active', audio.isShuffle);
-
-    repeatBtn.classList.remove('active');
-    if (audio.repeatMode === 'all') {
-        repeatBtn.classList.add('active');
-        repeatBtn.innerText = '🔁';
-    } else if (audio.repeatMode === 'one') {
-        repeatBtn.classList.add('active');
-        repeatBtn.innerText = '🔂';
-    } else {
-        repeatBtn.innerText = '🔁'; // reset icon
-    }
-}
-
-function updatePlayerUI(track) {
-    // Text
-    document.getElementById('player-title').innerText = track.title;
-    document.getElementById('player-artist').innerText = track.artist;
-
-    document.getElementById('mini-title').innerText = track.title;
-    document.getElementById('mini-artist').innerText = track.artist;
-
-    // Cover
-    const art = document.getElementById('album-art');
-    if (track.cover) {
-        art.style.backgroundImage = `url(${track.cover})`;
-        art.innerHTML = ''; // Remove icon
-        art.classList.remove('default-art');
-    } else {
-        art.style.backgroundImage = '';
-        art.innerHTML = '<span>🎵</span>';
-        art.classList.add('default-art');
-    }
-
-    // Lyrics
-    const lyricsEl = document.getElementById('lyrics-text');
-    lyricsEl.innerText = track.lyrics || "가사 정보가 없습니다.";
-
-    // Show Mini Player
-    document.getElementById('mini-player').classList.remove('hidden');
-}
 
 function showPlayerView() {
     const view = document.getElementById('view-player');
