@@ -265,7 +265,13 @@
                             <div class="lucky-item">
                                 <span style="font-size:1.5rem; display:block; margin-bottom:5px;">🎨</span>
                                 <span style="font-size:0.8rem; color:#666;">색상</span>
-                                <div id="lucky-color" style="font-weight:bold; color:#333; font-size:0.9rem;">-</div>
+                                <div
+                                    style="display:flex; align-items:center; justify-content:center; gap:6px; margin-top:3px;">
+                                    <span id="lucky-color-chip"
+                                        style="width:18px; height:18px; border-radius:50%; border:2px solid #ddd; display:inline-block;"></span>
+                                    <span id="lucky-color"
+                                        style="font-weight:bold; color:#333; font-size:0.9rem;">-</span>
+                                </div>
                             </div>
                             <div class="lucky-item">
                                 <span style="font-size:1.5rem; display:block; margin-bottom:5px;">💍</span>
@@ -593,6 +599,35 @@
             const lucky = getLuckyPrescription(member.name, member.birthdate);
             if (lucky) {
                 document.getElementById('lucky-color').innerText = lucky.color;
+
+                // Color chip mapping
+                const colorMap = {
+                    "로열 블루": "#4169E1", "포레스트 그린": "#228B22", "크림 베이지": "#F5F5DC",
+                    "미드나잇 블랙": "#191970", "버건디 레드": "#800020", "머스타드 옐로우": "#FFDB58",
+                    "퓨어 화이트": "#FFFFFF", "차콜 그레이": "#36454F", "라벤더 퍼플": "#E6E6FA",
+                    "스카이 블루": "#87CEEB", "코랄 핑크": "#FF7F7F", "민트 그린": "#98FF98",
+                    "올리브 카키": "#6B8E23", "네이비": "#000080", "초콜릿 브라운": "#7B3F00",
+                    "샴페인 골드": "#F7E7CE", "실버": "#C0C0C0", "로즈 골드": "#B76E79",
+                    "터코이즈": "#40E0D0", "인디고": "#4B0082", "바이올렛": "#EE82EE",
+                    "마젠타": "#FF00FF", "살몬": "#FA8072", "테라코타": "#E2725B",
+                    "아이보리": "#FFFFF0", "샌드 베이지": "#F5DEB3", "모카": "#967969",
+                    "슬레이트 블루": "#6A5ACD", "틸 그린": "#008080", "피치": "#FFCBA4",
+                    "레몬 옐로우": "#FFF44F", "애쉬 그레이": "#B2BEB5", "오션 블루": "#0096FF",
+                    "선셋 오렌지": "#FF4500", "라임": "#00FF00", "퍼시픽 블루": "#1CA9C9",
+                    "딥 그린": "#006400", "펄 화이트": "#F0EAD6", "매트 블랙": "#28282B",
+                    "브론즈": "#CD7F32", "카멜": "#C19A6B", "와인": "#722F37",
+                    "딥 퍼플": "#301934", "파스텔 핑크": "#FFD1DC", "일렉트릭 블루": "#7DF9FF",
+                    "네온 사인": "#FF6EC7", "소프트 핑크": "#FADADD", "웜 그레이": "#808069",
+                    "쿨 그레이": "#8C92AC", "비비드 레드": "#FF0000", "블랙 & 화이트": "linear-gradient(135deg, #000 50%, #fff 50%)"
+                };
+                const colorChip = document.getElementById('lucky-color-chip');
+                const mappedColor = colorMap[lucky.color] || "#cccccc";
+                if (mappedColor.startsWith('linear')) {
+                    colorChip.style.background = mappedColor;
+                } else {
+                    colorChip.style.backgroundColor = mappedColor;
+                }
+
                 document.getElementById('lucky-item').innerText = lucky.item;
                 document.getElementById('lucky-dir').innerText = lucky.direction;
                 document.getElementById('lucky-num').innerText = lucky.number;

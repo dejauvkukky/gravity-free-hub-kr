@@ -127,16 +127,19 @@
 
     <!-- Notice Popup -->
     <div id="notice-popup" class="notice-overlay hidden">
-        <div class="notice-modal">
-            <div class="notice-body">
-                <p id="notice-content"></p>
+        <div class="notice-admin">
+            <div class="notice-admin-header">
+                <h4>공지사항</h4>
+                <button id="notice-popup-close" class="notice-admin-close">✕</button>
             </div>
-            <div class="notice-footer">
-                <label class="notice-dont-show">
+            <div class="notice-admin-body">
+                <p id="notice-content" style="margin: 0 0 15px 0; line-height: 1.7; color: #1f2937;"></p>
+                <label class="notice-toggle">
                     <input type="checkbox" id="notice-dont-show-today">
-                    <span>오늘 그만보기</span>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">오늘 그만보기</span>
                 </label>
-                <button id="notice-confirm-btn" class="notice-btn">확인</button>
+                <button id="notice-confirm-btn" class="notice-admin-btn">확인</button>
             </div>
         </div>
     </div>
@@ -246,7 +249,7 @@
         /* Minimized Notice Button */
         .notice-minimized {
             position: absolute;
-            top: 70px;
+            bottom: 60px;
             left: 10px;
             background: #10b981;
             color: white;
@@ -557,6 +560,12 @@
             // Load and show notice for all users
             loadNotice(db);
 
+            // Popup Close Button (X)
+            document.getElementById('notice-popup-close').onclick = () => {
+                document.getElementById('notice-popup').classList.add('hidden');
+                document.getElementById('notice-minimized').classList.remove('hidden');
+            };
+
             // Popup Confirm Button
             document.getElementById('notice-confirm-btn').onclick = () => {
                 const dontShowToday = document.getElementById('notice-dont-show-today').checked;
@@ -564,6 +573,9 @@
                 if (dontShowToday) {
                     const today = new Date().toDateString();
                     localStorage.setItem('notice_dont_show_date', today);
+                } else {
+                    // If unchecked, remove the localStorage item so auto-popup works again
+                    localStorage.removeItem('notice_dont_show_date');
                 }
 
                 document.getElementById('notice-popup').classList.add('hidden');
