@@ -132,6 +132,18 @@ git push
 
 ---
 
+
+## 8. UI/UX 구현 규칙
+
+### 🔔 팝업 메시지 (Alert/Confirm)
+- **브라우저 기본 API(`alert`, `confirm`) 사용 금지**
+  - 이유: 상단에 `github.io` 등의 출처 텍스트가 강제 표시되어 미관을 해침.
+- **Custom Modal 사용 필수**
+  - 제목은 반드시 **"Secret Garden 내용 :"** 으로 통일.
+  - HTML/CSS로 구현된 모달을 사용하여 디자인 일관성 유지.
+
+---
+
 ## 7. 개발 현황
 
 ### ✅ 완료

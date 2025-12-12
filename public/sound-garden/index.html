@@ -443,6 +443,40 @@
         </div> <!-- End content-body -->
     </div>
 
+    <!-- Custom Confirm Modal -->
+    <div id="custom-confirm-modal" class="player-overlay"
+        style="z-index: 2200; justify-content: center; align-items: center; background: rgba(0,0,0,0.6);">
+        <div
+            style="background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); animation: popUp 0.2s ease-out;">
+            <h3
+                style="margin:0 0 10px 0; font-size:1rem; color:#1e293b; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
+                Secret Garden 내용 :
+            </h3>
+            <div id="custom-confirm-msg" style="font-size:0.95rem; color:#333; line-height:1.5; margin-bottom:20px;">
+                <!-- Message injected here -->
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button id="custom-confirm-no"
+                    style="flex:1; padding:10px; background:#f1f5f9; border:none; border-radius:8px; color:#64748b; font-weight:bold; cursor:pointer;">취소</button>
+                <button id="custom-confirm-yes"
+                    style="flex:1; padding:10px; background:var(--color-primary, #6366f1); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">확인</button>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes popUp {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+
     <!-- Edit Modal -->
     <div id="edit-modal" class="player-overlay"
         style="z-index: 2100; justify-content: center; align-items: center; background: rgba(0,0,0,0.8);">
@@ -721,12 +755,31 @@
             loadComments(id);
         }
 
+        // Custom Confirm Logic
+        window.customConfirm = (message) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-confirm-modal');
+                const msgEl = document.getElementById('custom-confirm-msg');
+                const yesBtn = document.getElementById('custom-confirm-yes');
+                const noBtn = document.getElementById('custom-confirm-no');
+
+                msgEl.innerHTML = message.replace(/\n/g, '<br>');
+                modal.style.display = 'flex';
+
+                yesBtn.onclick = () => { modal.style.display = 'none'; resolve(true); };
+                noBtn.onclick = () => { modal.style.display = 'none'; resolve(false); };
+            });
+        };
+
         window.startOnlyMP3Flow = async (videoId) => {
             const url = `https://www.youtube.com/watch?v=${videoId}`;
 
             try {
                 await navigator.clipboard.writeText(url);
-                const go = confirm('✅ 링크가 복사되었습니다!\n\n새로 열리는 "OnlyMP3" 사이트 검색창에\n방금 복사된 링크를 붙여넣기(Ctrl+V) 하세요.\n\n사이트로 이동하시겠습니까?');
+
+                // Use Custom Confirm
+                const go = await customConfirm('✅ 링크가 복사되었습니다!<br><br>새로 열리는 "OnlyMP3" 검색창에<br>방금 복사된 링크를 <b>붙여넣기(Ctrl+V)</b> 하세요.<br><br>모바일은 새창이 안열리면 직접 링크를 열어주세요.<br>사이트로 이동하시겠습니까?');
+
                 if (go) {
                     window.open('https://en.onlymp3.to/youtube-to-mp3/', '_blank');
                 }
