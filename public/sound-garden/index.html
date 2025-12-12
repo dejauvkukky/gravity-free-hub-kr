@@ -713,20 +713,88 @@
             document.getElementById('info-desc').innerText = p.description + (p.category ? ` | ${p.category}` : '');
             document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
 
-            // Fixed: Use Direct Link Button instead of blocked iframe
-            // Redirects to y2mate or similar reliable service with video ID
-            const downloadUrl = `https://flvto.com.mx/youtube-to-mp3?url=https://www.youtube.com/watch?v=${p.videoId}`;
+            // Seamless Download Button using Cobalt API
             document.getElementById('mp3-widget-container').innerHTML = `
-                <a href="${downloadUrl}" target="_blank" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#16a34a; color:white; text-decoration:none; font-weight:bold; border-radius:8px; gap:8px;">
-                    <span>⬇️ MP3 변환/다운로드 페이지 열기</span>
-                    <span style="font-size:0.8rem; font-weight:normal;">(새창)</span>
-                </a>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button id="mp3-download-btn" onclick="startSeamlessDownload('${p.videoId}')" style="display:flex; align-items:center; justify-content:center; width:100%; height:45px; background:#16a34a; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; transition:background 0.2s;">
+                        ⬇️ MP3 다운로드
+                    </button>
+                    <div id="mp3-status" style="font-size:0.85rem; color:#64748b; text-align:center; display:none;">준비 중...</div>
+                </div>
             `;
 
             document.getElementById('player-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
             loadComments(id);
+        }
+
+        window.startSeamlessDownload = async (videoId) => {
+            const btn = document.getElementById('mp3-download-btn');
+            const status = document.getElementById('mp3-status');
+
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '⏳ 변환 요청 중...';
+            status.style.display = 'block';
+            status.innerText = '서버와 통신하고 있습니다. 잠시만 기다려주세요.';
+            status.style.color = '#64748b';
+
+            try {
+                // Cobalt API Request
+                const response = await fetch('https://api.cobalt.tools/api/json', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: `https://www.youtube.com/watch?v=${videoId}`,
+                        isAudioOnly: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'stream' || data.status === 'redirect') {
+                    status.innerText = '다운로드를 시작합니다! 🚀';
+                    status.style.color = '#15803d';
+
+                    // Trigger Download
+                    const link = document.createElement('a');
+                    link.href = data.url;
+                    link.style.display = 'none';
+                    // filename suggestion if available (data.filename)
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    setTimeout(() => {
+                        btn.innerHTML = '✅ 다운로드 완료';
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.innerHTML = '⬇️ MP3 다운로드';
+                            status.style.display = 'none';
+                        }, 3000);
+                    }, 1000);
+
+                } else {
+                    throw new Error(data.text || '변환 실패');
+                }
+            } catch (e) {
+                console.error(e);
+                status.innerText = '⚠️ 변환에 실패했습니다. 잠시 후 다시 시도하거나 다른 영상을 이용해주세요.';
+                status.style.color = '#ef4444';
+                btn.innerHTML = '❌ 실패';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = '⬇️ MP3 다운로드';
+                }, 3000);
+            }
         }
 
         window.deletePost = async (id) => { if (confirm('이 음악을 삭제하시겠습니까?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
