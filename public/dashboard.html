@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=202512121710">
+    <link rel="stylesheet" href="../assets/css/style.css?v=202512121730">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -492,7 +492,10 @@
                 <button id="password-modal-close" class="notice-admin-close">✕</button>
             </div>
             <div class="notice-admin-body">
-                <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">새로운 비밀번호를 입력하세요.</p>
+                <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">안전한 변경을 위해 현재 비밀번호를 확인합니다.</p>
+
+                <input type="password" id="current-password" placeholder="현재 비밀번호"
+                    style="width:100%; padding:12px; border:2px solid #cbd5e1; border-radius:10px; margin-bottom:10px; font-size:1rem; box-sizing:border-box;">
 
                 <div style="position:relative; margin-bottom:15px;">
                     <input type="password" id="new-password" placeholder="새 비밀번호 (6자 이상)"
@@ -584,15 +587,19 @@
 
                 // Show Password Toggle
                 document.getElementById('show-password-toggle').onchange = (e) => {
-                    const input = document.getElementById('new-password');
-                    input.type = e.target.checked ? 'text' : 'password';
+                    const type = e.target.checked ? 'text' : 'password';
+                    document.getElementById('current-password').type = type;
+                    document.getElementById('new-password').type = type;
                 };
 
                 btn.onclick = () => {
                     modal.classList.remove('hidden');
+                    document.getElementById('current-password').value = '';
                     document.getElementById('new-password').value = '';
+
                     // Reset Show Pw
                     document.getElementById('show-password-toggle').checked = false;
+                    document.getElementById('current-password').type = 'password';
                     document.getElementById('new-password').type = 'password';
 
                     if (isAdmin) {
@@ -627,9 +634,19 @@
 
                 // Change Password Action
                 document.getElementById('password-change-btn').onclick = async () => {
+                    const currentPass = document.getElementById('current-password').value;
                     const newPass = document.getElementById('new-password').value;
+
+                    if (!currentPass) {
+                        customAlert('현재 비밀번호를 입력해주세요.');
+                        return;
+                    }
                     if (newPass.length < 6) {
-                        customAlert('비밀번호는 6자 이상이어야 합니다.');
+                        customAlert('새 비밀번호는 6자 이상이어야 합니다.');
+                        return;
+                    }
+                    if (currentPass === newPass) {
+                        customAlert('새 비밀번호가 현재 비밀번호와 같습니다.');
                         return;
                     }
 
@@ -637,17 +654,27 @@
                     if (!confirmed) return;
 
                     const user = firebase.auth().currentUser;
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
+
                     try {
+                        // 1. Re-authenticate
+                        await user.reauthenticateWithCredential(credential);
+
+                        // 2. Update Password
                         await user.updatePassword(newPass);
-                        customAlert('비밀번호가 성공적으로 변경되었습니다.\n다시 로그인해주세요.');
+
+                        // 3. Success Alert & Logout
+                        await customAlert('비밀번호가 성공적으로 변경되었습니다! 🔐\n새 비밀번호로 다시 로그인해주세요.');
                         await AuthService.logout();
+
                     } catch (error) {
-                        console.error(error);
-                        if (error.code === 'auth/requires-recent-login') {
-                            customAlert('보안을 위해 다시 로그인 후 시도해주세요.');
-                            await AuthService.logout();
+                        console.error('Password Change Error:', error);
+                        if (error.code === 'auth/wrong-password') {
+                            customAlert('현재 비밀번호가 일치하지 않습니다.');
+                        } else if (error.code === 'auth/too-many-requests') {
+                            customAlert('시도 횟수가 너무 많습니다. 잠시 후 다시 시도해주세요.');
                         } else {
-                            customAlert('비밀번호 변경 실패: ' + error.message);
+                            customAlert('오류가 발생했습니다: ' + error.message);
                         }
                     }
                 };
