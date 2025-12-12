@@ -43,6 +43,7 @@ root/
 │   ├── fortune/            # 오늘의 운세
 │   ├── mbti/               # MBTI 테스트
 │   ├── sound-garden/       # 음악 공유
+│   ├── music-player/       # 오프라인 뮤직 플레이어 (PWA)
 │   └── games/
 │       └── beat-dad/       # 스택 쌓기 게임
 ├── src/                    # JavaScript 로직
@@ -64,7 +65,7 @@ root/
 
 > 브라우저는 CSS/JS 파일을 캐시합니다. 수정 후에도 변경이 반영되지 않을 수 있습니다.
 
-**🔖 현재 버전: v=202512121000** (YYYYMMDDHHmm 형식 사용 권장)
+**🔖 현재 버전: v=202512121415** (YYYYMMDDHHmm 형식 사용 권장)
 
 **배포 전 필수 작업:**
 

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Secret Player</title>
+    <link rel="stylesheet" href="style.css?v=202512121400">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- ID3 Tag Parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#ffffff">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Views -->
+
+        <!-- 1. Library View -->
+        <div id="view-library" class="view active">
+            <div class="header">
+                <h1>라이브러리</h1>
+                <label for="folder-input" class="add-btn">
+                    <span>+ 폴더 추가</span>
+                </label>
+                <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden">
+            </div>
+
+            <div class="scroll-container">
+                <!-- Folder List -->
+                <div id="folder-list" class="list-group">
+                    <!-- Dynamic Content -->
+                </div>
+
+                <!-- Track List (when folder selected) -->
+                <div id="track-list-container" class="hidden">
+                    <div class="sub-header">
+                        <button id="back-to-folders" class="icon-btn">←</button>
+                        <h2 id="current-folder-name">Folder Name</h2>
+                    </div>
+                    <div id="track-list" class="list-group">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Player (Bottom Dock) -->
+            <div id="mini-player" class="mini-player hidden">
+                <div class="mini-info">
+                    <span id="mini-title" class="truncate">비밀의 정원</span>
+                    <span id="mini-artist" class="truncate secondary">Secret Garden</span>
+                </div>
+                <button id="mini-play-btn" class="icon-btn">▶</button>
+            </div>
+        </div>
+
+        <!-- 2. Player View (Full Screen) -->
+        <div id="view-player" class="view player-view hidden">
+            <div class="player-header">
+                <button id="player-back-btn" class="icon-btn">↓</button>
+                <span>Now Playing</span>
+                <button id="lyrics-btn" class="icon-btn">💬</button>
+            </div>
+
+            <div class="album-art-container">
+                <div id="album-art" class="album-art default-art">
+                    <span>🎵</span>
+                </div>
+            </div>
+
+            <div class="track-info">
+                <h2 id="player-title" class="truncate">재생 중인 곡 없음</h2>
+                <p id="player-artist" class="truncate secondary">아티스트</p>
+            </div>
+
+            <div class="progress-area">
+                <input type="range" id="seek-bar" min="0" max="100" value="0">
+                <div class="time-labels">
+                    <span id="curr-time">0:00</span>
+                    <span id="total-time">0:00</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="shuffle-btn" class="control-btn sm">🔀</button>
+                <button id="prev-btn" class="control-btn">⏮</button>
+                <button id="play-btn" class="control-btn lg">▶</button> <!-- ▶ / ⏸ -->
+                <button id="next-btn" class="control-btn">⏭</button>
+                <button id="repeat-btn" class="control-btn sm">🔁</button>
+            </div>
+        </div>
+
+        <!-- 3. Lyrics Modal -->
+        <div id="lyrics-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>가사</h3>
+                    <button id="lyrics-close-btn" class="icon-btn">✕</button>
+                </div>
+                <div id="lyrics-text" class="lyrics-body">
+                    가사 정보가 없습니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-screen" class="hidden">
+            <div class="spinner"></div>
+            <p id="loading-text">로딩중...</p>
+        </div>
+    </div>
+
+    <!-- Modules -->
+    <script type="module" src="app.js?v=202512121400"></script>
+</body>
+
+</html>
