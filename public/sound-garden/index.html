@@ -755,20 +755,15 @@
             loadComments(id);
         }
 
-        // Custom Confirm Logic
-        window.customConfirm = (message) => {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('custom-confirm-modal');
-                const msgEl = document.getElementById('custom-confirm-msg');
-                const yesBtn = document.getElementById('custom-confirm-yes');
-                const noBtn = document.getElementById('custom-confirm-no');
+        // New Direct Link Guide Logic
+        window.openLinkWithGuide = (message, url) => {
+            const modal = document.getElementById('link-guide-modal');
+            const msgEl = document.getElementById('link-guide-msg');
+            const linkBtn = document.getElementById('link-guide-btn');
 
-                msgEl.innerHTML = message.replace(/\n/g, '<br>');
-                modal.style.display = 'flex';
-
-                yesBtn.onclick = () => { modal.style.display = 'none'; resolve(true); };
-                noBtn.onclick = () => { modal.style.display = 'none'; resolve(false); };
-            });
+            msgEl.innerHTML = message.replace(/\n/g, '<br>');
+            linkBtn.href = url; // Set direct link
+            modal.style.display = 'flex';
         };
 
         window.startOnlyMP3Flow = async (videoId) => {
@@ -777,12 +772,13 @@
             try {
                 await navigator.clipboard.writeText(url);
 
-                // Use Custom Confirm
-                const go = await customConfirm('✅ 링크가 복사되었습니다!<br><br>새로 열리는 "OnlyMP3" 검색창에<br>방금 복사된 링크를 <b>붙여넣기(Ctrl+V)</b> 하세요.<br><br>모바일은 새창이 안열리면 직접 링크를 열어주세요.<br>사이트로 이동하시겠습니까?');
+                // Use Direct Link Guide Modal
+                // Button is an <a> tag internally to force external handling
+                openLinkWithGuide(
+                    `✅ 링크가 복사되었습니다!<br><br>새로 열리는 사이트 검색창에<br>방금 복사된 링크를 붙여넣기(Ctrl+V) 하세요.<br><br>아래 <span style="color:#6366f1; font-weight:bold;">'사이트 이동'</span> 버튼을 누르면<br>변환 페이지가 열립니다.`,
+                    'https://en.onlymp3.to/youtube-to-mp3/'
+                );
 
-                if (go) {
-                    window.open('https://en.onlymp3.to/youtube-to-mp3/', '_blank');
-                }
             } catch (e) {
                 // Clipboard failure fallback
                 prompt('자동 복사에 실패했습니다. 아래 링크를 직접 복사하세요:', url);
