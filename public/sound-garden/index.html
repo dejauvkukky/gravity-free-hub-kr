@@ -754,6 +754,82 @@
             if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
         }
 
+        window.startSeamlessDownload = async (videoId) => {
+            const btn = document.getElementById('mp3-download-btn');
+            const status = document.getElementById('mp3-status');
+            const instances = [
+                'https://api.cobalt.tools/api/json',
+                'https://co.wuk.sh/api/json'
+            ];
+
+            if (btn.disabled) return;
+
+            // UI Reset
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '⏳ 변환 요청 중...';
+            status.style.display = 'block';
+            status.innerHTML = '서버와 통신하고 있습니다...';
+            status.style.color = '#64748b';
+
+            // Helper for request
+            const tryFetch = async (url) => {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}`, isAudioOnly: true })
+                });
+                if (!response.ok) throw new Error('Network response not ok');
+                return await response.json();
+            };
+
+            // Attempt Loop
+            for (const api of instances) {
+                try {
+                    console.log(`Trying API: ${api}`);
+                    const data = await tryFetch(api);
+
+                    if (data.status === 'stream' || data.status === 'redirect') {
+                        status.innerText = '다운로드를 시작합니다! 🚀';
+                        status.style.color = '#15803d';
+
+                        const link = document.createElement('a');
+                        link.href = data.url;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        btn.innerHTML = '✅ 다운로드 완료';
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.innerHTML = '⬇️ MP3 다운로드';
+                            status.style.display = 'none';
+                        }, 3000);
+                        return; // Success, exit function
+                    }
+                } catch (e) {
+                    console.warn(`Failed with ${api}`, e);
+                    // Continue to next instance
+                }
+            }
+
+            // All attempts failed -> Fallback to Direct Link
+            status.innerHTML = `
+                <div style="color:#ef4444; margin-bottom:5px;">⚠️ 자동 변환 실패</div>
+                <a href="https://flvto.com.mx/youtube-to-mp3?url=https://www.youtube.com/watch?v=${videoId}" target="_blank" style="color:#3b82f6; text-decoration:underline; font-size:0.9rem; font-weight:bold;">
+                    👉 대체 다운로드 페이지 열기 (새창)
+                </a>
+            `;
+            btn.innerHTML = '❌ 실패';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = '⬇️ MP3 다운로드';
+            }, 3000);
+        }
+
         window.postComment = async (e) => {
             e.preventDefault(); const input = document.getElementById('comment-input');
             const val = input.value.trim();
