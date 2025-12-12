@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=202512121535">
+    <link rel="stylesheet" href="../assets/css/style.css?v=202512121700">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -49,8 +49,13 @@
         <!-- Header -->
         <header>
             <a href="#" class="logo">Secret Garden</a>
-            <button onclick="AuthService.logout()"
-                style="border:none; background:none; color:inherit; font-size:0.9rem; cursor:pointer;">로그아웃</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button id="btn-password-change" class="hidden"
+                    style="border:none; background:none; color:inherit; font-size:1.2rem; cursor:pointer;"
+                    title="비밀번호 변경">🔑</button>
+                <button onclick="AuthService.logout()"
+                    style="border:none; background:none; color:inherit; font-size:0.9rem; cursor:pointer;">로그아웃</button>
+            </div>
         </header>
 
         <!-- Welcome Section -->
@@ -479,10 +484,36 @@
 
     <!-- Scripts -->
     <script src="../src/auth.js?v=202512121000"></script>
-    <script type="module">
-        import '../src/firebase.js?v=202512121000'; // Ensures Firebase is initialized
-        import { customAlert } from '../src/ui-utils.js?v=202512121000';
+    <!-- Password Change Modal -->
+    <div id="password-modal" class="notice-overlay hidden">
+        <div class="notice-admin" style="max-width: 400px;">
+            <div class="notice-admin-header">
+                <h4>비밀번호 변경</h4>
+                <button id="password-modal-close" class="notice-admin-close">✕</button>
+            </div>
+            <div class="notice-admin-body">
+                <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">새로운 비밀번호를 입력하세요.</p>
+                <input type="password" id="new-password" placeholder="새 비밀번호 (6자 이상)"
+                    style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:10px; margin-bottom:15px; font-size:1rem;">
 
+                <!-- Admin Only Toggle -->
+                <div id="password-admin-control" class="hidden"
+                    style="margin-bottom:15px; background:#f0fdf4; padding:10px; border-radius:8px;">
+                    <label class="notice-toggle" style="margin:0;">
+                        <input type="checkbox" id="allow-password-change-toggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label" style="font-size:0.9rem;">타 사용자 비번 변경 허용</span>
+                    </label>
+                </div>
+
+                <button id="password-change-btn" class="notice-admin-btn">변경하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import '../src/firebase.js?v=202512121000';
+        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512121000';
 
         // Logic executes after imports
         // 1. Init Check
@@ -495,7 +526,6 @@
             `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
 
         // 3. User Name Logic (Robust)
-        // Wait for auth state to confirm user info if session is empty
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 const storedName = sessionStorage.getItem('user_name');
@@ -505,18 +535,111 @@
                     displayName = storedName;
                 } else if (user.email) {
                     displayName = user.email.split('@')[0];
-                    // Update session for next time
                     sessionStorage.setItem('user_email', user.email);
                     sessionStorage.setItem('user_name', displayName);
                 }
                 document.getElementById('user-name').innerText = displayName;
 
-                // Initialize Notice System
+                // Initialize Systems
                 initNoticeSystem(displayName);
+                initPasswordSystem(displayName);
             }
         });
 
-        // Notice System Functions
+        // --- Password System ---
+        async function initPasswordSystem(userName) {
+            const db = firebase.firestore();
+            const isAdmin = userName === 'kukky';
+            const btn = document.getElementById('btn-password-change');
+
+            // Default hidden
+            btn.classList.add('hidden');
+
+            try {
+                // Fetch Settings
+                const doc = await db.collection('config').doc('settings').get();
+                let allowOthers = false;
+                if (doc.exists) {
+                    allowOthers = doc.data().allowPasswordChange || false;
+                }
+
+                // Visibility Logic
+                if (isAdmin || allowOthers) {
+                    btn.classList.remove('hidden');
+                }
+
+                // Setup Modal Logic
+                const modal = document.getElementById('password-modal');
+                const adminControl = document.getElementById('password-admin-control');
+                const toggle = document.getElementById('allow-password-change-toggle');
+
+                btn.onclick = () => {
+                    modal.classList.remove('hidden');
+                    document.getElementById('new-password').value = '';
+
+                    if (isAdmin) {
+                        adminControl.classList.remove('hidden');
+                        toggle.checked = allowOthers;
+                    } else {
+                        adminControl.classList.add('hidden');
+                    }
+                };
+
+                document.getElementById('password-modal-close').onclick = () => {
+                    modal.classList.add('hidden');
+                };
+
+                // Admin Toggle Setting
+                toggle.onchange = async (e) => {
+                    if (!isAdmin) return;
+                    const newValue = e.target.checked;
+                    try {
+                        await db.collection('config').doc('settings').set({
+                            allowPasswordChange: newValue
+                        }, { merge: true });
+                        // Update local var
+                        allowOthers = newValue;
+                        customAlert(`타 사용자 비밀번호 변경 기능을 ${newValue ? '허용' : '비활성화'} 했습니다.`);
+                    } catch (err) {
+                        console.error(err);
+                        customAlert('설정 저장 실패');
+                        toggle.checked = !newValue; // Revert
+                    }
+                };
+
+                // Change Password Action
+                document.getElementById('password-change-btn').onclick = async () => {
+                    const newPass = document.getElementById('new-password').value;
+                    if (newPass.length < 6) {
+                        customAlert('비밀번호는 6자 이상이어야 합니다.');
+                        return;
+                    }
+
+                    const confirmed = await customConfirm('정말 비밀번호를 변경하시겠습니까?');
+                    if (!confirmed) return;
+
+                    const user = firebase.auth().currentUser;
+                    try {
+                        await user.updatePassword(newPass);
+                        customAlert('비밀번호가 성공적으로 변경되었습니다.\n다시 로그인해주세요.');
+                        await AuthService.logout();
+                    } catch (error) {
+                        console.error(error);
+                        if (error.code === 'auth/requires-recent-login') {
+                            customAlert('보안을 위해 다시 로그인 후 시도해주세요.');
+                            await AuthService.logout();
+                        } else {
+                            customAlert('비밀번호 변경 실패: ' + error.message);
+                        }
+                    }
+                };
+
+            } catch (e) {
+                console.error("Password System Init Error", e);
+            }
+        }
+
+        // --- Notice System ---
         async function initNoticeSystem(userName) {
             const db = firebase.firestore();
             const isAdmin = userName === 'kukky';
