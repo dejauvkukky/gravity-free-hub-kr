@@ -43,7 +43,7 @@ root/
 │   ├── fortune/            # 오늘의 운세
 │   ├── mbti/               # MBTI 테스트
 │   ├── sound-garden/       # 음악 공유
-│   ├── music-player/       # 오프라인 뮤직 플레이어 (PWA)
+
 │   └── games/
 │       └── beat-dad/       # 스택 쌓기 게임
 ├── src/                    # JavaScript 로직
