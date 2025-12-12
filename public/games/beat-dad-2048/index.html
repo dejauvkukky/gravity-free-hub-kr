@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>아빠를 이겨라 | 2048</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <link rel="stylesheet" href="style.css?v=202512121515">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="game-container">
+        <!-- Header / HUD -->
+        <div id="hud">
+            <div class="score-box dad-score-box">
+                <div class="label">아빠 <span id="dad-face">😎</span></div>
+                <div class="score-val" id="dad-score-display">?점</div>
+            </div>
+            <div class="score-box my-score-box">
+                <div class="label">나</div>
+                <div class="score-val" id="my-score-display">0점</div>
+            </div>
+            <!-- Reaction Bubble -->
+            <div id="dad-reaction" class="reaction-bubble hidden">...</div>
+        </div>
+
+        <!-- 2048 Grid -->
+        <div id="game-area">
+            <div class="grid-container">
+                <!-- 4x4 Background Grid -->
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+            </div>
+            <div class="tile-container" id="tile-container">
+                <!-- Tiles injected here -->
+            </div>
+        </div>
+
+        <!-- Controls Hint -->
+        <div class="controls-hint">방향키 또는 스와이프로 이동</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay">
+            <div class="modal">
+                <h1>🔢 아빠를 이겨라 2048</h1>
+                <p class="desc">숫자를 합쳐서 2048을 만드세요!<br>아빠의 기록을 깰 수 있을까요?</p>
+
+                <div class="start-ranking-board">
+                    <h3 id="week-title" style="margin:0 0 10px 0; color:#475569; font-size:1rem;">📅 주간 랭킹 로딩중...</h3>
+                    <ul id="start-ranking-list" style="list-style:none; padding:0; margin:0; text-align:left;">
+                        <!-- JS Populated -->
+                    </ul>
+                </div>
+
+                <div class="dad-preview" id="start-dad-info">
+                    <div style="font-size:0.9rem; color:#64748b;">🛡️ 아빠의 이번주 최고 기록</div>
+                    <div style="font-size:1.5rem; font-family:'Jua'; color:#f59e0b;" id="start-dad-score">0점</div>
+                </div>
+
+                <button id="btn-start" class="btn-primary">게임 시작</button>
+                <button class="btn-secondary" onclick="location.href='../../dashboard.html'">나가기</button>
+            </div>
+        </div>
+
+        <!-- Game Over / Result Screen -->
+        <div id="result-screen" class="overlay hidden">
+            <div class="modal">
+                <h2 id="result-title">게임 종료!</h2>
+
+                <div class="result-box">
+                    <div class="row">
+                        <span>내 점수</span>
+                        <span id="final-score" class="highlight">0점</span>
+                    </div>
+                    <div class="row">
+                        <span>아빠 점수</span>
+                        <span id="final-dad-score">0점</span>
+                    </div>
+                </div>
+
+                <div id="win-lose-msg" class="msg-box">
+                    <!-- 승리/패배 메시지 -->
+                </div>
+
+                <div class="rank-info">
+                    <p>내 최고 기록: <span id="personal-best">0</span>점</p>
+                </div>
+
+                <div class="btn-group">
+                    <button id="btn-restart" class="btn-primary">다시 도전</button>
+                    <button class="btn-secondary" onclick="location.href='../../dashboard.html'">나가기</button>
+                </div>
+
+                <!-- Weekly Ranking Table -->
+                <div class="ranking-board">
+                    <h3>🏆 주간 랭킹 TOP 5</h3>
+                    <ul id="ranking-list">
+                        <!-- JS populated -->
+                        <li class="empty-rank">기록 없음</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="game.js?v=202512121515"></script>
+</body>
+
+</html>
