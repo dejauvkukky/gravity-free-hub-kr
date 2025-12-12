@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 가족 일정</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=40">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512121000">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -269,7 +269,7 @@
 
         <div id="content" class="p-4 hidden">
             <!-- Calendar Card -->
-            <div class="card" style="padding: 20px; margin-bottom: 20px;">
+            <div class="card" style="padding: 20px; margin: 0 0 20px 0;">
                 <!-- Calendar View -->
                 <div class="calendar-header">
                     <button class="calendar-btn" onclick="changeMonth(-1)">◀</button>
@@ -346,7 +346,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=40';
+        import { auth, db } from '../../src/firebase.js?v=202512121000';
         const COLLECTION = 'family_schedules';
 
         let currentDate = new Date();
