@@ -443,40 +443,6 @@
         </div> <!-- End content-body -->
     </div>
 
-    <!-- Custom Confirm Modal -->
-    <div id="custom-confirm-modal" class="player-overlay"
-        style="z-index: 2200; justify-content: center; align-items: center; background: rgba(0,0,0,0.6);">
-        <div
-            style="background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); animation: popUp 0.2s ease-out;">
-            <h3
-                style="margin:0 0 10px 0; font-size:1rem; color:#1e293b; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
-                Secret Garden 내용 :
-            </h3>
-            <div id="custom-confirm-msg" style="font-size:0.95rem; color:#333; line-height:1.5; margin-bottom:20px;">
-                <!-- Message injected here -->
-            </div>
-            <div style="display:flex; gap:10px;">
-                <button id="custom-confirm-no"
-                    style="flex:1; padding:10px; background:#f1f5f9; border:none; border-radius:8px; color:#64748b; font-weight:bold; cursor:pointer;">취소</button>
-                <button id="custom-confirm-yes"
-                    style="flex:1; padding:10px; background:var(--color-primary, #6366f1); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">확인</button>
-            </div>
-        </div>
-    </div>
-    <style>
-        @keyframes popUp {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-    </style>
-
     <!-- Edit Modal -->
     <div id="edit-modal" class="player-overlay"
         style="z-index: 2100; justify-content: center; align-items: center; background: rgba(0,0,0,0.8);">
@@ -582,6 +548,7 @@
 
     <script type="module">
         import { auth, db } from '../../src/firebase.js?v=202512121000';
+        import { customAlert, customConfirm } from '../../src/ui-utils.js?v=202512121000';
         const COLLECTION = 'sound_garden_posts';
 
         // State
@@ -722,16 +689,16 @@
             e.preventDefault();
             const [url, title, desc, cat] = ['in-url', 'in-title', 'in-desc', 'in-cat'].map(x => document.getElementById(x).value);
             const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-            if (!match || match[2].length !== 11) { alert('유튜브 링크 확인 필요'); return; }
+            if (!match || match[2].length !== 11) { customAlert('유튜브 링크 확인 필요'); return; }
             try {
                 await db.collection(COLLECTION).add({
                     videoId: match[2], title, description: desc, category: cat, author: 'kukky',
                     createdAt: new Date().toISOString(), hearts: 0, fires: 0, claps: 0
                 });
-                alert('등록 완료!');
+                customAlert('등록 완료!');
                 ['in-url', 'in-title', 'in-desc', 'in-cat'].forEach(x => document.getElementById(x).value = '');
                 loadPosts();
-            } catch (e) { alert('에러: ' + e.message); }
+            } catch (e) { customAlert('에러: ' + e.message); }
         }
 
         window.playMusic = (id) => {
@@ -754,21 +721,7 @@
             loadComments(id);
         }
 
-        // Custom Confirm Logic (Restored)
-        window.customConfirm = (message) => {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('custom-confirm-modal');
-                const msgEl = document.getElementById('custom-confirm-msg');
-                const yesBtn = document.getElementById('custom-confirm-yes');
-                const noBtn = document.getElementById('custom-confirm-no');
-
-                msgEl.innerHTML = message.replace(/\n/g, '<br>');
-                modal.style.display = 'flex';
-
-                yesBtn.onclick = () => { modal.style.display = 'none'; resolve(true); };
-                noBtn.onclick = () => { modal.style.display = 'none'; resolve(false); };
-            });
-        };
+        // Custom Confirm Logic (Imported from utils)
 
         window.startOnlyMP3Flow = async (videoId) => {
             const url = `https://www.youtube.com/watch?v=${videoId}`;
@@ -789,7 +742,7 @@
             }
         }
 
-        window.deletePost = async (id) => { if (confirm('이 음악을 삭제하시겠습니까?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
+        window.deletePost = async (id) => { if (await customConfirm('이 음악을 삭제하시겠습니까?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
 
         async function loadComments(id) {
             const list = document.getElementById('comment-list'); list.innerHTML = '<div style="color:#aaa; font-size:0.9rem;">로딩중...</div>';
@@ -839,7 +792,7 @@
         }
 
         window.migrateCommentCounts = async () => {
-            if (!confirm('모든 게시글의 덧글 수를 다시 계산하여 동기화하시겠습니까? (시간이 걸릴 수 있습니다)')) return;
+            if (!await customConfirm('모든 게시글의 덧글 수를 다시 계산하여 동기화하시겠습니까? (시간이 걸릴 수 있습니다)')) return;
 
             try {
                 const snapshot = await db.collection(COLLECTION).get();
@@ -852,14 +805,14 @@
                         count++;
                     }
                 }
-                alert(`동기화 완료! ${count}개의 게시글이 업데이트 되었습니다.`);
+                customAlert(`동기화 완료! ${count}개의 게시글이 업데이트 되었습니다.`);
                 loadPosts();
             } catch (e) {
-                alert('에러 발생: ' + e.message);
+                customAlert('에러 발생: ' + e.message);
             }
         }
         window.deleteComment = async (postId, commentId) => {
-            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+            if (!await customConfirm('댓글을 삭제하시겠습니까?')) return;
             try {
                 await db.collection(COLLECTION).doc(postId).collection('comments').doc(commentId).delete();
                 // Decrement count
@@ -868,7 +821,7 @@
                 });
                 loadComments(postId);
                 loadPosts(); // sync list count
-            } catch (e) { alert('삭제 실패'); }
+            } catch (e) { customAlert('삭제 실패'); }
         };
 
         window.openEdit = (id) => {
@@ -894,10 +847,10 @@
                     description: desc,
                     category: cat
                 });
-                alert('수정 완료!');
+                customAlert('수정 완료!');
                 document.getElementById('edit-modal').style.display = 'none';
                 loadPosts();
-            } catch (err) { alert('수정 실패: ' + err.message); }
+            } catch (err) { customAlert('수정 실패: ' + err.message); }
         }
     </script>
 </body>

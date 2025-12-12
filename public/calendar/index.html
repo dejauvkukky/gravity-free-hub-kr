@@ -347,9 +347,20 @@
     <!-- Scripts -->
     <script type="module">
         import { auth, db } from '../../src/firebase.js?v=202512121000';
+        import { customAlert, customConfirm } from '../../src/ui-utils.js?v=202512121000';
         const COLLECTION = 'family_schedules';
 
         let currentDate = new Date();
+        // ... (rest of logic)
+
+        // Ensure we replace calls:
+        // window.addSchedule part:
+        // catch(err) { customAlert('저장 실패: ' + err.message); }
+
+        // window.deleteSchedule part:
+        // if (!await customConfirm('일정을 삭제하시겠습니까?')) return;
+        // catch(err) { customAlert('삭제 실패: ' + err.message); }
+
         let selectedDate = new Date();
         let monthEvents = [];
         let currentUser = null;
@@ -601,12 +612,12 @@
                 renderMonthList();
                 renderDayList(dateStr);
             } catch (err) {
-                alert('저장 실패: ' + err.message);
+                customAlert('저장 실패: ' + err.message);
             }
         }
 
         window.deleteSchedule = async function (docId) {
-            if (!confirm('일정을 삭제하시겠습니까?')) return;
+            if (!await customConfirm('일정을 삭제하시겠습니까?')) return;
             try {
                 await db.collection(COLLECTION).doc(docId).delete();
                 await loadMonthEvents();
@@ -614,7 +625,7 @@
                 renderMonthList();
                 renderDayList(formatDate(selectedDate));
             } catch (err) {
-                alert('삭제 실패: ' + err.message);
+                customAlert('삭제 실패: ' + err.message);
             }
         }
 

@@ -478,6 +478,8 @@
     <script src="../src/auth.js?v=202512121000"></script>
     <script type="module">
         import '../src/firebase.js?v=202512121000'; // Ensures Firebase is initialized
+        import { customAlert } from '../src/ui-utils.js?v=202512121000';
+
 
         // Logic executes after imports
         // 1. Init Check
@@ -542,7 +544,7 @@
                             visible,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        alert('공지사항이 저장되었습니다!');
+                        customAlert('공지사항이 저장되었습니다!');
                         document.getElementById('notice-admin').classList.add('hidden');
 
                         // Reload notice if visible
@@ -553,7 +555,7 @@
                         }
                     } catch (error) {
                         console.error('Notice save error:', error);
-                        alert('저장 중 오류가 발생했습니다.');
+                        customAlert('저장 중 오류가 발생했습니다.');
                     }
                 };
             }

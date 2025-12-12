@@ -18,9 +18,10 @@
         import '../src/firebase.js?v=202512121000';
     </script>
     <script src="src/auth.js"></script>
-    setTimeout(() => {
-    AuthService.checkAuth();
-    }, 500);
+    <script>
+        setTimeout(() => {
+            if (window.AuthService) AuthService.checkAuth();
+        }, 500);
     </script>
     <script>
         if ('serviceWorker' in navigator) {

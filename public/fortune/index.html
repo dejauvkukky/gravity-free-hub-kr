@@ -326,6 +326,7 @@
 
     <script type="module">
         import { auth, db } from '../../src/firebase.js?v=202512121000';
+        import { customAlert } from '../../src/ui-utils.js?v=202512121000';
         import { getZodiac, getChineseZodiac, familyData } from '../../src/users.js?v=202512121000';
         import { getDailyHoroscope, getDailyOrientalFortune, getLuckyPrescription } from '../../src/fortune_engine.js?v=202512121000';
 
@@ -438,7 +439,7 @@
 
             } catch (e) {
                 console.error(e);
-                alert("데이터 로딩 실패");
+                customAlert("데이터 로딩 실패");
             }
         }
 

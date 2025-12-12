@@ -57,15 +57,12 @@
     <!-- Scripts -->
     <!-- Load Firebase Config First -->
     <script type="module">
-        import { auth } from '../src/firebase.js?v=202512121000'; // This initializes firebase
-        // Make auth available globally for simple scripts
-        window.auth = auth;
-    </script>
-    <script src="../src/auth.js"></script>
-    <script>
+        import { auth } from '../src/firebase.js?v=202512121000';
+        import { customAlert } from '../src/ui-utils.js?v=202512121000';
+
         // Init Check
         try {
-            AuthService.checkAuth();
+            if (window.AuthService) AuthService.checkAuth();
         } catch (e) { console.error(e); }
 
         const loginForm = document.getElementById('login-form');
@@ -85,7 +82,11 @@
             errorMsg.style.color = 'gray';
 
             try {
-                const result = await AuthService.login(email, password);
+                // Assuming AuthService is global from auth.js, but auth.js is non-module script.
+                // It should still be available if loaded before.
+                // However, AuthService uses firebase.auth() global.
+
+                const result = await window.AuthService.login(email, password);
 
                 if (result.success) {
                     window.location.href = 'dashboard.html';
@@ -95,12 +96,12 @@
 
                     const msg = `로그인 실패:\n${result.message}\n(ID: ${email})`;
                     errorMsg.innerText = msg;
-                    alert(msg); // Force Alert
+                    customAlert(msg); // Custom Alert
 
                     console.error(result.message);
                 }
             } catch (err) {
-                alert("Auth Error: " + err);
+                customAlert("Auth Error: " + err);
             }
         });
     </script>
