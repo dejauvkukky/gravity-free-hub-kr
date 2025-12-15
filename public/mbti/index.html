@@ -335,7 +335,7 @@
                     }
 
                     let adminBtn = '';
-                    if (isAdmin && !isMe) {
+                    if (isAdmin) {
                         const safeName = data.name.replace(/'/g, "\\'"); // Escape quotes
                         adminBtn = `<button class="btn-delete" style="margin-top:5px; background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;" onclick="deleteUser('${data.uid}', '${safeName}'); event.stopPropagation();">🗑️ 삭제</button>`;
                     }
