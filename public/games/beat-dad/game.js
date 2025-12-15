@@ -203,7 +203,7 @@ function startGame() {
     spawnBlock(1);
 
     // Setup Dad
-    state.dadScore = await DadLogic.fetchScore();
+    state.dadScore = DadAI.prepareNextChallenge();
     state.dadFace = "😎";
 
     // UI Update
