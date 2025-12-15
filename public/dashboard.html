@@ -16,11 +16,15 @@
     <style>
         /* Dashboard Header */
         .dashboard-header {
-            background: #f8fafc;
-            padding: 0 0 30px 0;
+            background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+            padding: 30px 20px 50px 20px;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            color: white;
             text-align: center;
             position: relative;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
         }
 
         .header-top {
@@ -31,10 +35,15 @@
         }
 
         .header-logo {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            color: rgba(255, 255, 255, 0.9);
+            color: white;
             text-decoration: none;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         /* Avatar System */
@@ -91,15 +100,16 @@
         }
 
         .user-name-display {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #334155;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
             margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .user-role-display {
-            font-size: 0.85rem;
-            color: #94a3b8;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
         }
 
@@ -223,24 +233,17 @@
 
         <!-- New Header -->
         <div class="dashboard-header">
-            <!-- Top Buttons -->
-            <div style="display:flex; justify-content: flex-end; gap:10px; padding: 15px 20px;">
-                <button id="btn-password-change" class="hidden"
-                    style="background:rgba(255,255,255,0.15); border:none; color:#666; width:36px; height:36px; border-radius:50%; cursor:pointer;">🔑</button>
-                <button onclick="AuthService.logout()"
-                    style="background:rgba(255,255,255,0.15); border:none; color:#666; padding: 8px 12px; border-radius:15px; font-size:0.8rem; cursor:pointer;">로그아웃</button>
-            </div>
-
-            <!-- Title Box -->
-            <div style="text-align: center; margin: 20px 20px 30px 20px;">
-                <div
-                    style="display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); padding: 15px 40px; border-radius: 25px; box-shadow: 0 8px 20px rgba(13, 148, 136, 0.25);">
-                    <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: white; letter-spacing: -0.5px;">
-                        Secret Garden</h1>
+            <div class="header-top">
+                <a href="#" class="header-logo">Secret Garden</a>
+                <div style="display:flex; gap:10px;">
+                    <button id="btn-password-change" class="hidden"
+                        style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; cursor:pointer;">🔑</button>
+                    <button onclick="AuthService.logout()"
+                        style="background:rgba(255,255,255,0.2); border:none; color:white; padding: 8px 12px; border-radius:15px; font-size:0.8rem; cursor:pointer;">로그아웃</button>
                 </div>
             </div>
 
-            <div class="profile-section" style="top: 0;">
+            <div class="profile-section">
                 <div class="avatar-container">
                     <div id="user-avatar" class="avatar-img avatar-default"></div>
                 </div>
