@@ -334,10 +334,10 @@ class Game2048 {
 
             const msg = document.getElementById('win-lose-msg');
             if (this.score > this.dadScore) {
-                msg.innerText = "🎉 아빠를 이겼다!";
+                msg.innerText = "🏆 아빠 AI를 이겼다!";
                 msg.className = "msg-box win";
             } else {
-                msg.innerText = "🤪 아빠의 승리!";
+                msg.innerText = "🤪 아빠 AI의 승리!";
                 msg.className = "msg-box lose";
             }
 
