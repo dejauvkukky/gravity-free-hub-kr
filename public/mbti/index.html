@@ -529,7 +529,16 @@
                     const isMe = (window.auth.currentUser.uid === data.uid);
 
                     // Admin Check (kukky)
-                    const isAdmin = (window.auth.currentUser.email && window.auth.currentUser.email.includes('kukky'));
+                    const email = window.auth.currentUser.email || '';
+                    const isAdmin = email.includes('kukky');
+                    console.log(`[MBTI] User: ${data.name}, Email: ${email}, IsAdmin: ${isAdmin}`);
+
+                    if (isAdmin) {
+                        const headerTitle = document.querySelector('#intro-screen h3');
+                        if (headerTitle && !headerTitle.innerText.includes('Admin')) {
+                            headerTitle.innerHTML += ' <span style="font-size:0.8rem; color:red; border:1px solid red; padding:2px 4px; border-radius:4px;">Admin Mode</span>';
+                        }
+                    }
 
                     if (isMe) return;
 
