@@ -537,6 +537,23 @@
                     const info = window.results[data.mbti];
 
                     familyNames.push(data.name);
+                    familyScores.push(score);
+                    familyColors.push(score >= 80 ? '#fca5a5' : (score >= 50 ? '#fbbf24' : '#93c5fd'));
+
+                    const el = document.createElement('div');
+                    el.className = 'family-result-card';
+                    el.onclick = function (e) {
+                        // Prevent toggle if clicking delete
+                        if (e.target.classList.contains('btn-delete')) return;
+                        this.classList.toggle('expanded');
+                    }
+
+                    let adminBtn = '';
+                    if (isAdmin) {
+                        adminBtn = `<button class="btn-delete" style="margin-top:5px; background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;" onclick="deleteUser('${data.uid}', '${data.name}')">🗑️ 삭제</button>`;
+                    }
+
+                    el.innerHTML = `
                         <div class="family-result-header" style="justify-content: flex-start; gap: 15px;">
                             <img src="${info.img}" style="width:50px; height:50px; border-radius:50%; background:#f0f0f0; object-fit: cover;">
                             <div>
