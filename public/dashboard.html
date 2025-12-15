@@ -67,35 +67,31 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background-image: url('assets/images/family_avatars.png');
-            background-size: 240% 240%;
-            /* Zoom in to exclude text labels */
+            background-size: cover;
+            background-position: center;
             background-repeat: no-repeat;
-            background-position: center center;
-            /* Default */
             background-color: white;
-            /* Fallback */
         }
 
-        /* Sprite Mapping - Adjusted to center on characters */
+        /* Individual Avatar Images */
         .avatar-kukky {
-            background-position: 20% 25%;
+            background-image: url('assets/images/avatar_kukky.png');
         }
 
         .avatar-soony {
-            background-position: 80% 25%;
+            background-image: url('assets/images/avatar_soony.png');
         }
 
         .avatar-joowon {
-            background-position: 20% 75%;
+            background-image: url('assets/images/avatar_joowon.png');
         }
 
         .avatar-raim {
-            background-position: 80% 75%;
+            background-image: url('assets/images/avatar_raim.png');
         }
 
         .avatar-default {
-            background-position: 0% 0%;
+            background-image: url('assets/images/avatar_kukky.png');
             filter: grayscale(100%);
         }
 
