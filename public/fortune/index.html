@@ -214,9 +214,8 @@
                         <span id="zodiac-text" class="zodiac-badge">별자리 / 띠</span>
                     </div>
 
-                    <!-- Western Horoscope (Galaxy Theme) -->
-                    <div class="fortune-card western"
-                        style="background: linear-gradient(135deg, #312e81 0%, #4338ca 100%); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(49, 46, 129, 0.3);">
+                    <!-- Western Horoscope (Galaxy Theme) - HIDDEN -->
+                    <div class="fortune-card western" style="display: none;">
                         <div
                             style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
                             <h4 style="margin:0; font-size:1.1rem; display:flex; align-items:center;">
@@ -234,9 +233,8 @@
                         </div>
                     </div>
 
-                    <!-- Eastern Fortune (Paper Theme) -->
-                    <div class="fortune-card eastern"
-                        style="background: #fffdf5; border: 1px solid #e7e5e4; padding: 20px; border-radius: 16px; margin-bottom: 24px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <!-- Eastern Fortune (Paper Theme) - HIDDEN -->
+                    <div class="fortune-card eastern" style="display: none;">
                         <div
                             style="position:absolute; top:20px; right:20px; font-size:3rem; opacity:0.05; font-family:serif; pointer-events:none;">
                             運</div>
@@ -317,20 +315,14 @@
                 <!-- External Fortune Links -->
                 <div class="fortune-card"
                     style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #bae6fd;">
-                    <h3 class="card-title" style="text-align: center; color: #0369a1; margin-bottom: 15px;">🔗 더 많은 운세
-                        보기</h3>
+                    <h3 class="card-title" style="text-align: center; color: #0369a1; margin-bottom: 15px;">🔗 외부 운세 보기
+                    </h3>
                     <div style="display: flex; gap: 10px; flex-direction: column;">
-                        <a href="https://fortune.naver.com/" target="_blank" rel="noopener noreferrer"
-                            style="display: block; padding: 12px 20px; background: linear-gradient(135deg, #03c75a 0%, #00b344 100%); color: white; text-decoration: none; border-radius: 12px; text-align: center; font-weight: 600; box-shadow: 0 2px 8px rgba(3, 199, 90, 0.3); transition: transform 0.2s;">
-                            📱 네이버 운세
-                        </a>
-                        <a href="https://astrology.daum.net/" target="_blank" rel="noopener noreferrer"
-                            style="display: block; padding: 12px 20px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-decoration: none; border-radius: 12px; text-align: center; font-weight: 600; box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3); transition: transform 0.2s;">
-                            🔮 다음 별자리 운세
+                        <a id="zodiac-link" href="#" target="_blank" rel="noopener noreferrer"
+                            style="display: block; padding: 12px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; text-decoration: none; border-radius: 12px; text-align: center; font-weight: 600; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3); transition: transform 0.2s;">
+                            🐉 띠별 운세 보기
                         </a>
                     </div>
-                    <p style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 10px;">외부 사이트로 이동합니다
-                    </p>
                 </div>
             </div>
 
@@ -647,6 +639,19 @@
                 document.getElementById('lucky-item').innerText = lucky.item;
                 document.getElementById('lucky-dir').innerText = lucky.direction;
                 document.getElementById('lucky-num').innerText = lucky.number;
+            }
+
+            // D. Set Zodiac Link (NEW)
+            const zodiacSign = getChineseZodiac(member.birthdate);
+            const zodiacMap = {
+                "쥐띠": "rat", "소띠": "cow", "호랑이띠": "tiger", "토끼띠": "rabbit",
+                "용띠": "dragon", "뱀띠": "snake", "말띠": "horse", "양띠": "sheep",
+                "원숭이띠": "monkey", "닭띠": "chicken", "개띠": "dog", "돼지띠": "pig"
+            };
+            const zodiacParam = zodiacMap[zodiacSign] || "rat";
+            const zodiacLink = document.getElementById('zodiac-link');
+            if (zodiacLink) {
+                zodiacLink.href = `https://freesaju.net/unjoa/12animal/ddi.php?ddi=${zodiacParam}`;
             }
 
             // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
