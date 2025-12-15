@@ -373,8 +373,8 @@
                     listEl.appendChild(el);
                 });
             } catch (e) {
-                console.error(e);
-                listEl.innerHTML = '<p style="text-align:center; color:red;">데이터 로드 실패</p>';
+                console.error("Load failed", e);
+                listEl.innerHTML = `<p style="text-align:center; color:red;">데이터 로드 실패: ${e.message}</p>`;
             }
         }
 
