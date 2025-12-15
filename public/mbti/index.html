@@ -327,6 +327,13 @@
                     const sName = sessionStorage.getItem('user_name') || '';
                     const isAdmin = email.includes('kukky') || sName.includes('kukky');
 
+                    const el = document.createElement('div');
+                    el.className = 'family-result-card';
+                    el.onclick = function (e) {
+                        if (e.target.classList.contains('btn-delete')) return;
+                        this.classList.toggle('expanded');
+                    }
+
                     let adminBtn = '';
                     if (isAdmin && !isMe) {
                         const safeName = data.name.replace(/'/g, "\\'"); // Escape quotes
