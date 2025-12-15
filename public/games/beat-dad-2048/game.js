@@ -66,20 +66,26 @@ class Game2048 {
         const db = firebase.firestore();
         const collection = db.collection('game_2048_records'); // Corrected collection name
 
-        // Revert to simple Dad AI Score
-        this.dadScore = 2048; // Fixed target or random could be implemented
+        // 1. Get Weekly Best (Dad)
+        // Logic: Get max score of current week.
+        const weekId = this.getWeekId();
 
-        // Mock loading delay if needed, or just set immediately
-        if (document.getElementById('dad-score-display'))
-            document.getElementById('dad-score-display').innerText = this.dadScore + "점";
-        document.getElementById('start-dad-score').innerText = this.dadScore + "점";
+        this.dadScore = 2048; // Default
 
-        this.updateDadFace();
-
-        // Fetch Personal Best only
         try {
-            // Logic for personal best can remain or be simplified
-        } catch (e) { }
+            // Index fix: Query by week only, sort in memory
+            const q = collection.where('weekId', '==', weekId);
+            const snapshot = await q.get();
+
+            if (!snapshot.empty) {
+                let max = 0;
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    if (d.score > max) max = d.score;
+                });
+                if (max > this.dadScore) this.dadScore = max;
+            }
+        } catch (e) { console.error("Data load err", e); }
 
         if (document.getElementById('dad-score-display'))
             document.getElementById('dad-score-display').innerText = this.dadScore + "점";
@@ -90,314 +96,315 @@ class Game2048 {
 
         // 2. Personal Best
         // Fetch my best
+    }
 
-        getWeekId() {
-            const d = new Date();
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            const monday = new Date(d.setDate(diff));
+    getWeekId() {
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d.setDate(diff));
 
-            const year = monday.getFullYear();
-            const month = String(monday.getMonth() + 1).padStart(2, '0');
-            const date = String(monday.getDate()).padStart(2, '0');
+        const year = monday.getFullYear();
+        const month = String(monday.getMonth() + 1).padStart(2, '0');
+        const date = String(monday.getDate()).padStart(2, '0');
 
-            return `${year}-${month}-${date}`;
-        }
+        return `${year}-${month}-${date}`;
+    }
 
-        setupInput() {
-            window.addEventListener('keydown', this.handleKey.bind(this));
+    setupInput() {
+        window.addEventListener('keydown', this.handleKey.bind(this));
 
-            const gameArea = document.getElementById('game-container');
-            gameArea.addEventListener('touchstart', (e) => {
-                this.touchStartX = e.touches[0].clientX;
-                this.touchStartY = e.touches[0].clientY;
-                e.preventDefault(); // Prevent scroll
-            }, { passive: false });
+        const gameArea = document.getElementById('game-container');
+        gameArea.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+            e.preventDefault(); // Prevent scroll
+        }, { passive: false });
 
-            gameArea.addEventListener('touchend', (e) => {
-                if (this.isGameOver) return;
-                const dx = e.changedTouches[0].clientX - this.touchStartX;
-                const dy = e.changedTouches[0].clientY - this.touchStartY;
-                const absDx = Math.abs(dx);
-                const absDy = Math.abs(dy);
-
-                if (Math.max(absDx, absDy) > 30) { // Threshold
-                    if (absDx > absDy) {
-                        if (dx > 0) this.move('right');
-                        else this.move('left');
-                    } else {
-                        if (dy > 0) this.move('down');
-                        else this.move('up');
-                    }
-                }
-            });
-        }
-
-        handleKey(e) {
+        gameArea.addEventListener('touchend', (e) => {
             if (this.isGameOver) return;
-            switch (e.key) {
-                case 'ArrowUp': this.move('up'); break;
-                case 'ArrowDown': this.move('down'); break;
-                case 'ArrowLeft': this.move('left'); break;
-                case 'ArrowRight': this.move('right'); break;
-                default: return; // Allow other keys
-            }
-            e.preventDefault();
-        }
+            const dx = e.changedTouches[0].clientX - this.touchStartX;
+            const dy = e.changedTouches[0].clientY - this.touchStartY;
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
 
-        spawnTile() {
-            const emptyCells = [];
-            for (let r = 0; r < 4; r++) {
-                for (let c = 0; c < 4; c++) {
-                    if (!this.grid[r][c]) emptyCells.push({ r, c });
+            if (Math.max(absDx, absDy) > 30) { // Threshold
+                if (absDx > absDy) {
+                    if (dx > 0) this.move('right');
+                    else this.move('left');
+                } else {
+                    if (dy > 0) this.move('down');
+                    else this.move('up');
                 }
             }
-            if (emptyCells.length === 0) return;
+        });
+    }
 
-            const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            // 90% chance 2, 10% chance 4
-            const val = Math.random() < 0.9 ? 2 : 4;
+    handleKey(e) {
+        if (this.isGameOver) return;
+        switch (e.key) {
+            case 'ArrowUp': this.move('up'); break;
+            case 'ArrowDown': this.move('down'); break;
+            case 'ArrowLeft': this.move('left'); break;
+            case 'ArrowRight': this.move('right'); break;
+            default: return; // Allow other keys
+        }
+        e.preventDefault();
+    }
 
-            // Difficulty increase: if score > 5000, 4 appears 15%
-            // Not implemented simpler logic for now.
+    spawnTile() {
+        const emptyCells = [];
+        for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+                if (!this.grid[r][c]) emptyCells.push({ r, c });
+            }
+        }
+        if (emptyCells.length === 0) return;
 
-            this.grid[r][c] = {
-                value: val,
-                id: Date.now() + Math.random(), // Unique ID for DOM mapping (animation)
-                isNew: true
-            };
+        const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        // 90% chance 2, 10% chance 4
+        const val = Math.random() < 0.9 ? 2 : 4;
+
+        // Difficulty increase: if score > 5000, 4 appears 15%
+        // Not implemented simpler logic for now.
+
+        this.grid[r][c] = {
+            value: val,
+            id: Date.now() + Math.random(), // Unique ID for DOM mapping (animation)
+            isNew: true
+        };
+    }
+
+    move(dir) {
+        let state = JSON.parse(JSON.stringify(this.grid)); // Deep copy state for comparison
+
+        // Transformation: Orient grid so we always Slide Left
+        // Use slice() to prevent in-place mutation of original grid rows
+        if (dir === 'right') {
+            this.grid = this.grid.map(row => row.slice().reverse());
+        } else if (dir === 'up') {
+            this.grid = this.transpose(this.grid);
+        } else if (dir === 'down') {
+            this.grid = this.transpose(this.grid);
+            this.grid = this.grid.map(row => row.slice().reverse());
         }
 
-        move(dir) {
-            let state = JSON.parse(JSON.stringify(this.grid)); // Deep copy state for comparison
+        // Process LEFT (Standard Merge)
+        let scoreAdd = 0;
 
-            // Transformation: Orient grid so we always Slide Left
-            // Use slice() to prevent in-place mutation of original grid rows
-            if (dir === 'right') {
-                this.grid = this.grid.map(row => row.slice().reverse());
-            } else if (dir === 'up') {
-                this.grid = this.transpose(this.grid);
-            } else if (dir === 'down') {
-                this.grid = this.transpose(this.grid);
-                this.grid = this.grid.map(row => row.slice().reverse());
-            }
+        this.grid = this.grid.map(row => {
+            let nonNull = row.filter(c => c !== null);
+            let newRow = [];
 
-            // Process LEFT (Standard Merge)
-            let scoreAdd = 0;
-
-            this.grid = this.grid.map(row => {
-                let nonNull = row.filter(c => c !== null);
-                let newRow = [];
-
-                for (let i = 0; i < nonNull.length; i++) {
-                    if (i < nonNull.length - 1 && nonNull[i].value === nonNull[i + 1].value) {
-                        // Merge
-                        let val = nonNull[i].value * 2;
-                        scoreAdd += val;
-                        // Create new merged tile object
-                        newRow.push({
-                            value: val,
-                            id: nonNull[i].id, // Keep ID? Or new? 
-                            merged: true,
-                            isNew: false
-                        });
-                        i++; // Skip next
-                    } else {
-                        newRow.push({
-                            ...nonNull[i],
-                            isNew: false,
-                            merged: false
-                        });
-                    }
-                }
-                // Pad
-                while (newRow.length < 4) newRow.push(null);
-                return newRow;
-            });
-
-            // Restore Orientation
-            if (dir === 'right') {
-                this.grid = this.grid.map(row => row.slice().reverse());
-            } else if (dir === 'up') {
-                this.grid = this.transpose(this.grid);
-            } else if (dir === 'down') {
-                this.grid = this.grid.map(row => row.slice().reverse());
-                this.grid = this.transpose(this.grid);
-            }
-
-            // Check Change
-            let changed = JSON.stringify(state) !== JSON.stringify(this.grid);
-
-            if (changed) {
-                if (scoreAdd > 0) this.updateScore(this.score + scoreAdd);
-                this.spawnTile();
-                this.draw();
-
-                if (!this.canMove()) {
-                    this.gameOver();
+            for (let i = 0; i < nonNull.length; i++) {
+                if (i < nonNull.length - 1 && nonNull[i].value === nonNull[i + 1].value) {
+                    // Merge
+                    let val = nonNull[i].value * 2;
+                    scoreAdd += val;
+                    // Create new merged tile object
+                    newRow.push({
+                        value: val,
+                        id: nonNull[i].id, // Keep ID? Or new? 
+                        merged: true,
+                        isNew: false
+                    });
+                    i++; // Skip next
+                } else {
+                    newRow.push({
+                        ...nonNull[i],
+                        isNew: false,
+                        merged: false
+                    });
                 }
             }
+            // Pad
+            while (newRow.length < 4) newRow.push(null);
+            return newRow;
+        });
+
+        // Restore Orientation
+        if (dir === 'right') {
+            this.grid = this.grid.map(row => row.slice().reverse());
+        } else if (dir === 'up') {
+            this.grid = this.transpose(this.grid);
+        } else if (dir === 'down') {
+            this.grid = this.grid.map(row => row.slice().reverse());
+            this.grid = this.transpose(this.grid);
         }
 
-        transpose(matrix) {
-            return matrix[0].map((col, i) => matrix.map(row => row[i]));
-        }
+        // Check Change
+        let changed = JSON.stringify(state) !== JSON.stringify(this.grid);
 
-        canMove() {
-            for (let r = 0; r < 4; r++) {
-                for (let c = 0; c < 4; c++) {
-                    if (this.grid[r][c] === null) return true;
-                    if (c < 3 && this.grid[r][c + 1] && this.grid[r][c].value === this.grid[r][c + 1].value) return true;
-                    if (r < 3 && this.grid[r + 1][c] && this.grid[r][c].value === this.grid[r + 1][c].value) return true;
-                }
+        if (changed) {
+            if (scoreAdd > 0) this.updateScore(this.score + scoreAdd);
+            this.spawnTile();
+            this.draw();
+
+            if (!this.canMove()) {
+                this.gameOver();
             }
-            return false;
-        }
-
-        draw() {
-            this.tileContainer.innerHTML = '';
-
-            // CSS Grid Layout Logic:
-            // Container: 10px Gap, 10px Padding.
-            // CellPos(i) = 10px + i * (CellSize + 10px)
-            // Check calculation: CellSize% approx (100% - 20 - 30)/4 = ~21%
-            // Formula: 10px + i * (25% - 2.5px) matches perfectly.
-
-            for (let r = 0; r < 4; r++) {
-                for (let c = 0; c < 4; c++) {
-                    let tile = this.grid[r][c];
-                    if (tile) {
-                        const el = document.createElement('div');
-                        el.className = `tile tile-${tile.value}`;
-                        if (tile.isNew) el.classList.add('tile-new');
-                        if (tile.merged) el.classList.add('tile-merged');
-
-                        el.innerText = tile.value;
-
-                        // Fixed Alignment Formula
-                        el.style.width = 'calc(25% - 12.5px)'; // (320-20-30)/4 = 67.5.  320/4 = 80. 80 - 12.5 = 67.5. Exact.
-                        el.style.height = 'calc(25% - 12.5px)';
-
-                        // Positions
-                        // 10px + c * (Cell + Gap)
-                        // 10px + c * ( (25% - 12.5px) + 10px )
-                        // 10px + c * (25% - 2.5px)
-                        el.style.left = `calc(10px + ${c} * (25% - 2.5px))`;
-                        el.style.top = `calc(10px + ${r} * (25% - 2.5px))`;
-
-                        this.tileContainer.appendChild(el);
-                    }
-                }
-            }
-        }
-
-        updateScore(newScore) {
-            this.score = newScore;
-            this.scoreDisplay.innerText = this.score + "점";
-            this.updateDadFace();
-        }
-
-        updateDadFace() {
-            const face = document.getElementById('dad-face');
-            const bubble = this.dadReaction;
-
-            let mood = '😎';
-            let msg = '';
-
-            if (this.score < this.dadScore * 0.5) {
-                mood = '😎'; // Confident
-                msg = '아직 멀었구나~';
-            } else if (this.score < this.dadScore) {
-                mood = '😰'; // Nervous
-                msg = '어? 좀 하는데?';
-            } else {
-                mood = '😱'; // Shocked
-                msg = '말도 안돼!!!';
-            }
-
-            face.innerText = mood;
-
-            // Show bubble only on change? No, simple logic.
-            // bubble.innerText = msg;
-            // bubble.classList.remove('hidden');
-        }
-
-    async gameOver() {
-            this.isGameOver = true;
-
-            // Save Score
-            await this.saveRecord();
-
-            // Show Result
-            document.getElementById('final-score').innerText = this.score + "점";
-            document.getElementById('final-dad-score').innerText = this.dadScore + "점";
-
-            const msg = document.getElementById('win-lose-msg');
-            if (this.score > this.dadScore) {
-                msg.innerText = "🏆 아빠 AI를 이겼다!";
-                msg.className = "msg-box win";
-            } else {
-                msg.innerText = "🤪 아빠 AI의 승리!";
-                msg.className = "msg-box lose";
-            }
-
-            document.getElementById('result-screen').classList.remove('hidden');
-            this.loadRanking();
-        }
-
-    async saveRecord() {
-            const user = firebase.auth().currentUser;
-            if (!user) return; // Guest?
-
-            const db = firebase.firestore();
-            const scoreRef = db.collection('game_2048_records');
-
-            const weekId = this.getWeekId();
-
-            // Add Record
-            await scoreRef.add({
-                uid: user.uid,
-                email: user.email,
-                score: this.score,
-                weekId: weekId,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Update Personal Best? optional
-        }
-
-    async loadRanking() {
-            const ul = document.getElementById('ranking-list');
-            ul.innerHTML = '<li>로딩중...</li>';
-
-            const db = firebase.firestore();
-            const weekId = this.getWeekId();
-
-            // Query for 'All' (limit 100 safe for performance)
-            // Index fix: Query by week only, sort in memory
-            const q = db.collection('game_2048_records')
-                .where('weekId', '==', weekId);
-
-            const snap = await q.get();
-            ul.innerHTML = '';
-            if (snap.empty) {
-                ul.innerHTML = '<li class="empty-rank">기록 없음</li>';
-                return;
-            }
-
-            let docs = [];
-            snap.forEach(doc => docs.push(doc.data()));
-            docs.sort((a, b) => b.score - a.score);
-
-            let rank = 1;
-            docs.forEach(data => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span class="rank-num">${rank}</span> <span>${data.email ? data.email.split('@')[0] : '익명'}</span> <span>${data.score}점</span>`;
-                ul.appendChild(li);
-                rank++;
-            });
         }
     }
+
+    transpose(matrix) {
+        return matrix[0].map((col, i) => matrix.map(row => row[i]));
+    }
+
+    canMove() {
+        for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+                if (this.grid[r][c] === null) return true;
+                if (c < 3 && this.grid[r][c + 1] && this.grid[r][c].value === this.grid[r][c + 1].value) return true;
+                if (r < 3 && this.grid[r + 1][c] && this.grid[r][c].value === this.grid[r + 1][c].value) return true;
+            }
+        }
+        return false;
+    }
+
+    draw() {
+        this.tileContainer.innerHTML = '';
+
+        // CSS Grid Layout Logic:
+        // Container: 10px Gap, 10px Padding.
+        // CellPos(i) = 10px + i * (CellSize + 10px)
+        // Check calculation: CellSize% approx (100% - 20 - 30)/4 = ~21%
+        // Formula: 10px + i * (25% - 2.5px) matches perfectly.
+
+        for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+                let tile = this.grid[r][c];
+                if (tile) {
+                    const el = document.createElement('div');
+                    el.className = `tile tile-${tile.value}`;
+                    if (tile.isNew) el.classList.add('tile-new');
+                    if (tile.merged) el.classList.add('tile-merged');
+
+                    el.innerText = tile.value;
+
+                    // Fixed Alignment Formula
+                    el.style.width = 'calc(25% - 12.5px)'; // (320-20-30)/4 = 67.5.  320/4 = 80. 80 - 12.5 = 67.5. Exact.
+                    el.style.height = 'calc(25% - 12.5px)';
+
+                    // Positions
+                    // 10px + c * (Cell + Gap)
+                    // 10px + c * ( (25% - 12.5px) + 10px )
+                    // 10px + c * (25% - 2.5px)
+                    el.style.left = `calc(10px + ${c} * (25% - 2.5px))`;
+                    el.style.top = `calc(10px + ${r} * (25% - 2.5px))`;
+
+                    this.tileContainer.appendChild(el);
+                }
+            }
+        }
+    }
+
+    updateScore(newScore) {
+        this.score = newScore;
+        this.scoreDisplay.innerText = this.score + "점";
+        this.updateDadFace();
+    }
+
+    updateDadFace() {
+        const face = document.getElementById('dad-face');
+        const bubble = this.dadReaction;
+
+        let mood = '😎';
+        let msg = '';
+
+        if (this.score < this.dadScore * 0.5) {
+            mood = '😎'; // Confident
+            msg = '아직 멀었구나~';
+        } else if (this.score < this.dadScore) {
+            mood = '😰'; // Nervous
+            msg = '어? 좀 하는데?';
+        } else {
+            mood = '😱'; // Shocked
+            msg = '말도 안돼!!!';
+        }
+
+        face.innerText = mood;
+
+        // Show bubble only on change? No, simple logic.
+        // bubble.innerText = msg;
+        // bubble.classList.remove('hidden');
+    }
+
+    async gameOver() {
+        this.isGameOver = true;
+
+        // Save Score
+        await this.saveRecord();
+
+        // Show Result
+        document.getElementById('final-score').innerText = this.score + "점";
+        document.getElementById('final-dad-score').innerText = this.dadScore + "점";
+
+        const msg = document.getElementById('win-lose-msg');
+        if (this.score > this.dadScore) {
+            msg.innerText = "🏆 아빠를 이겼다!";
+            msg.className = "msg-box win";
+        } else {
+            msg.innerText = "🤪 아빠의 승리!";
+            msg.className = "msg-box lose";
+        }
+
+        document.getElementById('result-screen').classList.remove('hidden');
+        this.loadRanking();
+    }
+
+    async saveRecord() {
+        const user = firebase.auth().currentUser;
+        if (!user) return; // Guest?
+
+        const db = firebase.firestore();
+        const scoreRef = db.collection('game_2048_records');
+
+        const weekId = this.getWeekId();
+
+        // Add Record
+        await scoreRef.add({
+            uid: user.uid,
+            email: user.email,
+            score: this.score,
+            weekId: weekId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update Personal Best? optional
+    }
+
+    async loadRanking() {
+        const ul = document.getElementById('ranking-list');
+        ul.innerHTML = '<li>로딩중...</li>';
+
+        const db = firebase.firestore();
+        const weekId = this.getWeekId();
+
+        // Query for 'All' (limit 100 safe for performance)
+        // Index fix: Query by week only, sort in memory
+        const q = db.collection('game_2048_records')
+            .where('weekId', '==', weekId);
+
+        const snap = await q.get();
+        ul.innerHTML = '';
+        if (snap.empty) {
+            ul.innerHTML = '<li class="empty-rank">기록 없음</li>';
+            return;
+        }
+
+        let docs = [];
+        snap.forEach(doc => docs.push(doc.data()));
+        docs.sort((a, b) => b.score - a.score);
+
+        let rank = 1;
+        docs.forEach(data => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="rank-num">${rank}</span> <span>${data.email ? data.email.split('@')[0] : '익명'}</span> <span>${data.score}점</span>`;
+            ul.appendChild(li);
+            rank++;
+        });
+    }
+}
 
 // Start
 document.addEventListener('DOMContentLoaded', () => {

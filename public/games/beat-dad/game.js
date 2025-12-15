@@ -60,28 +60,32 @@ let state = {
     lastTime: 0
 };
 
-// --- Dad AI Logic (Simulated) ---
+// --- Dad AI Logic ---
 const DadAI = {
-    // Return a random target score for this game session
-    prepareNextChallenge: () => {
-        const range = CONFIG.dadBaseMax - CONFIG.dadBaseMin;
-        return CONFIG.dadBaseMin + Math.floor(Math.random() * range);
+    generateScore: () => {
+        return Math.floor(Math.random() * (CONFIG.dadBaseMax - CONFIG.dadBaseMin + 1)) + CONFIG.dadBaseMin;
     },
-
     updateFace: (myScore, dadScore) => {
-        // Simple logic: if I'm close to winning, Dad gets nervous
-        const ratio = myScore / dadScore;
-        if (ratio < 0.5) return "😎"; // Easy
-        if (ratio < 0.8) return "🤔"; // Hmm?
-        if (ratio < 1.0) return "😮"; // Uh oh
-        return "😭"; // Lost
+        const diff = dadScore - myScore;
+        const totalScore = myScore + state.bonusScore;
+
+        // Logic based on User Request:
+        // P < D - 5 : 😎
+        // D - 5 <= P <= D : 😮
+        // P > D : 😱
+        // P >> D (e.g. +10) : 😭
+
+        const gap = dadScore - totalScore;
+
+        if (gap > 5) return "😎"; // Easy
+        if (gap >= 0) return "😮"; // Tension
+        if (gap > -10) return "😱"; // Shock
+        return "😭"; // Despair
     }
 };
 
-
-
 // --- Initialization ---
-async function initGame() {
+function initGame() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
@@ -182,12 +186,11 @@ function resizeCanvas() {
 function startGame() {
     // Reset State
     state.isPlaying = true;
-    state.floors = [];
     state.score = 0;
     state.bonusScore = 0;
     state.perfectStreak = 0;
+    state.floors = [];
     state.cameraY = 0;
-    state.lastTime = 0;
 
     // Setup Base Block
     const initialBlock = {
@@ -203,7 +206,7 @@ function startGame() {
     spawnBlock(1);
 
     // Setup Dad
-    state.dadScore = DadAI.prepareNextChallenge();
+    state.dadScore = DadAI.generateScore();
     state.dadFace = "😎";
 
     // UI Update
@@ -378,7 +381,7 @@ async function endGame() {
 
     const msgBox = document.getElementById('win-lose-msg');
     if (won) {
-        msgBox.innerText = "🎉 아빠를 이겼어요! 대단해요!";
+        msgBox.innerText = "🎉 아빠AI를 이겼어요! 대단해요!";
         msgBox.className = "msg-box win";
     } else {
         msgBox.innerText = "😢 아쉽네요... 다시 도전해보세요!";
