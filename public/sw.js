@@ -1,4 +1,4 @@
-const CACHE_NAME = 'secret-garden-v1';
+const CACHE_NAME = 'secret-garden-v2-icon-update';
 const ASSETS_TO_CACHE = [
     './manifest.json',
     './assets/icons/icon-192.png',

@@ -108,3 +108,37 @@
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
 [error] 
 [error] Error: Failed to get Firebase project familly-fun-service. Please make sure the project exists and your account has permission to access it.
+[debug] [2025-12-15T07:15:37.401Z] ----------------------------------------------------------------------
+[debug] [2025-12-15T07:15:37.409Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\kukky\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-12-15T07:15:37.411Z] CLI Version:   14.17.0
+[debug] [2025-12-15T07:15:37.411Z] Platform:      win32
+[debug] [2025-12-15T07:15:37.411Z] Node Version:  v22.13.1
+[debug] [2025-12-15T07:15:37.412Z] Time:          Mon Dec 15 2025 16:15:37 GMT+0900 (대한민국 표준시)
+[debug] [2025-12-15T07:15:37.413Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-12-15T07:15:38.161Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-12-15T07:15:38.163Z] > authorizing via signed-in user (issoft0516@gmail.com)
+[debug] [2025-12-15T07:15:38.164Z] [iam] checking project familly-fun-service for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-12-15T07:15:38.168Z] Checked if tokens are valid: true, expires at: 1765785565148
+[debug] [2025-12-15T07:15:38.168Z] Checked if tokens are valid: true, expires at: 1765785565148
+[debug] [2025-12-15T07:15:38.171Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions [none]
+[debug] [2025-12-15T07:15:38.171Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions x-goog-quota-user=projects/familly-fun-service
+[debug] [2025-12-15T07:15:38.171Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-12-15T07:15:38.652Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions 200
+[debug] [2025-12-15T07:15:38.652Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions {}
+[debug] [2025-12-15T07:15:38.652Z] [iam] error while checking permissions, command may fail: Authorization failed. This account is missing the following required permissions on project familly-fun-service:
+
+  firebase.projects.get
+  firebasehosting.sites.update
+[debug] [2025-12-15T07:15:38.653Z] Checked if tokens are valid: true, expires at: 1765785565148
+[debug] [2025-12-15T07:15:38.654Z] Checked if tokens are valid: true, expires at: 1765785565148
+[debug] [2025-12-15T07:15:38.654Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/familly-fun-service [none]
+[debug] [2025-12-15T07:15:39.065Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/familly-fun-service 403
+[debug] [2025-12-15T07:15:39.065Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/familly-fun-service {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2025-12-15T07:15:39.067Z] Request to https://firebase.googleapis.com/v1beta1/projects/familly-fun-service had HTTP Error: 403, The caller does not have permission
+[debug] [2025-12-15T07:15:39.069Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/familly-fun-service had HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\kukky\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:52:12)
+    at RetryOperation._fn (C:\Users\kukky\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to get Firebase project familly-fun-service. Please make sure the project exists and your account has permission to access it.
