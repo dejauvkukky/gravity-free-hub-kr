@@ -60,32 +60,56 @@ let state = {
     lastTime: 0
 };
 
-// --- Dad AI Logic ---
-const DadAI = {
-    generateScore: () => {
-        return Math.floor(Math.random() * (CONFIG.dadBaseMax - CONFIG.dadBaseMin + 1)) + CONFIG.dadBaseMin;
+// --- Dad Logic ---
+const DadLogic = {
+    // Current week ID generator (Monday based)
+    getWeekId: () => {
+        const now = new Date();
+        const day = now.getDay();
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(now.setDate(diff));
+        return `${monday.getFullYear()}-${monday.getMonth() + 1}-${monday.getDate()}`;
     },
+
+    fetchScore: async () => {
+        // Default baseline if dad hasn't played this week
+        let bestScore = CONFIG.dadBaseMin;
+
+        try {
+            const weekId = DadLogic.getWeekId();
+            // Query Firestore for 'kukky' records this week
+            const snapshot = await db.collection('beat_dad_records')
+                .where('weekId', '==', weekId)
+                .where('nickname', '==', 'kukky')
+                .orderBy('score', 'desc')
+                .limit(1)
+                .get();
+
+            if (!snapshot.empty) {
+                bestScore = snapshot.docs[0].data().score;
+            } else {
+                // If no record for this week, maybe check previous week or stick to baseline?
+                // For now, stick to baseline so it's not 0 (too easy)
+                console.log("No record for kukky this week, using baseline");
+            }
+        } catch (e) {
+            console.error("Failed to fetch dad score:", e);
+        }
+        return bestScore;
+    },
+
     updateFace: (myScore, dadScore) => {
-        const diff = dadScore - myScore;
-        const totalScore = myScore + state.bonusScore;
+        const gap = dadScore - (myScore + state.bonusScore);
 
-        // Logic based on User Request:
-        // P < D - 5 : 😎
-        // D - 5 <= P <= D : 😮
-        // P > D : 😱
-        // P >> D (e.g. +10) : 😭
-
-        const gap = dadScore - totalScore;
-
-        if (gap > 5) return "😎"; // Easy
-        if (gap >= 0) return "😮"; // Tension
-        if (gap > -10) return "😱"; // Shock
-        return "😭"; // Despair
+        if (gap > 10) return "😎"; // Easy win
+        if (gap > 0) return "😮"; // Close
+        if (gap > -10) return "😱"; // Losing
+        return "😭"; // Lost bad
     }
 };
 
 // --- Initialization ---
-function initGame() {
+async function initGame() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
@@ -183,7 +207,7 @@ function resizeCanvas() {
     if (!state.isPlaying) render(); // Redraw static if needed
 }
 
-function startGame() {
+async function startGame() {
     // Reset State
     state.isPlaying = true;
     state.score = 0;
@@ -206,7 +230,7 @@ function startGame() {
     spawnBlock(1);
 
     // Setup Dad
-    state.dadScore = DadAI.generateScore();
+    state.dadScore = await DadLogic.fetchScore();
     state.dadFace = "😎";
 
     // UI Update
@@ -338,7 +362,7 @@ function placeBlock() {
 
     // Update Dad Face
     const totalScore = state.score + state.bonusScore;
-    state.dadFace = DadAI.updateFace(totalScore, state.dadScore);
+    state.dadFace = DadLogic.updateFace(totalScore, state.dadScore);
     updateHUD();
 
     // Spawn Next
@@ -381,7 +405,7 @@ async function endGame() {
 
     const msgBox = document.getElementById('win-lose-msg');
     if (won) {
-        msgBox.innerText = "🎉 아빠AI를 이겼어요! 대단해요!";
+        msgBox.innerText = "🎉 아빠를 이겼어요! 대단해요!";
         msgBox.className = "msg-box win";
     } else {
         msgBox.innerText = "😢 아쉽네요... 다시 도전해보세요!";
