@@ -100,10 +100,15 @@ class Game2048 {
 
     getWeekId() {
         const d = new Date();
-        const year = d.getFullYear();
-        const onejan = new Date(d.getFullYear(), 0, 1);
-        const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
-        return `${year}-W${week}`;
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d.setDate(diff));
+
+        const year = monday.getFullYear();
+        const month = String(monday.getMonth() + 1).padStart(2, '0');
+        const date = String(monday.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${date}`;
     }
 
     setupInput() {
@@ -414,19 +419,33 @@ document.addEventListener('DOMContentLoaded', () => {
         window.game.init();
     };
 
+    // Fix Exit Button
+    const exitBtn = document.getElementById('btn-exit');
+    if (exitBtn) {
+        exitBtn.onclick = () => {
+            location.href = '../../dashboard.html';
+        };
+    }
+
 
     // Load Start Screen Ranking Preview
     loadStartRanking();
 });
 
-// Helper for Week ID
+// Helper for Week ID (Monday based)
 function getWeekId() {
     const d = new Date();
-    const year = d.getFullYear();
-    const onejan = new Date(d.getFullYear(), 0, 1);
-    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
-    return `${year}-W${week}`;
+    // Adjust to Monday
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    const monday = new Date(d.setDate(diff));
 
+    // Format YYYY-MM-DD
+    const year = monday.getFullYear();
+    const month = String(monday.getMonth() + 1).padStart(2, '0');
+    const date = String(monday.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${date}`;
 }
 
 async function loadStartRanking() {

@@ -12,6 +12,7 @@
 - **배포**: GitHub Pages
 
 ### 기술 스택
+- **Version Control**: MAJOR.MINOR.PATCH format. Not strictly required to update on every commit, but recommended for deployment builds.
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **Backend**: Firebase Authentication, Firebase Firestore
 - **Fonts**: Google Fonts (Jua, Noto Sans KR)
@@ -66,7 +67,7 @@ root/
 
 > 브라우저는 CSS/JS 파일을 캐시합니다. 수정 후에도 변경이 반영되지 않을 수 있습니다.
 
-**🔖 현재 버전: v=202512121730** (YYYYMMDDHHmm 형식 사용 권장)
+**🔖 현재 버전: v=202512121735** (YYYYMMDDHHmm 형식 사용 권장)
 
 **배포 전 필수 작업:**
 

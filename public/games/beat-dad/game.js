@@ -118,22 +118,20 @@ async function loadStartScreenRanking() {
 
     // 3. Fetch from Firestore
     try {
-        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        // Note: Ideally use a compound query with date filter, but for low traffic we fetch recent records.
-        // We'll fetch last 100 records ordered by timestamp descending.
+        // Monday Based Week ID
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d.setDate(diff));
+        const weekId = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
+
+        // Query by weekId
         const snapshot = await db.collection('beat_dad_records')
-            .orderBy('createdAt', 'desc')
-            .limit(100)
+            .where('weekId', '==', weekId)
             .get();
 
         const weeklyData = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            // Client-side date filter (safety)
-            if (data.createdAt && data.createdAt.toDate() > oneWeekAgo) {
-                weeklyData.push(data);
-            }
-        });
+        snapshot.forEach(doc => weeklyData.push(doc.data()));
 
         // 4. Process for Targets
         const targets = ['kukky', 'soony', 'joowon', 'raim'];
@@ -430,11 +428,20 @@ function render() {
 // --- Ranking & Data (Firestore) ---
 async function saveRecord(score) {
     const user = sessionStorage.getItem('user_name') || '익명';
+
+    // Generate Week ID
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    const weekId = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
+
     // Firestore Add
     try {
         await db.collection('beat_dad_records').add({
             nickname: user,
             score: score,
+            weekId: weekId,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log("Record saved to Firestore");
@@ -451,23 +458,19 @@ async function loadResultRanking() {
     list.innerHTML = '<li style="padding:10px; color:#94a3b8; text-align:center;">순위 집계 중...</li>';
 
     try {
-        const now = new Date();
-        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        // Monday Week ID
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d.setDate(diff));
+        const weekId = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
 
         const snapshot = await db.collection('beat_dad_records')
-            .orderBy('score', 'desc') // We want top scores
-            .limit(50) // Fetch top 50 to filter by date
+            .where('weekId', '==', weekId)
             .get();
 
         const weeklyData = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            // Client Filter for Date (as we ordered by Score)
-            // Note: Efficient way needs Composite Index (score DESC, createdAt DESC)
-            if (data.createdAt && data.createdAt.toDate() > oneWeekAgo) {
-                weeklyData.push(data);
-            }
-        });
+        snapshot.forEach(doc => weeklyData.push(doc.data()));
 
         // Sort again just in case (client side sort is fast for 50 items)
         weeklyData.sort((a, b) => b.score - a.score);
