@@ -16,16 +16,11 @@
     <style>
         /* Dashboard Header */
         .dashboard-header {
-            background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
-            /* Teal Gradient matching login */
-            padding: 30px 20px 50px 20px;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            color: white;
+            background: #f8fafc;
+            padding: 0 0 30px 0;
             text-align: center;
             position: relative;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+            margin-bottom: 10px;
         }
 
         .header-top {
@@ -96,16 +91,15 @@
         }
 
         .user-name-display {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #334155;
             margin-bottom: 4px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .user-role-display {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            color: #94a3b8;
             font-weight: 500;
         }
 
@@ -120,28 +114,34 @@
 
         .menu-card {
             background: white;
-            border-radius: 20px;
-            padding: 20px 15px;
+            border-radius: 18px;
+            padding: 25px 15px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
             cursor: pointer;
-            border: 1px solid #f0f0f0;
+            border: 2px solid transparent;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .menu-card:active {
-            transform: scale(0.98);
+            transform: translateY(-2px);
         }
 
         .menu-icon {
-            font-size: 2rem;
-            margin-bottom: 5px;
-            width: 50px;
-            height: 50px;
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -149,9 +149,9 @@
         }
 
         .menu-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            color: #334155;
+            color: #1e293b;
         }
 
         .menu-desc {
@@ -161,53 +161,59 @@
 
         /* Specific Card Styles */
         .bg-green-soft {
-            background: #f0fdf4;
-            color: #15803d;
+            background: #d1fae5;
+            color: #047857;
         }
 
         .bg-blue-soft {
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .bg-red-soft {
-            background: #fff0f0;
-            color: #e11d48;
+            background: #fecdd3;
+            color: #be123c;
         }
 
         .bg-purple-soft {
-            background: #f5f3ff;
-            color: #6d28d9;
+            background: #e9d5ff;
+            color: #7c3aed;
         }
 
         .bg-yellow-soft {
-            background: #fffbeb;
-            color: #d97706;
+            background: #fef3c7;
+            color: #b45309;
         }
 
         /* Menu Card Backgrounds */
         .menu-card:nth-child(1) {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #a7f3d0;
         }
 
         .menu-card:nth-child(2) {
-            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #bfdbfe;
         }
 
         .menu-card:nth-child(3) {
-            background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
+            border-color: #fda4af;
         }
 
         .menu-card:nth-child(4) {
-            background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border-color: #d8b4fe;
         }
 
         .menu-card:nth-child(5) {
-            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-color: #93c5fd;
         }
 
         .menu-card:nth-child(6) {
-            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #fcd34d;
         }
     </style>
 </head>
@@ -217,17 +223,24 @@
 
         <!-- New Header -->
         <div class="dashboard-header">
-            <div class="header-top">
-                <a href="#" class="header-logo">Secret Garden</a>
-                <div style="display:flex; gap:10px;">
-                    <button id="btn-password-change" class="hidden"
-                        style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; cursor:pointer;">🔑</button>
-                    <button onclick="AuthService.logout()"
-                        style="background:rgba(255,255,255,0.2); border:none; color:white; padding: 8px 12px; border-radius:15px; font-size:0.8rem; cursor:pointer;">로그아웃</button>
+            <!-- Top Buttons -->
+            <div style="display:flex; justify-content: flex-end; gap:10px; padding: 15px 20px;">
+                <button id="btn-password-change" class="hidden"
+                    style="background:rgba(255,255,255,0.15); border:none; color:#666; width:36px; height:36px; border-radius:50%; cursor:pointer;">🔑</button>
+                <button onclick="AuthService.logout()"
+                    style="background:rgba(255,255,255,0.15); border:none; color:#666; padding: 8px 12px; border-radius:15px; font-size:0.8rem; cursor:pointer;">로그아웃</button>
+            </div>
+
+            <!-- Title Box -->
+            <div style="text-align: center; margin: 20px 20px 30px 20px;">
+                <div
+                    style="display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); padding: 15px 40px; border-radius: 25px; box-shadow: 0 8px 20px rgba(13, 148, 136, 0.25);">
+                    <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: white; letter-spacing: -0.5px;">
+                        Secret Garden</h1>
                 </div>
             </div>
 
-            <div class="profile-section">
+            <div class="profile-section" style="top: 0;">
                 <div class="avatar-container">
                     <div id="user-avatar" class="avatar-img avatar-default"></div>
                 </div>
