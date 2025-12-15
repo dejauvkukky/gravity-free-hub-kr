@@ -257,6 +257,21 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const info = window.results[data.mbti];
+
+                    // Duplicate Cleanup Logic (Auto-delete old kukky)
+                    // If I am admin (kukky) AND this record is named 'kukky' AND it is not me.
+                    const myName = sessionStorage.getItem('user_name') || '';
+                    const isMyNameKukky = myName.includes('kukky') || (window.auth.currentUser.email && window.auth.currentUser.email.includes('kukky'));
+
+                    if (isMyNameKukky && data.name === 'kukky' && (currentUser && currentUser.uid !== data.uid)) {
+                        console.log("Found duplicate old 'kukky' account. Auto-deleting:", data.uid);
+                        window.db.collection('mbti_results_v2').doc(data.uid).delete().then(() => {
+                            console.log("Duplicate deleted.");
+                            // Optional: Reload or just let next refresh handle it.
+                        });
+                        return; // Skip rendering this one
+                    }
+
                     if (!info) {
                         console.warn('Missing info for MBTI:', data.mbti);
                         return; // Skip this user
