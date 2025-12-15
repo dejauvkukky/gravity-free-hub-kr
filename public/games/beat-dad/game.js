@@ -72,8 +72,8 @@ const DadLogic = {
     },
 
     fetchScore: async () => {
-        // Default baseline if dad hasn't played this week
-        let bestScore = CONFIG.dadBaseMin;
+        // Default 0 if dad hasn't played this week
+        let bestScore = 0;
 
         try {
             const weekId = DadLogic.getWeekId();
@@ -88,9 +88,8 @@ const DadLogic = {
             if (!snapshot.empty) {
                 bestScore = snapshot.docs[0].data().score;
             } else {
-                // If no record for this week, maybe check previous week or stick to baseline?
-                // For now, stick to baseline so it's not 0 (too easy)
-                console.log("No record for kukky this week, using baseline");
+                // If no record for this week, dad score is 0
+                console.log("No record for kukky this week, dad score is 0");
             }
         } catch (e) {
             console.error("Failed to fetch dad score:", e);
