@@ -70,7 +70,7 @@ class Game2048 {
         // Logic: Get max score of current week.
         const weekId = this.getWeekId();
 
-        this.dadScore = 2048; // Default
+        this.dadScore = 0; // Default (Real score logic)
 
         // Outer try removed
         try {
