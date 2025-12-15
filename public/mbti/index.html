@@ -530,8 +530,11 @@
 
                     // Admin Check (kukky)
                     const email = window.auth.currentUser.email || '';
-                    const isAdmin = email.includes('kukky');
-                    console.log(`[MBTI] User: ${data.name}, Email: ${email}, IsAdmin: ${isAdmin}`);
+                    const sName = sessionStorage.getItem('user_name') || '';
+                    // Check email OR nickname
+                    const isAdmin = email.includes('kukky') || sName.includes('kukky');
+
+                    console.log(`[MBTI] User: ${data.name}, Email: ${email}, Nickname: ${sName}, IsAdmin: ${isAdmin}`);
 
                     if (isAdmin) {
                         const headerTitle = document.querySelector('#intro-screen h3');
