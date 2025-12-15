@@ -257,6 +257,10 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const info = window.results[data.mbti];
+                    if (!info) {
+                        console.warn('Missing info for MBTI:', data.mbti);
+                        return; // Skip this user
+                    }
                     const isMe = (currentUser && currentUser.uid === data.uid);
 
                     // Calc Score
@@ -310,7 +314,8 @@
 
                     let adminBtn = '';
                     if (isAdmin && !isMe) {
-                        adminBtn = `<button class="btn-delete" style="margin-top:5px; background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;" onclick="deleteUser('${data.uid}', '${data.name}'); event.stopPropagation();">🗑️ 삭제</button>`;
+                        const safeName = data.name.replace(/'/g, "\\'"); // Escape quotes
+                        adminBtn = `<button class="btn-delete" style="margin-top:5px; background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;" onclick="deleteUser('${data.uid}', '${safeName}'); event.stopPropagation();">🗑️ 삭제</button>`;
                     }
 
                     el.innerHTML = `
