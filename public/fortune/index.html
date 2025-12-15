@@ -644,14 +644,14 @@
             // D. Set Zodiac Link (NEW)
             const zodiacSign = getChineseZodiac(member.birthdate);
             const zodiacMap = {
-                "쥐띠": "rat", "소띠": "cow", "호랑이띠": "tiger", "토끼띠": "rabbit",
-                "용띠": "dragon", "뱀띠": "snake", "말띠": "horse", "양띠": "sheep",
-                "원숭이띠": "monkey", "닭띠": "chicken", "개띠": "dog", "돼지띠": "pig"
+                "쥐띠": "%C1%EA", "소띠": "%BC%D2", "호랑이띠": "%C8%A3%B6%FB%C0%CC", "토끼띠": "%C5%E4%B3%A2",
+                "용띠": "%BF%EB", "뱀띠": "%B9%EC", "말띠": "%B8%BB", "양띠": "%BE%E7",
+                "원숭이띠": "%BF%F8%BC%FD%C0%CC", "닭띠": "%B4%DF", "개띠": "%B0%B3", "돼지띠": "%B5%C5%C1%F6"
             };
-            const zodiacParam = zodiacMap[zodiacSign] || "rat";
+            const zodiacParam = zodiacMap[zodiacSign] || "%BF%EB";
             const zodiacLink = document.getElementById('zodiac-link');
             if (zodiacLink) {
-                zodiacLink.href = `https://freesaju.net/unjoa/12animal/ddi.php?ddi=${zodiacParam}`;
+                zodiacLink.href = `https://freesaju.net/unjoa/12animal/ddi.php?d=${zodiacParam}`;
             }
 
             // 3. Fortune Cookie (Seeded by Name + Date + 'cookie')
