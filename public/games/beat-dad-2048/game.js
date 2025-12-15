@@ -72,34 +72,33 @@ class Game2048 {
 
         this.dadScore = 2048; // Default
 
+        // Outer try removed
         try {
-            try {
-                // Index fix: Query by week only, sort in memory
-                const q = collection.where('weekId', '==', weekId).where('nickname', '==', 'kukky');
-                const snapshot = await q.get();
+            // Index fix: Query by week only, sort in memory
+            const q = collection.where('weekId', '==', weekId).where('nickname', '==', 'kukky');
+            const snapshot = await q.get();
 
-                if (!snapshot.empty) {
-                    let max = 0;
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        if (d.score > max) max = d.score;
-                    });
-                    if (max > this.dadScore) this.dadScore = max;
-                }
-            } catch (e) { console.error("Data load err", e); }
+            if (!snapshot.empty) {
+                let max = 0;
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    if (d.score > max) max = d.score;
+                });
+                if (max > this.dadScore) this.dadScore = max;
+            }
+        } catch (e) { console.error("Data load err", e); }
 
-            if (document.getElementById('dad-score-display'))
-                document.getElementById('dad-score-display').innerText = this.dadScore + "점";
-            document.getElementById('start-dad-score').innerText = this.dadScore + "점";
+        if (document.getElementById('dad-score-display'))
+            document.getElementById('dad-score-display').innerText = this.dadScore + "점";
+        document.getElementById('start-dad-score').innerText = this.dadScore + "점";
 
-            // Update Dad Face based on new Dad Score
-            this.updateDadFace();
+        // Update Dad Face based on new Dad Score
+        this.updateDadFace();
 
-            // 2. Personal Best
-            // Fetch my best
-        }
+        // 2. Personal Best
+        // Fetch my best
 
-    getWeekId() {
+        getWeekId() {
             const d = new Date();
             const day = d.getDay();
             const diff = d.getDate() - day + (day === 0 ? -6 : 1);
