@@ -16,8 +16,8 @@
     <style>
         /* Dashboard Header */
         .dashboard-header {
-            background: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%);
-            /* Green Gradient */
+            background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+            /* Teal Gradient matching login */
             padding: 30px 20px 50px 20px;
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
@@ -68,30 +68,30 @@
             height: 100%;
             border-radius: 50%;
             background-image: url('assets/images/family_avatars.png');
-            background-size: 200% 200%;
-            /* 2x2 Grid */
+            background-size: 240% 240%;
+            /* Zoom in to exclude text labels */
             background-repeat: no-repeat;
-            background-position: 0 0;
+            background-position: center center;
             /* Default */
             background-color: white;
             /* Fallback */
         }
 
-        /* Sprite Mapping */
+        /* Sprite Mapping - Adjusted to center on characters */
         .avatar-kukky {
-            background-position: 0% 0%;
+            background-position: 20% 25%;
         }
 
         .avatar-soony {
-            background-position: 100% 0%;
+            background-position: 80% 25%;
         }
 
         .avatar-joowon {
-            background-position: 0% 100%;
+            background-position: 20% 75%;
         }
 
         .avatar-raim {
-            background-position: 100% 100%;
+            background-position: 80% 75%;
         }
 
         .avatar-default {
@@ -159,9 +159,8 @@
         }
 
         .menu-desc {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            line-height: 1.4;
+            display: none;
+            /* Hidden per user request */
         }
 
         /* Specific Card Styles */
@@ -189,12 +188,36 @@
             background: #fffbeb;
             color: #d97706;
         }
+
+        /* Menu Card Backgrounds */
+        .menu-card:nth-child(1) {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .menu-card:nth-child(2) {
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+        }
+
+        .menu-card:nth-child(3) {
+            background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%);
+        }
+
+        .menu-card:nth-child(4) {
+            background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
+        }
+
+        .menu-card:nth-child(5) {
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+        }
+
+        .menu-card:nth-child(6) {
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
     </style>
 </head>
 
-<body style="background-color: #f8fafc;"> <!-- Light Gray bg for contrast -->
-    <div class="container"
-        style="max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; position: relative;">
+<body>
+    <div class="container" style="background: white; min-height: 100vh; position: relative;">
 
         <!-- New Header -->
         <div class="dashboard-header">
@@ -268,7 +291,7 @@
         <div style="flex-grow: 1;"></div>
 
         <div class="text-center p-4">
-            <p style="font-size: 0.8rem; color: #ccc;">Family Hub v2.0</p>
+            <p style="font-size: 0.8rem; color: #888;">Crafted by kukky</p>
         </div>
 
         <!-- Admin Toggle Buttons (keep existing IDs) -->
