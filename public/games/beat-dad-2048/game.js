@@ -66,27 +66,20 @@ class Game2048 {
         const db = firebase.firestore();
         const collection = db.collection('game_2048_records'); // Corrected collection name
 
-        // 1. Get Weekly Best (Dad)
-        // Logic: Get max score of current week.
-        const weekId = this.getWeekId();
+        // Revert to simple Dad AI Score
+        this.dadScore = 2048; // Fixed target or random could be implemented
 
-        this.dadScore = 0; // Default (Real score logic)
+        // Mock loading delay if needed, or just set immediately
+        if (document.getElementById('dad-score-display'))
+            document.getElementById('dad-score-display').innerText = this.dadScore + "점";
+        document.getElementById('start-dad-score').innerText = this.dadScore + "점";
 
-        // Outer try removed
+        this.updateDadFace();
+
+        // Fetch Personal Best only
         try {
-            // Index fix: Query by week only, sort in memory
-            const q = collection.where('weekId', '==', weekId).where('nickname', '==', 'kukky');
-            const snapshot = await q.get();
-
-            if (!snapshot.empty) {
-                let max = 0;
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    if (d.score > max) max = d.score;
-                });
-                if (max > this.dadScore) this.dadScore = max;
-            }
-        } catch (e) { console.error("Data load err", e); }
+            // Logic for personal best can remain or be simplified
+        } catch (e) { }
 
         if (document.getElementById('dad-score-display'))
             document.getElementById('dad-score-display').innerText = this.dadScore + "점";

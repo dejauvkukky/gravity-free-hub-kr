@@ -1,0 +1,42 @@
+[debug] [2025-12-15T06:59:25.309Z] ----------------------------------------------------------------------
+[debug] [2025-12-15T06:59:25.317Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\kukky\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-12-15T06:59:25.317Z] CLI Version:   14.17.0
+[debug] [2025-12-15T06:59:25.318Z] Platform:      win32
+[debug] [2025-12-15T06:59:25.318Z] Node Version:  v22.13.1
+[debug] [2025-12-15T06:59:25.319Z] Time:          Mon Dec 15 2025 15:59:25 GMT+0900 (대한민국 표준시)
+[debug] [2025-12-15T06:59:25.320Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-12-15T06:59:25.327Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-12-15T06:59:25.940Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-12-15T06:59:25.941Z] > authorizing via signed-in user (issoft0516@gmail.com)
+[debug] [2025-12-15T06:59:25.941Z] [iam] checking project familly-fun-service for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-12-15T06:59:25.943Z] Checked if tokens are valid: false, expires at: 1758615064947
+[debug] [2025-12-15T06:59:25.943Z] Checked if tokens are valid: false, expires at: 1758615064947
+[debug] [2025-12-15T06:59:25.944Z] > refreshing access token with scopes: []
+[debug] [2025-12-15T06:59:25.946Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-12-15T06:59:25.946Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-12-15T06:59:26.147Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-12-15T06:59:26.148Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-12-15T06:59:26.186Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions [none]
+[debug] [2025-12-15T06:59:26.186Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions x-goog-quota-user=projects/familly-fun-service
+[debug] [2025-12-15T06:59:26.187Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-12-15T06:59:26.370Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-12-15T06:59:26.370Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-12-15T06:59:26.651Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions 200
+[debug] [2025-12-15T06:59:26.651Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/familly-fun-service:testIamPermissions {}
+[debug] [2025-12-15T06:59:26.652Z] [iam] error while checking permissions, command may fail: Authorization failed. This account is missing the following required permissions on project familly-fun-service:
+
+  firebase.projects.get
+  firebasehosting.sites.update
+[debug] [2025-12-15T06:59:26.653Z] Checked if tokens are valid: true, expires at: 1765785565148
+[debug] [2025-12-15T06:59:26.653Z] Checked if tokens are valid: true, expires at: 1765785565148
+[debug] [2025-12-15T06:59:26.654Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/familly-fun-service [none]
+[debug] [2025-12-15T06:59:27.076Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/familly-fun-service 403
+[debug] [2025-12-15T06:59:27.076Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/familly-fun-service {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2025-12-15T06:59:27.077Z] Request to https://firebase.googleapis.com/v1beta1/projects/familly-fun-service had HTTP Error: 403, The caller does not have permission
+[debug] [2025-12-15T06:59:27.079Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/familly-fun-service had HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\kukky\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:52:12)
+    at RetryOperation._fn (C:\Users\kukky\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to get Firebase project familly-fun-service. Please make sure the project exists and your account has permission to access it.

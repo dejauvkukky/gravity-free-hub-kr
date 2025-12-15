@@ -60,52 +60,25 @@ let state = {
     lastTime: 0
 };
 
-// --- Dad Logic ---
-const DadLogic = {
-    // Current week ID generator (Monday based)
-    getWeekId: () => {
-        const now = new Date();
-        const day = now.getDay();
-        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-        const monday = new Date(now.setDate(diff));
-        return `${monday.getFullYear()}-${monday.getMonth() + 1}-${monday.getDate()}`;
-    },
-
-    fetchScore: async () => {
-        // Default 0 if dad hasn't played this week
-        let bestScore = 0;
-
-        try {
-            const weekId = DadLogic.getWeekId();
-            // Query Firestore for 'kukky' records this week
-            const snapshot = await db.collection('beat_dad_records')
-                .where('weekId', '==', weekId)
-                .where('nickname', '==', 'kukky')
-                .orderBy('score', 'desc')
-                .limit(1)
-                .get();
-
-            if (!snapshot.empty) {
-                bestScore = snapshot.docs[0].data().score;
-            } else {
-                // If no record for this week, dad score is 0
-                console.log("No record for kukky this week, dad score is 0");
-            }
-        } catch (e) {
-            console.error("Failed to fetch dad score:", e);
-        }
-        return bestScore;
+// --- Dad AI Logic (Simulated) ---
+const DadAI = {
+    // Return a random target score for this game session
+    prepareNextChallenge: () => {
+        const range = CONFIG.dadBaseMax - CONFIG.dadBaseMin;
+        return CONFIG.dadBaseMin + Math.floor(Math.random() * range);
     },
 
     updateFace: (myScore, dadScore) => {
-        const gap = dadScore - (myScore + state.bonusScore);
-
-        if (gap > 10) return "😎"; // Easy win
-        if (gap > 0) return "😮"; // Close
-        if (gap > -10) return "😱"; // Losing
-        return "😭"; // Lost bad
+        // Simple logic: if I'm close to winning, Dad gets nervous
+        const ratio = myScore / dadScore;
+        if (ratio < 0.5) return "😎"; // Easy
+        if (ratio < 0.8) return "🤔"; // Hmm?
+        if (ratio < 1.0) return "😮"; // Uh oh
+        return "😭"; // Lost
     }
 };
+
+
 
 // --- Initialization ---
 async function initGame() {
@@ -206,14 +179,15 @@ function resizeCanvas() {
     if (!state.isPlaying) render(); // Redraw static if needed
 }
 
-async function startGame() {
+function startGame() {
     // Reset State
     state.isPlaying = true;
+    state.floors = [];
     state.score = 0;
     state.bonusScore = 0;
     state.perfectStreak = 0;
-    state.floors = [];
     state.cameraY = 0;
+    state.lastTime = 0;
 
     // Setup Base Block
     const initialBlock = {
@@ -361,7 +335,7 @@ function placeBlock() {
 
     // Update Dad Face
     const totalScore = state.score + state.bonusScore;
-    state.dadFace = DadLogic.updateFace(totalScore, state.dadScore);
+    state.dadFace = DadAI.updateFace(totalScore, state.dadScore);
     updateHUD();
 
     // Spawn Next
