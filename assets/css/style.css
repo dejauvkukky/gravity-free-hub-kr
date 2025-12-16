@@ -976,8 +976,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0;
-    /* Match standard vertical rhythm */
+    padding: 20px;
+    box-sizing: border-box;
     margin-bottom: 10px;
     width: 100%;
 }
