@@ -75,38 +75,43 @@ body {
 /* -------------------------------------------------------------------------- */
 /*                               Subpage Header                               */
 /* -------------------------------------------------------------------------- */
-/* Fix for Wishlist and MBTI headers */
+/* Original Dark Header Style (matching Calendar/Fortune/Sound Garden) */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5px;
-    /* Minimal padding inside container */
-    margin-bottom: 20px;
+    padding: 15px 20px;
+    /* Proper horizontal padding */
+    margin-bottom: 0;
+    /* No margin - header is full width */
     width: 100%;
     box-sizing: border-box;
+    background-color: var(--color-secondary);
+    /* Dark Charcoal Background */
+    color: var(--color-primary);
+    /* Mint text color */
 }
 
 header .logo {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #333;
-    /* Standard Navigation Color (Dark Grey) for visibility on white bg */
+    color: var(--color-primary);
+    /* Mint color on dark background */
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 5px;
-    transition: color 0.2s;
+    transition: opacity 0.2s;
 }
 
 header .logo:hover {
-    color: var(--color-primary);
+    opacity: 0.8;
 }
 
 header span {
     font-weight: 800;
     color: var(--color-primary);
-    /* Highlight Title */
+    /* Mint color - matching the images */
     font-size: 1.1rem;
 }
 
