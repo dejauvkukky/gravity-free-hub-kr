@@ -416,28 +416,34 @@ header {
 /*                         Mini Game Arcade Zone (Dark)                       */
 /* -------------------------------------------------------------------------- */
 .mini-game-section {
-    margin-top: 40px;
-    padding: 30px 20px 40px 20px;
-    width: 100%;
+    margin: 30px 20px;
+    /* Side margins added */
+    padding: 20px;
+    /* Reduced vertical padding */
+    width: auto;
+    /* Allow sizing by margins */
     max-width: 600px;
     text-align: center;
     background: #0f172a;
     /* Dark Slate */
-    border-radius: 24px 24px 0 0;
-    /* Rounded Top */
+    border-radius: 24px;
+    /* All corners rounded */
     color: white;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* Strong shadow */
     border-top: 4px solid #3b82f6;
     /* Neon Blue Accent */
+    border-bottom: 4px solid #3b82f6;
+    /* Bottom Accent for Symmetry */
     box-sizing: border-box;
-    /* Fix for padding width issue */
 }
 
 .mini-game-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    /* Slightly smaller */
     color: #60a5fa;
-    /* Neon Blue Text */
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+    /* Reduced margin */
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
