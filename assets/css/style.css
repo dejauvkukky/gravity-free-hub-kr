@@ -55,8 +55,8 @@ body {
 .dashboard-header {
     background: var(--color-header-bg);
     color: white;
-    padding: 0;
-    /* Removing padding to let top bar fill width */
+    padding: 20px 24px;
+    /* Restored padding */
     border-radius: 0 0 30px 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -64,7 +64,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* For inner border-radius */
 }
 
 /* Header Top Bar (Title & Logout) */
@@ -73,11 +72,25 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 15px 24px;
-    /* Padding inside the bar */
-    background: rgba(0, 0, 0, 0.1);
-    /* Darker band */
-    box-sizing: border-box;
+    margin-bottom: 10px;
+    /* Space between title and content */
+}
+
+/* Logo Text Effect */
+.header-logo {
+    font-size: 1.3rem;
+    /* Slightly larger */
+    font-weight: 900;
+    color: transparent;
+    /* For gradient text */
+    background: linear-gradient(to right, #ffffff, #a5f3fc);
+    /* White to Cyan gradient */
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
 }
 
 /* Container for Quote and Profile layout */
@@ -85,10 +98,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /* Vertical Center */
     width: 100%;
-    padding: 20px 24px;
-    /* Content padding */
-    box-sizing: border-box;
 }
 
 /* Quote Section (Left/Center) */
