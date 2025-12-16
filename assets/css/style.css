@@ -304,23 +304,23 @@ header {
 }
 
 .wish-avatar.kukky {
-    background-image: url('/assets/images/avatar_kukky.png');
+    background-image: url('../images/avatar_kukky.png');
 }
 
 .wish-avatar.soony {
-    background-image: url('/assets/images/avatar_soony.png');
+    background-image: url('../images/avatar_soony.png');
 }
 
 .wish-avatar.joowon {
-    background-image: url('/assets/images/avatar_joowon.png');
+    background-image: url('../images/avatar_joowon.png');
 }
 
 .wish-avatar.raim {
-    background-image: url('/assets/images/avatar_raim.png');
+    background-image: url('../images/avatar_raim.png');
 }
 
 .wish-avatar.default {
-    background-image: url('/assets/images/avatar_kukky.png');
+    background-image: url('../images/avatar_kukky.png');
     filter: grayscale(100%);
 }
 
@@ -445,11 +445,29 @@ header {
     transform: scale(0.9);
 }
 
+/* Base Modal Overlay - REQUIRED for positioning */
+.notice-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* transition: opacity 0.3s; */
+}
+
 /* Modal Tweaks */
 .wish-modal-body {
     background: white;
     border-radius: 20px;
-    max-width: 100%;
+    max-width: 90%;
+    width: 400px;
+    /* Default desktop width */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .wish-modal-body input,
