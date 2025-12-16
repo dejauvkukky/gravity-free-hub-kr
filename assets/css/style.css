@@ -160,3 +160,286 @@ header {
 .p-4 {
     padding: 16px;
 }
+
+/* ------------------------------------------------------------
+   Wishlist (챙겨줘요) Styles
+------------------------------------------------------------ */
+
+/* Container & Header */
+.wish-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5px;
+    margin-bottom: 10px;
+}
+
+.wish-filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.wish-filters::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari */
+}
+
+.filter-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: white;
+    font-size: 0.95rem;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-tab.active {
+    background: var(--color-primary);
+    /* #7ED6C1 */
+    color: var(--color-secondary);
+    /* #2C3A47 */
+    border-color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* Wish Card */
+.wish-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+    border: 1px solid #f1f5f9;
+    position: relative;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.wish-card.done {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    opacity: 0.8;
+}
+
+.wish-card.done .wish-title,
+.wish-card.done .wish-memo {
+    text-decoration: line-through;
+    color: #94a3b8;
+}
+
+.wish-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.wish-category {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.wish-content-wrapper {
+    flex-grow: 1;
+}
+
+.wish-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.wish-memo {
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    margin-bottom: 8px;
+}
+
+.wish-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Date Badges */
+.date-badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+}
+
+.date-badge.urgent {
+    background: #fecdd3;
+    color: #be123c;
+    animation: pulse-soft 2s infinite;
+}
+
+.date-badge.today {
+    background: #fde68a;
+    color: #b45309;
+}
+
+.date-badge.future {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+/* Author Avatar Styles */
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.mini-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #e2e8f0;
+}
+
+/* Static mapping relative to where the CSS file is loaded (usually from assets/css/style.css, so ../Images is valid if assets/images exists) */
+/* Wait, css is in assets/css/. images are in assets/images/. so ../images/ is correct */
+.mini-avatar.kukky {
+    background-image: url('../images/avatar_kukky.png');
+}
+
+.mini-avatar.soony {
+    background-image: url('../images/avatar_soony.png');
+}
+
+.mini-avatar.joowon {
+    background-image: url('../images/avatar_joowon.png');
+}
+
+.mini-avatar.raim {
+    background-image: url('../images/avatar_raim.png');
+}
+
+.mini-avatar.default {
+    background-image: url('../images/avatar_kukky.png');
+    filter: grayscale(100%);
+}
+
+/* Action Buttons */
+.check-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    background: white;
+    color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+}
+
+.wish-card.done .check-btn {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+/* Floating Action Button (FAB) */
+.fab-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    background: var(--color-primary);
+    color: var(--color-secondary);
+    box-shadow: 0 4px 15px rgba(126, 214, 193, 0.4);
+    border: none;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: transform 0.2s;
+}
+
+.fab-btn:active {
+    transform: scale(0.9);
+}
+
+/* Modal - Specific Tweaks */
+.wish-modal-body input,
+.wish-modal-body textarea,
+.wish-modal-body select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.category-select-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.cat-option {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.cat-option.selected {
+    background: #ecfdf5;
+    border-color: #10b981;
+}
+
+@keyframes pulse-soft {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

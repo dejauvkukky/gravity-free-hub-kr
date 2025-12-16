@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Garden - 챙겨줘요</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512161002">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        /* Feature specific overrides if needed */
+        body {
+            background-color: #fdfbf7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" style="background: #fdfbf7; min-height: 100vh; position: relative; padding-bottom: 80px;">
+
+        <!-- Header -->
+        <header class="wish-header">
+            <button onclick="location.href='../dashboard.html'"
+                style="background:none; border:none; font-size:1.5rem; cursor:pointer;">
+                🔙
+            </button>
+            <div style="font-weight:800; font-size:1.2rem; color:#2C3A47;">챙겨줘요</div>
+            <div style="width: 24px;"></div> <!-- Spacer -->
+        </header>
+
+        <!-- Filters -->
+        <div class="wish-filters" id="category-filters" style="padding: 0 15px;">
+            <button class="filter-tab active" data-cat="all">전체</button>
+            <button class="filter-tab" data-cat="🎒">🎒 준비물</button>
+            <button class="filter-tab" data-cat="🎁">🎁 선물</button>
+            <button class="filter-tab" data-cat="🛒">🛒 쇼핑</button>
+            <button class="filter-tab" data-cat="🍔">🍔 먹거리</button>
+            <button class="filter-tab" data-cat="🚗">🚗 가고파</button>
+            <button class="filter-tab" data-cat="📌">📌 기타</button>
+        </div>
+
+        <!-- Wish List -->
+        <div id="wish-list" style="padding: 10px 15px;">
+            <!-- Content loaded via JS -->
+            <div class="text-center" style="margin-top: 50px; color: #94a3b8;">
+                로딩중...
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="text-center" style="margin-top: 10px;">
+            <button id="btn-load-more" class="btn hidden"
+                style="background:#e2e8f0; color:#64748b; width:auto; padding: 8px 16px; font-size:0.9rem;">
+                더보기 ⬇️
+            </button>
+        </div>
+
+        <!-- FAB -->
+        <button id="fab-add" class="fab-btn">
+            ➕
+        </button>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="wish-modal" class="notice-overlay hidden">
+        <div class="notice-modal wish-modal-body" style="padding: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0;">위시 등록하기</h3>
+                <button id="modal-close"
+                    style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
+            </div>
+
+            <div class="category-select-grid" id="modal-category-select">
+                <div class="cat-option selected" data-value="🎒">🎒</div>
+                <div class="cat-option" data-value="🎁">🎁</div>
+                <div class="cat-option" data-value="🛒">🛒</div>
+                <div class="cat-option" data-value="🍔">🍔</div>
+                <div class="cat-option" data-value="🚗">🚗</div>
+                <div class="cat-option" data-value="📌">📌</div>
+            </div>
+
+            <input type="text" id="input-title" placeholder="제목을 입력하세요 (예: 수학 문제집)" maxlength="30">
+            <textarea id="input-memo" rows="3" placeholder="메모 (옵션)" style="resize:none;"></textarea>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:0.9rem; color:#64748b; margin-bottom:5px;">날짜 (선택)</label>
+                <input type="date" id="input-date">
+            </div>
+
+            <button id="btn-save-wish" class="btn btn-primary">등록하기</button>
+        </div>
+    </div>
+
+    <!-- Logic -->
+    <script type="module" src="../../src/wishlist.js?v=202512161002"></script>
+</body>
+
+</html>

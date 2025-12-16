@@ -28,6 +28,7 @@
 | 🧩 Secret MBTI | MBTI 자가진단, 가족 구성원 비교 |
 | 🎵 Sound Garden | YouTube 음악 공유, 댓글 및 이모지 반응 |
 | 🏗️ 아빠를 이겨라 | 스택 쌓기 게임, 아빠 AI 경쟁, 주간 랭킹 |
+| 🎒 챙겨줘요 | 가족 위시리스트 & 준비물 메모, D-Day 관리 |
 | 📢 공지사항 | 팝업 공지, kukky 전용 관리 기능 |
 
 ---
@@ -44,6 +45,7 @@ root/
 │   ├── fortune/            # 오늘의 운세
 │   ├── mbti/               # MBTI 테스트
 │   ├── sound-garden/       # 음악 공유
+│   ├── wishlist/           # 챙겨줘요 (New)
 
 │   └── games/
 │       ├── beat-dad/       # 스택 쌓기 게임
@@ -53,6 +55,8 @@ root/
 │   ├── auth.js             # 인증 관련 로직
 │   ├── users.js            # 가족 생년월일 데이터
 │   ├── fortune_engine.js   # 운세 생성 엔진
+│   ├── wishlist.js         # 위시리스트 로직
+
 │   └── mbti_data.js        # MBTI 질문/결과 데이터
 └── assets/
     └── css/                # 스타일시트
@@ -67,7 +71,7 @@ root/
 
 > 브라우저는 CSS/JS 파일을 캐시합니다. 수정 후에도 변경이 반영되지 않을 수 있습니다.
 
-**🔖 현재 버전: v=202512121735** (YYYYMMDDHHmm 형식 사용 권장)
+**🔖 현재 버전: v=202512161002** (YYYYMMDDHHmm 형식 사용 권장)
 
 **배포 전 필수 작업:**
 
@@ -158,6 +162,7 @@ git push
 - MBTI 테스트
 - Sound Garden 음악 플랫폼
 - Beat Dad 미니게임
+- 챙겨줘요 (가족 위시리스트)
 - 공지사항 팝업 시스템
 
 ### 📋 향후 예정

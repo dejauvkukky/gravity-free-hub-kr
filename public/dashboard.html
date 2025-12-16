@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=202512151330">
+    <link rel="stylesheet" href="../assets/css/style.css?v=202512161002">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -292,11 +292,19 @@
                 <div class="menu-desc">스택 타워 쌓기<br>누가 이길까?</div>
             </div>
 
+
             <!-- Beat Dad 2048 -->
             <div class="menu-card" onclick="location.href='games/beat-dad-2048/index.html'">
                 <div class="menu-icon bg-yellow-soft">🔢</div>
                 <div class="menu-title">2048 게임</div>
                 <div class="menu-desc">뇌섹남 아빠와의<br>두뇌 대결!</div>
+            </div>
+
+            <!-- Wishlist (New) -->
+            <div class="menu-card" onclick="location.href='wishlist/index.html'">
+                <div class="menu-icon bg-red-soft">🎒</div>
+                <div class="menu-title">챙겨줘요</div>
+                <div class="menu-desc">가족 위시리스트<br>& 준비물 메모</div>
             </div>
         </div>
 
@@ -661,7 +669,7 @@
     </style>
 
     <!-- Scripts -->
-    <script src="../src/auth.js?v=202512121000"></script>
+    <script src="../src/auth.js?v=202512161002"></script>
     <!-- Password Change Modal -->
     <div id="password-modal" class="notice-overlay hidden">
         <div class="notice-admin" style="max-width: 400px;">
@@ -704,8 +712,8 @@
     </div>
 
     <script type="module">
-        import '../src/firebase.js?v=202512121000';
-        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512121000';
+        import '../src/firebase.js?v=202512161002';
+        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512161002';
 
         // Logic executes after imports
         // 1. Init Check
