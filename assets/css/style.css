@@ -210,19 +210,24 @@ header {
     font-weight: 700;
 }
 
-/* Wish Card - Refined Layout */
+/* Wish Card - Refined Layout & Visuals */
 .wish-card {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
     gap: 12px;
-    background: white;
+    background: linear-gradient(135deg, #ffffff 0%, #fdfbf7 100%);
+    /* Slight gradient */
     border-radius: 16px;
     padding: 20px;
     margin: 0 15px 16px 15px;
     /* Side margins */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    /* Softer shadow */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Very subtle border */
+    border-bottom: 3px solid #f1f5f9;
+    /* Card effect */
     position: relative;
     transition: transform 0.2s, background-color 0.2s;
 }
@@ -376,6 +381,24 @@ header {
     border-color: #10b981;
     color: white;
     /* Icon will be white */
+}
+
+/* Status Badge (Read Only) */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge.done {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.status-badge.waiting {
+    background: #f1f5f9;
+    color: #94a3b8;
 }
 
 .delete-btn {
@@ -563,7 +586,8 @@ header {
 
     .wish-modal-body {
         width: 100%;
-        max-width: 100%;
+        max-width: 90vw;
+        /* Fix cutoff: explicit viewport relative max-width */
         border-radius: 20px;
         /* Standard round */
         padding: 20px;
@@ -571,6 +595,12 @@ header {
         animation: pulse-soft 0.3s ease-out;
         /* Simple pop-in */
         position: relative;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-select-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        /* Fix cutoff: 3 cols on mobile */
     }
 
     /* Remove Handle Bar if it exists */

@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161220';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161220';
+import './firebase.js?v=202512161250';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161250';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -282,20 +282,40 @@ function renderList() {
             dateBadge = `<div class="wish-date-area"><span class="${badgeClass}">${badgeText}</span></div>`;
         }
 
+        // Date Formatting (MM.DD)
+        const dateObj = new Date(item.createdAt);
+        const createdDateStr = `${dateObj.getMonth() + 1}.${dateObj.getDate()}`;
+
         // Author Logic (Right Side)
         const authorId = item.authorId || 'default';
         const authorName = item.createdByName || '가족';
 
-        let deleteBtn = '';
+        // Permissions
         const isAdmin = currentUser && currentUser.email.includes('kukky');
         const isAuthor = currentUser && item.createdBy === currentUser.email;
+        const canEdit = isAdmin || isAuthor;
 
-        if (isAdmin || isAuthor) {
+        let deleteBtn = '';
+        if (canEdit) {
             deleteBtn = `<button class="delete-btn">🗑️ 삭제</button>`;
         }
 
         const checkBtnState = isDone ? '완료 취소' : '완료 체크';
         const checkIcon = isDone ? '↩️' : '✔';
+
+        // Check Button (Conditional or Disabled style)
+        let checkBtnHTML = '';
+        if (canEdit) {
+            checkBtnHTML = `
+            <button class="check-btn-square">
+                ${checkIcon} ${checkBtnState}
+            </button>`;
+        } else {
+            // Read-only view for others (optional: show status without button)
+            checkBtnHTML = isDone
+                ? `<div class="status-badge done">완료됨</div>`
+                : `<div class="status-badge waiting">진행중</div>`;
+        }
 
         card.innerHTML = `
             <!-- Left: Main Content -->
@@ -307,35 +327,39 @@ function renderList() {
                 </div>
             </div>
 
-            <!-- Right: Author -->
+            <!-- Right: Author & Date -->
             <div class="wish-author">
                 <div class="wish-avatar" title="${authorName}" 
                     style="background-image: url('../assets/images/avatar_${authorId}.png');"></div>
-                <div class="wish-author-name">${authorName}</div>
+                <div class="wish-author-name" style="font-size:0.7rem; color:#94a3b8;">${createdDateStr}</div>
             </div>
 
             <!-- Bottom: Actions -->
             <div class="wish-actions">
                 <div class="wish-btn-group">
-                    <button class="check-btn-square">
-                        ${checkIcon} ${checkBtnState}
-                    </button>
+                    ${checkBtnHTML}
                     ${dateBadge}
                 </div>
                 ${deleteBtn}
             </div>
         `;
 
-        card.querySelector('.check-btn-square').addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleStatus(item.id, item.status);
-        });
+        if (canEdit) {
+            const checkBtn = card.querySelector('.check-btn-square');
+            if (checkBtn) {
+                checkBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleStatus(item.id, item.status);
+                });
+            }
 
-        if (deleteBtn) {
-            card.querySelector('.delete-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                deleteWish(item.id);
-            });
+            const delBtn = card.querySelector('.delete-btn');
+            if (delBtn) {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteWish(item.id);
+                });
+            }
         }
 
         listEl.appendChild(card);
