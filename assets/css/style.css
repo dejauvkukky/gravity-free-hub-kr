@@ -215,13 +215,15 @@ header {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
-    gap: 12px;
+    gap: 8px;
+    /* Reduced gap */
     background: #ffffff;
     /* Pure White for Contrast */
     border-radius: 16px;
-    padding: 20px;
-    margin: 0 15px 16px 15px;
-    /* Side margins */
+    padding: 16px;
+    /* Reduced padding (80%) */
+    margin: 0 15px 12px 15px;
+    /* Reduced margin */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     /* Stronger shadow */
     border: 1px solid #e2e8f0;
@@ -247,21 +249,22 @@ header {
 }
 
 .wish-icon-area {
-    font-size: 1.8rem;
-    padding-top: 2px;
-    min-width: 40px;
-    /* Ensure space for icon */
+    font-size: 1.5rem;
+    /* Reduced icon size */
+    margin-top: 2px;
 }
 
-.wish-text-area {
+.wish-content-area {
     display: flex;
     flex-direction: column;
+    gap: 4px;
+    /* Reduced gap */
     min-width: 0;
-    /* Enable truncation if needed */
 }
 
 .wish-title {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    /* Slightly smaller title */
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 4px;
@@ -275,12 +278,34 @@ header {
 }
 
 .wish-memo {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #64748b;
-    line-height: 1.5;
+    line-height: 1.4;
     white-space: pre-wrap;
-    margin-bottom: 6px;
+    /* Allow text wrap */
     word-break: break-word;
+}
+
+/* Sound Garden Style Load More */
+.load-more-btn {
+    width: calc(100% - 30px);
+    /* Match card margins */
+    margin: 10px 15px 30px 15px;
+    padding: 15px;
+    background: white;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.load-more-btn:active {
+    background: #f1f5f9;
+    transform: scale(0.98);
 }
 
 .wish-card.done .wish-memo {
