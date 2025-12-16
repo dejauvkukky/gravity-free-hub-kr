@@ -55,22 +55,29 @@ body {
 .dashboard-header {
     background: var(--color-header-bg);
     color: white;
-    padding: 20px 24px;
+    padding: 0;
+    /* Removing padding to let top bar fill width */
     border-radius: 0 0 30px 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 5;
-    /* Flex Layout for Redesign */
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    overflow: hidden;
+    /* For inner border-radius */
 }
 
+/* Header Top Bar (Title & Logout) */
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 15px 24px;
+    /* Padding inside the bar */
+    background: rgba(0, 0, 0, 0.1);
+    /* Darker band */
+    box-sizing: border-box;
 }
 
 /* Container for Quote and Profile layout */
@@ -79,6 +86,9 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 20px 24px;
+    /* Content padding */
+    box-sizing: border-box;
 }
 
 /* Quote Section (Left/Center) */
@@ -185,20 +195,25 @@ body {
     border-radius: 50%;
     background: white;
     padding: 2px;
-    margin-bottom: 6px;
-    /* Space below avatar */
+    margin-bottom: 2px;
+    /* Reduced space */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .user-name-display {
     font-size: 1rem;
     font-weight: 700;
-    margin-bottom: 2px;
+    margin-bottom: 0;
 }
 
 .user-role-display {
-    font-size: 0.8rem;
-    opacity: 0.8;
+    font-size: 0.75rem;
+    /* Smaller date */
+    opacity: 0.7;
+    margin-bottom: 4px;
+    /* Space above avatar */
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 /* Card UI */
