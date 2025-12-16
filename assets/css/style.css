@@ -547,38 +547,31 @@ header {
     }
 }
 
-/* Mobile Bottom Sheet Overrides */
+/* Mobile Modal Adjustments (Center Popup) */
 @media (max-width: 600px) {
 
-    /* Modal Container acts as bottom alignment context */
+    /* Modal Container acts as center alignment context (default) */
     #wish-modal {
-        align-items: flex-end;
-        /* Align to bottom */
-        padding: 0;
+        padding: 20px;
+        align-items: center;
+        /* Center vertically */
     }
 
     .wish-modal-body {
         width: 100%;
         max-width: 100%;
-        border-radius: 24px 24px 0 0;
-        padding: 24px 20px 40px 20px !important;
-        /* Extra bottom padding for safe area */
+        border-radius: 20px;
+        /* Standard round */
+        padding: 20px;
         margin: 0;
-        animation: slideUpSheet 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: pulse-soft 0.3s ease-out;
+        /* Simple pop-in */
         position: relative;
     }
 
-    /* Handle Bar for Visual Cue */
+    /* Remove Handle Bar if it exists */
     .wish-modal-body::before {
-        content: '';
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 5px;
-        background-color: #e2e8f0;
-        border-radius: 3px;
+        display: none;
     }
 
     /* Adjust FAB to be safe from bottom */
@@ -588,15 +581,5 @@ header {
         bottom: 30px;
         right: 20px;
         /* Ensure it's above other content but below modal */
-    }
-}
-
-@keyframes slideUpSheet {
-    from {
-        transform: translateY(100%);
-    }
-
-    to {
-        transform: translateY(0);
     }
 }
