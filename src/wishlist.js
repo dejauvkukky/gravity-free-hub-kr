@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161501';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161501';
+import './firebase.js?v=202512161507';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161507';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -108,7 +108,8 @@ async function loadWishes(isReset = false) {
             query = query.startAfter(state.lastDoc);
         }
 
-        query = query.limit(PAGE_LIMIT * 2);
+        // Fetch LIMIT + 1 to check if there's a next page
+        query = query.limit(PAGE_LIMIT + 1);
 
         const snapshot = await query.get();
 
@@ -118,15 +119,23 @@ async function loadWishes(isReset = false) {
             return;
         }
 
-        state.lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        // Check if we have more than limit
+        const hasNextPage = snapshot.docs.length > PAGE_LIMIT;
 
-        if (snapshot.docs.length >= PAGE_LIMIT * 2) {
+        // If hasNextPage, we slice off the extra one. If not, we take all.
+        const docsToRender = hasNextPage ? snapshot.docs.slice(0, PAGE_LIMIT) : snapshot.docs;
+
+        // Update lastDoc to the last RENDERED document! 
+        // So the next fetch starts after this one (which will be the extra one we dropped, or null if end)
+        state.lastDoc = docsToRender[docsToRender.length - 1];
+
+        if (hasNextPage) {
             btnLoadMore.classList.remove('hidden');
         } else {
             btnLoadMore.classList.add('hidden');
         }
 
-        const newItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const newItems = docsToRender.map(doc => ({ id: doc.id, ...doc.data() }));
 
         if (isReset) {
             state.wishes = newItems;
