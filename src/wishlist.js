@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161105';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161105';
+import './firebase.js?v=202512161145';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161145';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -309,7 +309,8 @@ function renderList() {
 
             <!-- Right: Author -->
             <div class="wish-author">
-                <div class="wish-avatar ${authorId}" title="${authorName}"></div>
+                <div class="wish-avatar" title="${authorName}" 
+                    style="background-image: url('../../assets/images/avatar_${authorId}.png');"></div>
                 <div class="wish-author-name">${authorName}</div>
             </div>
 
