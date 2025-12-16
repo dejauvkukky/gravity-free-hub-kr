@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161250';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161250';
+import './firebase.js?v=202512161303';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161303';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -282,9 +282,12 @@ function renderList() {
             dateBadge = `<div class="wish-date-area"><span class="${badgeClass}">${badgeText}</span></div>`;
         }
 
-        // Date Formatting (MM.DD)
+        // Date Formatting (YY.MM.DD)
         const dateObj = new Date(item.createdAt);
-        const createdDateStr = `${dateObj.getMonth() + 1}.${dateObj.getDate()}`;
+        const yy = String(dateObj.getFullYear()).slice(-2);
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        const createdDateStr = `${yy}.${mm}.${dd}`;
 
         // Author Logic (Right Side)
         const authorId = item.authorId || 'default';
