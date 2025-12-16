@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161045';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161045';
+import './firebase.js?v=202512161058';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161058';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -90,12 +90,19 @@ async function loadWishes(isReset = false) {
     try {
         let query = firebase.firestore().collection(COLLECTION_NAME);
 
+        // Sorting Strategy:
+        // Firestore requires composite indexes for equality filter + range sort.
+        // To avoid this error/requirement for dynamic categories:
+        // 1. If filtering by category, DO NOT sort by createdAt on server.
+        // 2. If 'all', sort by createdAt desc.
+        // 3. Client-side sorting (sortWishes) handles the final display order.
+
         if (state.filterCat !== 'all') {
             query = query.where('category', '==', state.filterCat);
+            // No orderBy('createdAt') here to avoid index error
+        } else {
+            query = query.orderBy('createdAt', 'desc');
         }
-
-        // Order by createdAt desc to get latest
-        query = query.orderBy('createdAt', 'desc');
 
         if (!isReset && state.lastDoc) {
             query = query.startAfter(state.lastDoc);
