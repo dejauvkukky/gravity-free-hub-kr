@@ -80,8 +80,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    /* Proper horizontal padding */
+    padding: 20px;
+    /* Increased vertical padding for more height */
     margin-bottom: 0;
     /* No margin - header is full width */
     width: 100%;
@@ -113,7 +113,8 @@ header span {
     /* Regular weight - not bold */
     color: var(--color-primary);
     /* Mint color - matching the images */
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    /* Smaller font size */
 }
 
 /* Header Top Bar (Title & Logout) */
