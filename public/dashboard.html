@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=202512161314">
+    <link rel="stylesheet" href="../assets/css/style.css?v=202512161413">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -257,54 +257,58 @@
 
         <!-- Menu Grid -->
         <div class="menu-grid" style="margin-top: 20px;">
-            <!-- Fortune -->
-            <div class="menu-card" onclick="location.href='fortune/index.html'">
-                <div class="menu-icon bg-green-soft">🍀</div>
-                <div class="menu-title">오늘의 운세</div>
-                <div class="menu-desc">매일매일 확인하는<br>나의 행운</div>
-            </div>
 
-            <!-- Calendar -->
+            <!-- 1. Calendar -->
             <div class="menu-card" onclick="location.href='calendar/index.html'">
                 <div class="menu-icon bg-blue-soft">📅</div>
                 <div class="menu-title">가족 일정</div>
                 <div class="menu-desc">중요한 행사<br>놓치지 마세요</div>
             </div>
 
-            <!-- MBTI -->
+            <!-- 2. Wishlist -->
+            <div class="menu-card" onclick="location.href='wishlist/index.html'">
+                <div class="menu-icon bg-red-soft">🎒</div>
+                <div class="menu-title">챙겨줘요</div>
+                <div class="menu-desc">가족 위시리스트<br>& 준비물 메모</div>
+            </div>
+
+            <!-- 3. Fortune -->
+            <div class="menu-card" onclick="location.href='fortune/index.html'">
+                <div class="menu-icon bg-green-soft">🍀</div>
+                <div class="menu-title">오늘의 운세</div>
+                <div class="menu-desc">매일매일 확인하는<br>나의 행운</div>
+            </div>
+
+            <!-- 4. MBTI -->
             <div class="menu-card" onclick="location.href='mbti/index.html'">
                 <div class="menu-icon bg-red-soft">🧩</div>
                 <div class="menu-title">Secret MBTI</div>
                 <div class="menu-desc">서로의 성격을<br>이해해보아요</div>
             </div>
 
-            <!-- Sound Garden -->
+            <!-- 5. Sound Garden -->
             <div class="menu-card" onclick="location.href='sound-garden/index.html'">
-                <div class="menu-icon bg-purple-soft">🎵</div>
+                <div class="menu-icon bg-purple-soft">�</div>
                 <div class="menu-title">Sound Garden</div>
                 <div class="menu-desc">음악과 함께하는<br>힐링 타임</div>
             </div>
+        </div>
 
-            <!-- Beat Dad -->
-            <div class="menu-card" onclick="location.href='games/beat-dad/index.html'">
-                <div class="menu-icon bg-blue-soft">🏗️</div>
-                <div class="menu-title">아빠를 이겨라</div>
-                <div class="menu-desc">스택 타워 쌓기<br>누가 이길까?</div>
-            </div>
+        <!-- Mini Game Zone (New) -->
+        <div class="mini-game-section">
+            <div class="mini-game-title">🕹️ FAMILY ARCADE</div>
+            <div class="mini-game-grid">
+                <!-- Stack -->
+                <a href="games/beat-dad/index.html" class="mini-game-card">
+                    <div class="mini-game-icon">🏗️</div>
+                    <div class="mini-game-name">스택 쌓기</div>
+                </a>
 
-
-            <!-- Beat Dad 2048 -->
-            <div class="menu-card" onclick="location.href='games/beat-dad-2048/index.html'">
-                <div class="menu-icon bg-yellow-soft">🔢</div>
-                <div class="menu-title">2048 게임</div>
-                <div class="menu-desc">뇌섹남 아빠와의<br>두뇌 대결!</div>
-            </div>
-
-            <!-- Wishlist (New) -->
-            <div class="menu-card" onclick="location.href='wishlist/index.html'">
-                <div class="menu-icon bg-red-soft">🎒</div>
-                <div class="menu-title">챙겨줘요</div>
-                <div class="menu-desc">가족 위시리스트<br>& 준비물 메모</div>
+                <!-- 2048 -->
+                <a href="games/beat-dad-2048/index.html" class="mini-game-card">
+                    <div class="mini-game-icon">🔢</div>
+                    <div class="mini-game-name">2048 게임</div>
+                </a>
             </div>
         </div>
 
@@ -669,7 +673,7 @@
     </style>
 
     <!-- Scripts -->
-    <script src="../src/auth.js?v=202512161314"></script>
+    <script src="../src/auth.js?v=202512161413"></script>
     <!-- Password Change Modal -->
     <div id="password-modal" class="notice-overlay hidden">
         <div class="notice-admin" style="max-width: 400px;">
@@ -712,8 +716,8 @@
     </div>
 
     <script type="module">
-        import '../src/firebase.js?v=202512161314';
-        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512161314';
+        import '../src/firebase.js?v=202512161413';
+        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512161413';
 
         // Logic executes after imports
         // 1. Init Check

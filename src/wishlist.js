@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161314';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161314';
+import './firebase.js?v=202512161413';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161413';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -303,16 +303,13 @@ function renderList() {
             deleteBtn = `<button class="delete-btn">🗑️ 삭제</button>`;
         }
 
-        const checkBtnState = isDone ? '완료 취소' : '완료 체크';
-        const checkIcon = isDone ? '↩️' : '✔';
+
 
         // Check Button (Conditional or Disabled style)
         let checkBtnHTML = '';
         if (canEdit) {
             checkBtnHTML = `
-            <button class="check-btn-square">
-                ${checkIcon} ${checkBtnState}
-            </button>`;
+            <button class="check-btn-square" title="완료 여부"></button>`;
         } else {
             // Read-only view for others (optional: show status without button)
             checkBtnHTML = isDone
