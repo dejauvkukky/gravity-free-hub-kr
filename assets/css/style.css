@@ -304,23 +304,23 @@ header {
 }
 
 .wish-avatar.kukky {
-    background-image: url('../images/avatar_kukky.png');
+    background-image: url('/assets/images/avatar_kukky.png');
 }
 
 .wish-avatar.soony {
-    background-image: url('../images/avatar_soony.png');
+    background-image: url('/assets/images/avatar_soony.png');
 }
 
 .wish-avatar.joowon {
-    background-image: url('../images/avatar_joowon.png');
+    background-image: url('/assets/images/avatar_joowon.png');
 }
 
 .wish-avatar.raim {
-    background-image: url('../images/avatar_raim.png');
+    background-image: url('/assets/images/avatar_raim.png');
 }
 
 .wish-avatar.default {
-    background-image: url('../images/avatar_kukky.png');
+    background-image: url('/assets/images/avatar_kukky.png');
     filter: grayscale(100%);
 }
 
