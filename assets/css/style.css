@@ -51,26 +51,96 @@ body {
     flex-direction: column;
 }
 
-/* Header */
-header {
-    padding: 20px;
-    background-color: var(--color-header-bg);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+/* Dashboard Header Redesign */
+.dashboard-header {
+    background: var(--color-header-bg);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 5;
+    /* Flex Layout for Redesign */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--color-header-text);
+    width: 100%;
 }
 
-.logo {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--color-header-text);
-    text-decoration: none;
-    letter-spacing: -0.5px;
+/* Container for Quote and Profile layout */
+.header-main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Quote Section (Left/Center) */
+.quote-section {
+    flex: 1;
+    /* Take available space */
+    padding-right: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.quote-text {
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.95);
+    word-break: keep-all;
+}
+
+.quote-author {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: left;
+}
+
+/* Profile Section (Right Side) */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    /* Align right */
+    justify-content: center;
+    flex-shrink: 0;
+    /* Don't shrink */
+    margin-left: auto;
+    /* Ensure right alignment */
+    padding-left: 10px;
+    /* Spacing from quote */
+}
+
+.avatar-container {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    padding: 2px;
+    margin-bottom: 6px;
+    /* Space below avatar */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-name-display {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.user-role-display {
+    font-size: 0.8rem;
+    opacity: 0.8;
 }
 
 /* Card UI */

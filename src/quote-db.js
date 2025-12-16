@@ -1,0 +1,22 @@
+export const QUOTES = [
+    { text: "행복은 이미 당신 안에 있습니다.", author: "Dalai Lama" },
+    { text: "오늘 걷지 않으면 내일은 뛰어야 한다.", author: "Carles Puyol" },
+    { text: "작은 변화가 일어날 때 진정한 삶을 살게 된다.", author: "Leo Tolstoy" },
+    { text: "실패는 다시 시작할 수 있는 기회다. 더 현명하게.", author: "Henry Ford" },
+    { text: "가장 큰 위험은 위험없는 삶이다.", author: "Stephen Covey" },
+    { text: "꿈을 계속 간직하고 있으면 반드시 실현할 때가 온다.", author: "Goethe" },
+    { text: "고통이 없으면 얻는 것도 없다.", author: "Benjamin Franklin" },
+    { text: "인생은 속도가 아니라 방향이다.", author: "Goethe" },
+    { text: "내일 죽을 것처럼 살고, 영원히 살 것처럼 배워라.", author: "Mahatma Gandhi" },
+    { text: "피할 수 없으면 즐겨라.", author: "Robert Eliot" },
+    { text: "시작이 반이다.", author: "Aristotle" },
+    { text: "중요한 것은 꺾이지 않는 마음.", author: "Unknown" },
+    { text: "매일매일이 최고의 날이다.", author: "Ralph Waldo Emerson" },
+    { text: "웃음은 가장 가까운 두 사람 사이의 거리다.", author: "Victor Borge" },
+    { text: "가족은 인생의 나침반이다.", author: "Unknown" },
+    { text: "서로 사랑하고 지지하는 것이 최고의 행복이다.", author: "Unknown" },
+    { text: "오늘 하루도 선물입니다.", author: "Unknown" },
+    { text: "감사는 행복의 문을 여는 열쇠다.", author: "Unknown" },
+    { text: "긍정적인 생각이 기적을 만든다.", author: "Unknown" },
+    { text: "함께라서 더 행복한 우리 가족.", author: "Secret Garden" }
+];
