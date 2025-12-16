@@ -125,13 +125,14 @@ header span {
     font-size: 1.4rem;
     /* Slightly larger */
     font-weight: 900;
-    color: var(--color-primary);
+    color: white;
+    /* Changed to White per user request */
     background: transparent;
     /* Ensure no box */
     text-decoration: none;
     letter-spacing: -0.5px;
-    text-shadow: 0 0 10px rgba(126, 214, 193, 0.5), 0 0 5px rgba(255, 255, 255, 0.5);
-    /* Stronger Neon Glow */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 255, 255, 0.3);
+    /* White Glow */
 }
 
 /* Container for Quote and Profile layout */
@@ -970,31 +971,36 @@ header span {
 /* -------------------------------------------------------------------------- */
 /*                               Subpage Header                               */
 /* -------------------------------------------------------------------------- */
-/* Fix for Wishlist and MBTI headers relying on generic header tag */
+/* Unify with Family Calendar Style */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5px;
-    /* Adjust padding */
-    margin-bottom: 20px;
+    padding: 20px 0;
+    /* Match standard vertical rhythm */
+    margin-bottom: 10px;
     width: 100%;
-    box-sizing: border-box;
 }
 
 header .logo {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #333;
-    /* Dark text for visibility on light pages */
+    color: var(--color-primary);
+    /* Use Theme Color for Back Link */
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 5px;
+    transition: opacity 0.2s;
+}
+
+header .logo:hover {
+    opacity: 0.8;
 }
 
 header span {
     font-weight: 800;
-    color: var(--color-primary);
+    color: #333;
+    /* Page Title Dark */
     font-size: 1.1rem;
 }
