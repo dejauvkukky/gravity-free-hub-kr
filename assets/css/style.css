@@ -76,8 +76,7 @@ body {
 /*                               Subpage Header                               */
 /* -------------------------------------------------------------------------- */
 /* Fix for Wishlist and MBTI headers */
-/* Dashboard-Specific Header Layout (Scoped) */
-.dashboard-header header {
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -88,7 +87,7 @@ body {
     box-sizing: border-box;
 }
 
-.dashboard-header header .logo {
+header .logo {
     font-size: 1.1rem;
     font-weight: 700;
     color: #333;
@@ -100,11 +99,11 @@ body {
     transition: color 0.2s;
 }
 
-.dashboard-header header .logo:hover {
+header .logo:hover {
     color: var(--color-primary);
 }
 
-.dashboard-header header span {
+header span {
     font-weight: 800;
     color: var(--color-primary);
     /* Highlight Title */
