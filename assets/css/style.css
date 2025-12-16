@@ -109,7 +109,8 @@ header .logo:hover {
 }
 
 header span {
-    font-weight: 800;
+    font-weight: normal;
+    /* Regular weight - not bold */
     color: var(--color-primary);
     /* Mint color - matching the images */
     font-size: 1.1rem;
