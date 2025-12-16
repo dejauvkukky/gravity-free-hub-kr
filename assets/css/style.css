@@ -577,40 +577,53 @@ header {
 /* Mobile Modal Adjustments (Center Popup) */
 @media (max-width: 600px) {
 
-    /* Modal Container acts as center alignment context (default) */
+    /* Modal Container acts as alignment context */
     #wish-modal {
-        /* Force Absolute Centering for Robustness on Mobile */
+        display: flex;
+        /* Restore flex for alignment */
+        align-items: flex-end;
+        /* Align to bottom */
         padding: 0;
-        display: block;
-        /* Disable flex centering to rely on absolute */
     }
 
     .wish-modal-body {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 90vw;
-        /* Explicit viewport width */
-        max-width: 400px;
-        border-radius: 20px;
-        padding: 20px;
+        position: relative;
+        /* Reset from fixed */
+        top: auto;
+        left: auto;
+        transform: none;
+
+        width: 100%;
+        max-width: 100%;
+        /* Full width for bottom sheet */
+        border-radius: 24px 24px 0 0;
+        /* Rounded top corners only */
+        padding: 24px 20px 40px 20px;
+        /* Extra bottom padding for safe area */
         margin: 0;
-        animation: pulse-soft 0.3s ease-out;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        box-sizing: border-box;
-        z-index: 1001;
-        /* Ensure above overlay */
+
+        animation: slideUpSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Smooth slide up */
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     }
 
     .category-select-grid {
         grid-template-columns: repeat(5, 1fr) !important;
-        /* Fixed 5 columns */
+        /* Keep 5 cols */
     }
 
-    /* Remove Handle Bar if it exists */
+    /* Visualization Handle for Bottom Sheet */
     .wish-modal-body::before {
-        display: none;
+        display: block;
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 5px;
+        background-color: #e2e8f0;
+        border-radius: 3px;
     }
 
     /* Adjust FAB to be safe from bottom */
@@ -618,5 +631,15 @@ header {
         position: fixed;
         bottom: 30px;
         right: 20px;
+    }
+}
+
+@keyframes slideUpSheet {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
     }
 }
