@@ -468,6 +468,10 @@ header {
     width: 400px;
     /* Default desktop width */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    /* Ensure padding doesn't overflow width */
+    margin: 0 auto;
+    /* Ensure centering */
 }
 
 .wish-modal-body input,

@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161213';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161213';
+import './firebase.js?v=202512161220';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161220';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
