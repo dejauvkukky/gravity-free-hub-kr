@@ -53,17 +53,61 @@ body {
 
 /* Dashboard Header Redesign */
 .dashboard-header {
-    background: var(--color-header-bg);
+    background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+    /* Restored Teal Gradient */
     color: white;
-    padding: 20px 24px;
-    /* Restored padding */
-    border-radius: 0 0 30px 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 20px 24px 35px 24px;
+    /* Added bottom padding for spacing */
+    border-radius: 0 0 40px 40px;
+    /* Slightly more rounded */
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+    /* Restored Shadow */
     position: relative;
     z-index: 5;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* ... existing code ... */
+
+/* -------------------------------------------------------------------------- */
+/*                               Subpage Header                               */
+/* -------------------------------------------------------------------------- */
+/* Fix for Wishlist and MBTI headers */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5px;
+    /* Minimal padding inside container */
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+header .logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    /* Standard Navigation Color (Dark Grey) for visibility on white bg */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+}
+
+header .logo:hover {
+    color: var(--color-primary);
+}
+
+header span {
+    font-weight: 800;
+    color: var(--color-primary);
+    /* Highlight Title */
+    font-size: 1.1rem;
 }
 
 /* Header Top Bar (Title & Logout) */
@@ -931,14 +975,18 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    margin-bottom: 5px;
+    padding: 15px 5px;
+    /* Adjust padding */
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 header .logo {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: #333;
+    /* Dark text for visibility on light pages */
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -946,7 +994,7 @@ header .logo {
 }
 
 header span {
-    font-weight: 700;
-    color: var(--color-secondary);
+    font-weight: 800;
+    color: var(--color-primary);
     font-size: 1.1rem;
 }
