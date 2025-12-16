@@ -922,3 +922,31 @@ body {
         transform: translateY(0);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               Subpage Header                               */
+/* -------------------------------------------------------------------------- */
+/* Fix for Wishlist and MBTI headers relying on generic header tag */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 5px;
+}
+
+header .logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+header span {
+    font-weight: 700;
+    color: var(--color-secondary);
+    font-size: 1.1rem;
+}
