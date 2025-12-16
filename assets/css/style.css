@@ -165,35 +165,37 @@ header {
    Wishlist (챙겨줘요) Styles
 ------------------------------------------------------------ */
 
-/* Container & Header */
-.wish-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 5px;
-    margin-bottom: 10px;
+/* Dashboard Menu Card 7th (Wishlist) */
+/* Note: Ensure Wishlist is the 7th .menu-card in dashboard.html */
+.menu-card:nth-child(7) {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+    border-color: #fda4af;
 }
+
+/* If exact order varies, consider adding a specific class in HTML later if needed. */
+
+/* Container & Header */
+/* We use standard header layout now in HTML, so standard css applies. 
+   But if we want specific overrides: */
 
 .wish-filters {
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+    padding: 10px 15px;
+    margin-bottom: 5px;
     scrollbar-width: none;
-    /* Firefox */
 }
 
 .wish-filters::-webkit-scrollbar {
     display: none;
-    /* Chrome, Safari */
 }
 
 .filter-tab {
     padding: 8px 16px;
     border-radius: 20px;
     background: white;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: #64748b;
     border: 1px solid #e2e8f0;
     white-space: nowrap;
@@ -203,21 +205,23 @@ header {
 
 .filter-tab.active {
     background: var(--color-primary);
-    /* #7ED6C1 */
     color: var(--color-secondary);
-    /* #2C3A47 */
     border-color: var(--color-primary);
     font-weight: 700;
 }
 
-/* Wish Card */
+/* Wish Card - Refined Layout */
 .wish-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 12px;
     background: white;
     border-radius: 16px;
     padding: 20px;
-    margin-bottom: 16px;
+    margin: 0 15px 16px 15px;
+    /* Side margins */
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    /* Softer shadow */
     border: 1px solid #f1f5f9;
     position: relative;
     transition: transform 0.2s, background-color 0.2s;
@@ -229,26 +233,26 @@ header {
     opacity: 0.8;
 }
 
-.wish-card.done .wish-title,
-.wish-card.done .wish-memo {
-    text-decoration: line-through;
-    color: #94a3b8;
-}
-
-.wish-top {
+/* Left Content: Icon + Title/Memo */
+.wish-main {
+    grid-column: 1;
+    grid-row: 1;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
+    gap: 12px;
 }
 
-.wish-category {
-    font-size: 1.5rem;
-    margin-right: 10px;
+.wish-icon-area {
+    font-size: 1.8rem;
+    padding-top: 2px;
+    min-width: 40px;
+    /* Ensure space for icon */
 }
 
-.wish-content-wrapper {
-    flex-grow: 1;
+.wish-text-area {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* Enable truncation if needed */
 }
 
 .wish-title {
@@ -257,6 +261,12 @@ header {
     color: #1e293b;
     margin-bottom: 4px;
     line-height: 1.4;
+    word-break: break-all;
+}
+
+.wish-card.done .wish-title {
+    text-decoration: line-through;
+    color: #94a3b8;
 }
 
 .wish-memo {
@@ -264,16 +274,122 @@ header {
     color: #64748b;
     line-height: 1.5;
     white-space: pre-wrap;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    word-break: break-word;
 }
 
-.wish-meta {
+.wish-card.done .wish-memo {
+    text-decoration: line-through;
+}
+
+/* Right Content: Avatar + Name */
+.wish-author {
+    grid-column: 2;
+    grid-row: 1;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #f1f5f9;
+    justify-content: flex-start;
+    min-width: 50px;
+}
+
+.wish-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 4px;
+}
+
+.wish-avatar.kukky {
+    background-image: url('../images/avatar_kukky.png');
+}
+
+.wish-avatar.soony {
+    background-image: url('../images/avatar_soony.png');
+}
+
+.wish-avatar.joowon {
+    background-image: url('../images/avatar_joowon.png');
+}
+
+.wish-avatar.raim {
+    background-image: url('../images/avatar_raim.png');
+}
+
+.wish-avatar.default {
+    background-image: url('../images/avatar_kukky.png');
+    filter: grayscale(100%);
+}
+
+.wish-author-name {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Bottom Row: Date badge, Check Btn, Delete Btn */
+.wish-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px dashed #f1f5f9;
+}
+
+.wish-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Square Check Button */
+.check-btn-square {
+    width: auto;
+    padding: 6px 12px;
+    border-radius: 8px;
+    /* Square-ish */
+    border: 1px solid #cbd5e1;
+    background: white;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.check-btn-square:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.wish-card.done .check-btn-square {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+    /* Icon will be white */
+}
+
+.delete-btn {
+    border: none;
+    background: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 0.9rem;
+    /* Smaller */
+    padding: 5px;
+}
+
+.delete-btn:hover {
+    color: #ef4444;
 }
 
 /* Date Badges */
@@ -304,74 +420,11 @@ header {
     color: #0369a1;
 }
 
-/* Author Avatar Styles */
-.author-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    color: #94a3b8;
-}
-
-.mini-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    border: 1px solid #e2e8f0;
-}
-
-/* Static mapping relative to where the CSS file is loaded (usually from assets/css/style.css, so ../Images is valid if assets/images exists) */
-/* Wait, css is in assets/css/. images are in assets/images/. so ../images/ is correct */
-.mini-avatar.kukky {
-    background-image: url('../images/avatar_kukky.png');
-}
-
-.mini-avatar.soony {
-    background-image: url('../images/avatar_soony.png');
-}
-
-.mini-avatar.joowon {
-    background-image: url('../images/avatar_joowon.png');
-}
-
-.mini-avatar.raim {
-    background-image: url('../images/avatar_raim.png');
-}
-
-.mini-avatar.default {
-    background-image: url('../images/avatar_kukky.png');
-    filter: grayscale(100%);
-}
-
-/* Action Buttons */
-.check-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #cbd5e1;
-    background: white;
-    color: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    font-size: 1.2rem;
-}
-
-.wish-card.done .check-btn {
-    background: #10b981;
-    border-color: #10b981;
-    color: white;
-}
-
-/* Floating Action Button (FAB) */
+/* FAB Position Fix */
 .fab-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
     width: 56px;
     height: 56px;
     border-radius: 28px;
@@ -392,10 +445,15 @@ header {
     transform: scale(0.9);
 }
 
-/* Modal - Specific Tweaks */
+/* Modal Tweaks */
+.wish-modal-body {
+    background: white;
+    border-radius: 20px;
+    max-width: 100%;
+}
+
 .wish-modal-body input,
-.wish-modal-body textarea,
-.wish-modal-body select {
+.wish-modal-body textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid #e2e8f0;
@@ -413,21 +471,48 @@ header {
     margin-bottom: 15px;
 }
 
-.cat-option {
+/* Updated Cat Option Wrapper for Mobile Labels */
+.cat-option-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.cat-option-btn {
+    width: 100%;
     aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     background: #f8fafc;
-    border-radius: 10px;
-    cursor: pointer;
+    border-radius: 12px;
     border: 2px solid transparent;
+    transition: all 0.2s;
 }
 
-.cat-option.selected {
+.cat-option-wrapper.selected .cat-option-btn {
     background: #ecfdf5;
     border-color: #10b981;
+}
+
+.cat-option-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.cat-option-wrapper.selected .cat-option-label {
+    color: #10b981;
+    font-weight: bold;
 }
 
 @keyframes pulse-soft {

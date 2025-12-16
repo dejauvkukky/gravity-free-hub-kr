@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 챙겨줘요</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512161002">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512161045">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        /* Feature specific overrides if needed */
+        /* Feature specific overrides */
         body {
             background-color: #fdfbf7;
         }
@@ -22,36 +22,31 @@
 <body>
     <div class="container" style="background: #fdfbf7; min-height: 100vh; position: relative; padding-bottom: 80px;">
 
-        <!-- Header -->
-        <header class="wish-header">
-            <button onclick="location.href='../dashboard.html'"
-                style="background:none; border:none; font-size:1.5rem; cursor:pointer;">
-                🔙
-            </button>
-            <div style="font-weight:800; font-size:1.2rem; color:#2C3A47;">챙겨줘요</div>
-            <div style="width: 24px;"></div> <!-- Spacer -->
+        <!-- Refined Header (Matches Sound Garden Layout) -->
+        <header>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
+            <span style="font-weight:800; color:var(--color-header-text);">🎒 챙겨줘요</span>
         </header>
 
-        <!-- Filters -->
-        <div class="wish-filters" id="category-filters" style="padding: 0 15px;">
+        <!-- Filters (Scrollable) -->
+        <div class="wish-filters" id="category-filters">
             <button class="filter-tab active" data-cat="all">전체</button>
             <button class="filter-tab" data-cat="🎒">🎒 준비물</button>
-            <button class="filter-tab" data-cat="🎁">🎁 선물</button>
-            <button class="filter-tab" data-cat="🛒">🛒 쇼핑</button>
-            <button class="filter-tab" data-cat="🍔">🍔 먹거리</button>
+            <button class="filter-tab" data-cat="🎁">🎁 기념일</button>
+            <button class="filter-tab" data-cat="🛒">🛒 사고파</button>
+            <button class="filter-tab" data-cat="🍔">🍔 먹고파</button>
             <button class="filter-tab" data-cat="🚗">🚗 가고파</button>
             <button class="filter-tab" data-cat="📌">📌 기타</button>
         </div>
 
         <!-- Wish List -->
-        <div id="wish-list" style="padding: 10px 15px;">
-            <!-- Content loaded via JS -->
+        <div id="wish-list" style="padding: 0;">
             <div class="text-center" style="margin-top: 50px; color: #94a3b8;">
                 로딩중...
             </div>
         </div>
 
-        <!-- Load More Button -->
+        <!-- Load More -->
         <div class="text-center" style="margin-top: 10px;">
             <button id="btn-load-more" class="btn hidden"
                 style="background:#e2e8f0; color:#64748b; width:auto; padding: 8px 16px; font-size:0.9rem;">
@@ -59,7 +54,7 @@
             </button>
         </div>
 
-        <!-- FAB -->
+        <!-- FAB inside container to stay in flow/view -->
         <button id="fab-add" class="fab-btn">
             ➕
         </button>
@@ -75,12 +70,31 @@
             </div>
 
             <div class="category-select-grid" id="modal-category-select">
-                <div class="cat-option selected" data-value="🎒">🎒</div>
-                <div class="cat-option" data-value="🎁">🎁</div>
-                <div class="cat-option" data-value="🛒">🛒</div>
-                <div class="cat-option" data-value="🍔">🍔</div>
-                <div class="cat-option" data-value="🚗">🚗</div>
-                <div class="cat-option" data-value="📌">📌</div>
+                <!-- Template for category grid with labels -->
+                <div class="cat-option-wrapper selected" data-value="🎒">
+                    <div class="cat-option-btn">🎒</div>
+                    <div class="cat-option-label">준비물</div>
+                </div>
+                <div class="cat-option-wrapper" data-value="🎁">
+                    <div class="cat-option-btn">🎁</div>
+                    <div class="cat-option-label">기념일</div>
+                </div>
+                <div class="cat-option-wrapper" data-value="🛒">
+                    <div class="cat-option-btn">🛒</div>
+                    <div class="cat-option-label">사고파</div>
+                </div>
+                <div class="cat-option-wrapper" data-value="🍔">
+                    <div class="cat-option-btn">🍔</div>
+                    <div class="cat-option-label">먹고파</div>
+                </div>
+                <div class="cat-option-wrapper" data-value="🚗">
+                    <div class="cat-option-btn">🚗</div>
+                    <div class="cat-option-label">가고파</div>
+                </div>
+                <div class="cat-option-wrapper" data-value="📌">
+                    <div class="cat-option-btn">📌</div>
+                    <div class="cat-option-label">기타</div>
+                </div>
             </div>
 
             <input type="text" id="input-title" placeholder="제목을 입력하세요 (예: 수학 문제집)" maxlength="30">
@@ -96,7 +110,7 @@
     </div>
 
     <!-- Logic -->
-    <script type="module" src="../../src/wishlist.js?v=202512161002"></script>
+    <script type="module" src="../../src/wishlist.js?v=202512161045"></script>
 </body>
 
 </html>

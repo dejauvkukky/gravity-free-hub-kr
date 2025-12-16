@@ -1,5 +1,5 @@
-import './firebase.js?v=202512161002';
-import { customAlert, customConfirm } from './ui-utils.js?v=202512161002';
+import './firebase.js?v=202512161045';
+import { customAlert, customConfirm } from './ui-utils.js?v=202512161045';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -45,12 +45,12 @@ function initUI() {
     // Modal Close
     document.getElementById('modal-close').addEventListener('click', closeModal);
 
-    // Category Selection in Modal
-    const catOptions = document.querySelectorAll('.cat-option');
-    catOptions.forEach(opt => {
-        opt.addEventListener('click', () => {
-            catOptions.forEach(o => o.classList.remove('selected'));
-            opt.classList.add('selected');
+    // Modal Category Logic (New Wrapper)
+    const catWrappers = document.querySelectorAll('.cat-option-wrapper');
+    catWrappers.forEach(wrapper => {
+        wrapper.addEventListener('click', () => {
+            catWrappers.forEach(w => w.classList.remove('selected'));
+            wrapper.classList.add('selected');
         });
     });
 
@@ -90,18 +90,6 @@ async function loadWishes(isReset = false) {
     try {
         let query = firebase.firestore().collection(COLLECTION_NAME);
 
-        // Sorting Logic:
-        // Ideally: Status (Waiting) -> Has Date (Asc) -> No Date (Desc) -> Done
-        // Firestore sorting limitations make this complex.
-        // Simplified Strategy for MVP:
-        // 1. Client-side sorting for small datasets ( < 100 items usually for family).
-        // 2. Fetch 'waiting' and 'done' separately or fetch all and sort details in memory.
-
-        // Strategy: Filter by Category in Query if possible, then sort by CreatedAt Desc as default
-        // Then manually sort in Client. Since it's a family app, data volume is low.
-        // Let's fetch ALL non-done items first, then recent done items.
-        // Actually, let's just fetch by created desc and sort client side for this scale.
-
         if (state.filterCat !== 'all') {
             query = query.where('category', '==', state.filterCat);
         }
@@ -113,7 +101,7 @@ async function loadWishes(isReset = false) {
             query = query.startAfter(state.lastDoc);
         }
 
-        query = query.limit(PAGE_LIMIT * 2); // Fetch more to handle client side sorting
+        query = query.limit(PAGE_LIMIT * 2);
 
         const snapshot = await query.get();
 
@@ -125,7 +113,6 @@ async function loadWishes(isReset = false) {
 
         state.lastDoc = snapshot.docs[snapshot.docs.length - 1];
 
-        // Determine if there are potentially more
         if (snapshot.docs.length >= PAGE_LIMIT * 2) {
             btnLoadMore.classList.remove('hidden');
         } else {
@@ -149,10 +136,6 @@ async function loadWishes(isReset = false) {
 }
 
 function sortWishes(items) {
-    // 1. Waiting vs Done
-    // 2. Waiting: Has Date (Asc) -> No Date (Desc by CreatedAt)
-    // 3. Done: Desc by CreatedAt
-
     return items.sort((a, b) => {
         const aDone = a.status === 'done';
         const bDone = b.status === 'done';
@@ -165,17 +148,15 @@ function sortWishes(items) {
         }
 
         // Both Waiting
-        // Check Dates
         const aDate = a.targetDate ? new Date(a.targetDate).getTime() : null;
         const bDate = b.targetDate ? new Date(b.targetDate).getTime() : null;
 
         if (aDate && bDate) {
-            return aDate - bDate; // Soonest date first
+            return aDate - bDate;
         }
-        if (aDate && !bDate) return -1; // Date items first
+        if (aDate && !bDate) return -1;
         if (!aDate && bDate) return 1;
 
-        // Both no date
         return b.createdAt - a.createdAt;
     });
 }
@@ -187,8 +168,10 @@ async function handleSave() {
     const title = document.getElementById('input-title').value.trim();
     const memo = document.getElementById('input-memo').value.trim();
     const date = document.getElementById('input-date').value;
-    const categoryEl = document.querySelector('.cat-option.selected');
-    const category = categoryEl ? categoryEl.dataset.value : '📌';
+
+    // Updated selector
+    const categoryWrapper = document.querySelector('.cat-option-wrapper.selected');
+    const category = categoryWrapper ? categoryWrapper.dataset.value : '📌';
 
     if (!title) {
         await customAlert("제목을 입력해주세요.");
@@ -204,14 +187,13 @@ async function handleSave() {
         createdAt: Date.now(),
         createdBy: user.email,
         createdByName: getUserDisplayName(user),
-        // Simple avatar check logic
         authorId: getUserIdFromEmail(user.email)
     };
 
     try {
         await firebase.firestore().collection(COLLECTION_NAME).add(newWish);
         closeModal();
-        loadWishes(true); // refetch
+        loadWishes(true);
     } catch (e) {
         console.error(e);
         await customAlert("저장 중 오류가 발생했습니다.");
@@ -225,7 +207,6 @@ async function toggleStatus(id, currentStatus) {
             status: newStatus,
             updatedAt: Date.now()
         });
-        // Optimistic update
         const item = state.wishes.find(i => i.id === id);
         if (item) item.status = newStatus;
         renderList();
@@ -278,7 +259,7 @@ function renderList() {
             let badgeText = '';
 
             if (diffDays < 0) {
-                badgeClass += ' urgent'; // Expired but urgent style
+                badgeClass += ' urgent';
                 badgeText = `지난 일정 (${Math.abs(diffDays)}일 전)`;
             } else if (diffDays === 0) {
                 badgeClass += ' today';
@@ -291,50 +272,59 @@ function renderList() {
                 badgeText = `${target.getMonth() + 1}/${target.getDate()}까지`;
             }
 
-            dateBadge = `<span class="${badgeClass}">${badgeText}</span>`;
+            dateBadge = `<div class="wish-date-area"><span class="${badgeClass}">${badgeText}</span></div>`;
         }
 
-        // Author Avatar Logic
-        const authorId = item.authorId || 'default'; // kukky, soony, etc.
-        const authorDisplay = `<div class="author-info">
-            <div class="mini-avatar ${authorId}"></div>
-            <span>${item.createdByName || '가족'}</span>
-        </div>`;
+        // Author Logic (Right Side)
+        const authorId = item.authorId || 'default';
+        const authorName = item.createdByName || '가족';
 
-        // Delete Button (Only for author or admin)
+        let deleteBtn = '';
         const isAdmin = currentUser && currentUser.email.includes('kukky');
         const isAuthor = currentUser && item.createdBy === currentUser.email;
-        let deleteBtn = '';
+
         if (isAdmin || isAuthor) {
-            deleteBtn = `<button class="btn-delete" style="border:none; background:none; color:#cbd5e1; cursor:pointer; font-size:0.9rem;">🗑️</button>`;
+            deleteBtn = `<button class="delete-btn">🗑️ 삭제</button>`;
         }
 
+        const checkBtnState = isDone ? '완료 취소' : '완료 체크';
+        const checkIcon = isDone ? '↩️' : '✔';
+
         card.innerHTML = `
-            <div class="wish-top">
-                <div style="display:flex;">
-                    <span class="wish-category">${item.category}</span>
-                    <div class="wish-content-wrapper">
-                        <div class="wish-title">${escapeHtml(item.title)}</div>
-                        ${item.memo ? `<div class="wish-memo">${escapeHtml(item.memo)}</div>` : ''}
-                        ${dateBadge}
-                    </div>
+            <!-- Left: Main Content -->
+            <div class="wish-main">
+                <div class="wish-icon-area">${item.category}</div>
+                <div class="wish-text-area">
+                    <div class="wish-title">${escapeHtml(item.title)}</div>
+                    ${item.memo ? `<div class="wish-memo">${escapeHtml(item.memo)}</div>` : ''}
                 </div>
-                <button class="check-btn">✔</button>
             </div>
-            <div class="wish-meta">
-                ${authorDisplay}
+
+            <!-- Right: Author -->
+            <div class="wish-author">
+                <div class="wish-avatar ${authorId}" title="${authorName}"></div>
+                <div class="wish-author-name">${authorName}</div>
+            </div>
+
+            <!-- Bottom: Actions -->
+            <div class="wish-actions">
+                <div class="wish-btn-group">
+                    <button class="check-btn-square">
+                        ${checkIcon} ${checkBtnState}
+                    </button>
+                    ${dateBadge}
+                </div>
                 ${deleteBtn}
             </div>
         `;
 
-        // Event Listeners
-        card.querySelector('.check-btn').addEventListener('click', (e) => {
+        card.querySelector('.check-btn-square').addEventListener('click', (e) => {
             e.stopPropagation();
             toggleStatus(item.id, item.status);
         });
 
         if (deleteBtn) {
-            card.querySelector('.btn-delete').addEventListener('click', (e) => {
+            card.querySelector('.delete-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteWish(item.id);
             });
@@ -350,8 +340,9 @@ function openModal() {
     document.getElementById('input-date').value = '';
 
     // Reset category
-    document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
-    document.querySelector('.cat-option[data-value="🎒"]').classList.add('selected');
+    document.querySelectorAll('.cat-option-wrapper').forEach(o => o.classList.remove('selected'));
+    const firstOption = document.querySelector('.cat-option-wrapper[data-value="🎒"]');
+    if (firstOption) firstOption.classList.add('selected');
 
     document.getElementById('wish-modal').classList.remove('hidden');
     document.getElementById('input-title').focus();
