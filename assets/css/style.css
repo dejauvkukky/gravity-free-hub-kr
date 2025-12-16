@@ -85,25 +85,83 @@ body {
 .quote-section {
     flex: 1;
     /* Take available space */
-    padding-right: 20px;
+    margin-right: 15px;
+    /* Space between bubble and avatar */
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    /* Center horizontally */
+
+    /* Bubble Style */
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 15px;
+    position: relative;
+    height: 100%;
+    /* Fill height */
+    min-height: 80px;
+    /* Minimum visual height */
+}
+
+/* Speech Bubble Tail (Pointing Right) */
+.quote-section::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 8px 0 8px 10px;
+    /* Left pointing arrow geometry */
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(255, 255, 255, 0.15);
+    display: block;
+    width: 0;
 }
 
 .quote-text {
-    font-size: 0.95rem;
-    font-style: italic;
-    line-height: 1.5;
-    margin-bottom: 5px;
-    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.1rem;
+    /* Larger base size */
+    font-weight: 800;
+    /* Bolder */
+    font-style: normal;
+    /* Remove italic per user preference for readability? Or keep? User said "Larger and Bolder". Usually normal is better for reading. */
+    line-height: 1.4;
+    color: white;
     word-break: keep-all;
+    text-align: center;
+    /* Center */
+    width: 100%;
+
+    /* Flex centering text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
 }
 
 .quote-author {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    /* Center */
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* Dynamic Font Sizing Classes */
+.quote-text.text-md {
+    font-size: 1rem;
+}
+
+.quote-text.text-sm {
+    font-size: 0.9rem;
+}
+
+.quote-text.text-xs {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
-    text-align: left;
 }
 
 /* Profile Section (Right Side) */
