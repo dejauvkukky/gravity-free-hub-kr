@@ -281,8 +281,13 @@
         </header>
 
         <div class="worldcup-container">
+            <!-- Loading Screen -->
+            <div id="loading-screen" style="text-align:center; padding: 40px; color:#999; font-weight:bold;">
+                로딩중...
+            </div>
+
             <!-- Game Start Screen -->
-            <div id="game-start" class="game-start">
+            <div id="game-start" class="game-start" style="display: none;">
                 <h1 class="worldcup-title" id="worldcup-title">시크릿 월드컵</h1>
                 <p style="color: #666; margin-bottom: 30px;">두 가지 중 하나를 선택하세요!</p>
                 <button class="start-btn" onclick="startGame()">🎮 게임 시작</button>
@@ -330,7 +335,7 @@
         </div>
     </div>
 
-    <script type="module" src="../../src/worldcup.js?v=202512171337"></script>
+    <script type="module" src="../../src/worldcup.js?v=202512171545"></script>
     </script>
 </body>
 

@@ -44,9 +44,15 @@ async function loadWorldcup() {
         await loadStartFamilyStats();
 
         // 로드 완료 후 화면 표시 (깜빡임 방지)
+        // 로드 완료 후 화면 표시 (깜빡임 방지)
+        const loadingScreen = document.getElementById('loading-screen');
         const gameStart = document.getElementById('game-start');
+
+        if (loadingScreen) loadingScreen.style.display = 'none';
         if (gameStart) {
-            gameStart.classList.add('loaded');
+            gameStart.style.display = 'block';
+            // Slight delay to ensure display:block applies before opacity transition
+            setTimeout(() => gameStart.classList.add('loaded'), 50);
         }
     } catch (error) {
         console.error('Load error:', error);
