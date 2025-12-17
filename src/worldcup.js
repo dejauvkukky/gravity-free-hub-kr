@@ -15,6 +15,15 @@ auth.onAuthStateChanged(user => {
         location.href = 'login.html';
     } else {
         currentUser = user;
+
+        // kukky 계정이면 관리자 버튼 표시
+        if (user.email === 'kukky@family.com') {
+            const adminBtn = document.getElementById('admin-btn');
+            if (adminBtn) {
+                adminBtn.style.display = 'block';
+            }
+        }
+
         loadWorldcup();
     }
 });

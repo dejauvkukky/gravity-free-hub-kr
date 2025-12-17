@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 시크릿 월드컵</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171116">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171127">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -188,6 +188,26 @@
             background: #f1f5f9;
             color: #64748b;
         }
+
+        .admin-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .admin-btn:hover {
+            background: #d97706;
+        }
     </style>
 </head>
 
@@ -201,9 +221,10 @@
         <div class="worldcup-container">
             <!-- Game Start Screen -->
             <div id="game-start" class="game-start">
-                <h1 class="worldcup-title" id="worldcup-title">최애 음식 월드컵</h1>
+                <h1 class="worldcup-title" id="worldcup-title">시크릿 월드컵</h1>
                 <p style="color: #666; margin-bottom: 30px;">두 가지 중 하나를 선택하세요!</p>
                 <button class="start-btn" onclick="startGame()">🎮 게임 시작</button>
+                <button class="admin-btn" id="admin-btn" onclick="location.href='admin.html'">⚙️ 관리자 페이지</button>
             </div>
 
             <!-- VS Screen -->
@@ -249,7 +270,7 @@
         </div>
     </div>
 
-    <script type="module" src="../../src/worldcup.js?v=202512171116"></script>
+    <script type="module" src="../../src/worldcup.js?v=202512171127"></script>
 </body>
 
 </html>
