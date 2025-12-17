@@ -39,6 +39,9 @@ async function loadWorldcup() {
 
         currentWorldcup = doc.data();
         document.getElementById('worldcup-title').textContent = currentWorldcup.title || '시크릿 월드컵';
+
+        // 게임 시작 화면에 가족 통계 표시
+        await loadStartFamilyStats();
     } catch (error) {
         console.error('Load error:', error);
         customAlert('월드컵 로드 중 오류가 발생했습니다.');
@@ -141,8 +144,8 @@ async function showResult(winner) {
     // 결과 저장
     await saveResult(winner);
 
-    // 가족 통계 로드
-    await loadFamilyStats();
+    // 게임 시작 화면의 가족 통계 업데이트
+    await loadStartFamilyStats();
 }
 
 // 결과 저장
@@ -163,30 +166,37 @@ async function saveResult(winner) {
     }
 }
 
-// 가족 통계 로드
-async function loadFamilyStats() {
+// 게임 시작 화면 가족 통계 로드
+async function loadStartFamilyStats() {
     try {
         const results = await db.collection('worldcup_results').get();
-        const statsList = document.getElementById('family-stats-list');
+        const statsContainer = document.getElementById('start-family-stats');
+        const statsList = document.getElementById('start-stats-list');
+
+        if (!statsContainer || !statsList) return;
+
         statsList.innerHTML = '';
 
         if (results.empty) {
-            statsList.innerHTML = '<div style="text-align:center; color:#999;">아직 결과가 없습니다.</div>';
+            statsContainer.style.display = 'none';
             return;
         }
+
+        statsContainer.style.display = 'block';
 
         results.forEach(doc => {
             const data = doc.data();
             const div = document.createElement('div');
             div.className = 'stat-item';
+            div.style.cssText = 'display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee;';
             div.innerHTML = `
                 <span>${data.userName}</span>
-                <span>${data.winnerName}</span>
+                <span style="font-weight: 700; color: #667eea;">${data.winnerName}</span>
             `;
             statsList.appendChild(div);
         });
     } catch (error) {
-        console.error('Load stats error:', error);
+        console.error('Load start stats error:', error);
     }
 }
 
