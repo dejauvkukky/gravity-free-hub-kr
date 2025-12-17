@@ -579,10 +579,10 @@
             const left = (screen.width / 2) - (w / 2);
             const top = (screen.height / 2) - (h / 2);
 
-            const url = \`player.html?v=\${p.videoId}&t=\${encodeURIComponent(p.title)}&d=\${encodeURIComponent(p.category || '')}\`;
-            
-            window.open(url, 'SecretPlayer', \`width=\${w},height=\${h},top=\${top},left=\${left},resizable=yes\`);
-            
+            const url = `player.html?v=${p.videoId}&t=${encodeURIComponent(p.title)}&d=${encodeURIComponent(p.category || '')}`;
+
+            window.open(url, 'SecretPlayer', `width=${w},height=${h},top=${top},left=${left},resizable=yes`);
+
             // Close current overlay
             closePlayer();
         }
@@ -694,7 +694,7 @@
             const used = new Set(allPosts.map(p => p.category).filter(Boolean));
             const cats = ['all', ...Array.from(used).sort()];
             document.getElementById('category-list').innerHTML = cats.map(cat =>
-                `< button class="cat-btn ${cat === currentCat ? 'active' : ''}" onclick = "filterCat('${cat}')" > ${ cat === 'all' ? '전체' : cat }</button > `
+                `< button class="cat-btn ${cat === currentCat ? 'active' : ''}" onclick = "filterCat('${cat}')" > ${cat === 'all' ? '전체' : cat}</button > `
             ).join('');
         }
 
@@ -732,7 +732,7 @@
             // Handle Button Visibility
             if (visibleCount < filteredPosts.length) {
                 btnEl.style.display = 'block';
-                btnEl.innerText = `더 보기(+${ Math.min(10, filteredPosts.length - visibleCount) })`;
+                btnEl.innerText = `더 보기(+${Math.min(10, filteredPosts.length - visibleCount)})`;
             } else {
                 btnEl.style.display = 'none';
             }
@@ -764,7 +764,7 @@
             window.currentPlayingId = id;
             document.getElementById('player-title').innerText = p.title;
             document.getElementById('info-title').innerText = p.title;
-            document.getElementById('info-desc').innerText = p.description + (p.category ? ` | ${ p.category } ` : '');
+            document.getElementById('info-desc').innerText = p.description + (p.category ? ` | ${p.category} ` : '');
             document.getElementById('youtube-embed-container').innerHTML = `< iframe src = "https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder = "0" allowfullscreen ></iframe > `;
 
             document.getElementById('player-overlay').style.display = 'flex';
