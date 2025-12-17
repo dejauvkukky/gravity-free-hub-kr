@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 시크릿 월드컵</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171330">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171337">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -112,6 +112,18 @@
             border: 3px solid transparent;
             transition: all 0.3s;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 4강 (준결승) - 오렌지/골드 */
+        .choice-card.semi-final {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            box-shadow: 0 8px 20px rgba(253, 160, 133, 0.3);
+        }
+
+        /* 결승 - 레드/강렬 */
+        .choice-card.final {
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            box-shadow: 0 8px 20px rgba(255, 8, 68, 0.3);
         }
 
         .choice-card:hover {
@@ -318,7 +330,7 @@
         </div>
     </div>
 
-    <script type="module" src="../../src/worldcup.js?v=202512171330"></script>
+    <script type="module" src="../../src/worldcup.js?v=202512171337"></script>
     </script>
 </body>
 

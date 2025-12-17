@@ -101,6 +101,17 @@ function showCurrentMatch() {
     document.getElementById('round-name').textContent = getRoundName(totalChoices);
     document.getElementById('match-count').textContent = `${currentMatchIndex + 1} / ${currentMatches.length}`;
 
+    // 카드 스타일 업데이트 (라운드별 색상)
+    const cards = document.querySelectorAll('.choice-card');
+    cards.forEach(card => {
+        card.classList.remove('semi-final', 'final');
+        if (totalChoices === 4) {
+            card.classList.add('semi-final');
+        } else if (totalChoices === 2) {
+            card.classList.add('final');
+        }
+    });
+
     // 선택지 표시
     document.getElementById('choice-name-0').textContent = match[0].name;
     document.getElementById('choice-name-1').textContent = match[1].name;
