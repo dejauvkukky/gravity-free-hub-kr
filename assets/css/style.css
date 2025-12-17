@@ -974,3 +974,76 @@ header span {
         transform: translateY(0);
     }
 }
+/* -------------------------------------------------------------------------- */
+/*                            Common Modal Styles                             */
+/* -------------------------------------------------------------------------- */
+
+/* Overlay */
+.notice-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Bottom Sheet default */
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.notice-overlay.hidden {
+    display: none;
+}
+
+/* Modal Body (Bottom Sheet style) */
+.notice-modal {
+    background: white;
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 480px; /* Match container */
+    border-radius: 24px 24px 0 0; /* Bottom Sheet Radius */
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+    padding: 25px;
+    box-sizing: border-box;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.notice-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.notice-modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.notice-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+

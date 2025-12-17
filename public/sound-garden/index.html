@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512121000">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171415">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -200,47 +200,7 @@
             align-items: center;
         }
 
-        /* Admin Panel */
-        .admin-panel {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 30px;
-            display: none;
-        }
 
-        .admin-panel h3 {
-            margin-top: 0;
-            color: #1d4ed8;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .admin-form {
-            display: grid;
-            gap: 12px;
-        }
-
-        .admin-form input {
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            outline: none;
-        }
-
-        .admin-form button {
-            padding: 12px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-        }
 
         /* Modified Player Overlay */
         .player-overlay {
@@ -379,7 +339,8 @@
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            margin-bottom: 80px;
+            /* Space for FAB */
         }
     </style>
 </head>
@@ -394,22 +355,7 @@
 
         <div class="content-body" style="padding: 20px;">
 
-            <!-- ADMIN PANEL -->
-            <div id="admin-panel" class="admin-panel">
-                <h3>🎵 음악 등록 (Admin)</h3>
-                <form onsubmit="submitMusicInline(event)" class="admin-form">
-                    <input type="text" id="in-url" placeholder="유튜브 링크 (URL 붙여넣기)" required>
-                    <input type="text" id="in-title" placeholder="제목" required>
-                    <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)">
-                    <input list="cat-options" id="in-cat" placeholder="카테고리 입력 또는 선택">
-                    <datalist id="cat-options">
-                        <!-- Dynamically populated -->
-                    </datalist>
-                    <button type="submit">등록하기</button>
-                    <button type="button" onclick="migrateCommentCounts()"
-                        style="background:#f59e0b; margin-top:10px;">🔧 덧글 수 동기화 (Migration)</button>
-                </form>
-            </div>
+
 
             <!-- Featured Section (Renamed) -->
             <div class="featured-section">
@@ -441,6 +387,41 @@
             <button id="load-more-btn" class="load-more-btn" onclick="loadMore()" style="display:none;">더 보기
                 (+10)</button>
         </div> <!-- End content-body -->
+    </div> <!-- End content-body -->
+
+    <!-- FAB (Admin Only) -->
+    <button id="fab-add" class="fab-btn" style="display:none;" onclick="openMusicModal()">
+        ➕
+    </button>
+    </div>
+
+    <!-- Music Registration Modal (Bottom Sheet) -->
+    <div id="music-modal" class="notice-overlay hidden">
+        <div class="notice-modal">
+            <div class="notice-modal-header">
+                <h3 class="notice-modal-title">🎵 음악 등록</h3>
+                <button class="notice-close-btn" onclick="closeMusicModal()">✕</button>
+            </div>
+
+            <form onsubmit="submitMusicInline(event)" style="display: grid; gap: 12px;">
+                <input type="text" id="in-url" placeholder="유튜브 링크 (URL 붙여넣기)" required
+                    style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; width:100%; box-sizing:border-box;">
+                <input type="text" id="in-title" placeholder="제목" required
+                    style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; width:100%; box-sizing:border-box;">
+                <input type="text" id="in-desc" placeholder="설명 (가수, 분위기 등)"
+                    style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; width:100%; box-sizing:border-box;">
+                <input list="cat-options" id="in-cat" placeholder="카테고리 입력 또는 선택"
+                    style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; width:100%; box-sizing:border-box;">
+                <datalist id="cat-options">
+                    <!-- Dynamically populated -->
+                </datalist>
+
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;">등록하기</button>
+                <button type="button" onclick="migrateCommentCounts()"
+                    style="background:#f59e0b; color:white; border:none; padding:10px; border-radius:10px; margin-top:10px; cursor:pointer; width:100%;">🔧
+                    덧글 수 동기화</button>
+            </form>
+        </div>
     </div>
 
     <!-- Edit Modal -->
@@ -544,6 +525,14 @@
             input.value += emoji;
             input.focus();
         }
+
+        window.openMusicModal = function () {
+            document.getElementById('music-modal').classList.remove('hidden');
+        }
+
+        window.closeMusicModal = function () {
+            document.getElementById('music-modal').classList.add('hidden');
+        }
     </script>
 
     <script type="module">
@@ -565,9 +554,10 @@
             else {
                 currentUser = user;
                 isAdmin = (user.email === 'kukky@family.com');
+                // Show FAB if admin
                 if (isAdmin) {
-                    const panel = document.getElementById('admin-panel');
-                    if (panel) panel.style.display = 'block';
+                    const fab = document.getElementById('fab-add');
+                    if (fab) fab.style.display = 'flex';
                 }
                 loadPosts();
             }
@@ -698,6 +688,7 @@
                 customAlert('등록 완료!');
                 ['in-url', 'in-title', 'in-desc', 'in-cat'].forEach(x => document.getElementById(x).value = '');
                 loadPosts();
+                closeMusicModal();
             } catch (e) { customAlert('에러: ' + e.message); }
         }
 
