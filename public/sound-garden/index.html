@@ -567,24 +567,7 @@
             document.body.style.overflow = 'auto'; // Force enable scroll
         }
 
-        window.popoutPlayer = function () {
-            if (!window.currentPlayingId) return;
-            const p = allPosts.find(x => x.id === window.currentPlayingId);
-            if (!p) return;
 
-            // Open popup
-            const w = 400;
-            const h = 300;
-            const left = (screen.width / 2) - (w / 2);
-            const top = (screen.height / 2) - (h / 2);
-
-            const url = `player.html?v=${p.videoId}&t=${encodeURIComponent(p.title)}&d=${encodeURIComponent(p.category || '')}`;
-
-            window.open(url, 'SecretPlayer', `width=${w},height=${h},top=${top},left=${left},resizable=yes`);
-
-            // Close current overlay
-            closePlayer();
-        }
 
         window.appendEmoji = function (emoji) {
             const input = document.getElementById('comment-input');
@@ -775,45 +758,63 @@
                 btn.onclick = () => startOnlyMP3Flow(p.videoId);
             }
 
-            loadComments(id);
-        }
+            window.popoutPlayer = function () {
+                if (!window.currentPlayingId) return;
+                const p = allPosts.find(x => x.id === window.currentPlayingId);
+                if (!p) return;
 
-        // Custom Confirm Logic (Imported from utils)
+                // Open popup
+                const w = 400;
+                const h = 300;
+                const left = (screen.width / 2) - (w / 2);
+                const top = (screen.height / 2) - (h / 2);
 
-        window.startOnlyMP3Flow = async (videoId) => {
-            const url = `https://www.youtube.com/watch?v=${videoId}`;
+                const url = `player.html?v=${p.videoId}&t=${encodeURIComponent(p.title)}&d=${encodeURIComponent(p.category || '')}`;
 
-            try {
-                await navigator.clipboard.writeText(url);
+                window.open(url, 'SecretPlayer', `width=${w},height=${h},top=${top},left=${left},resizable=yes`);
 
-                // Use Custom Confirm with PWA Warning
-                const go = await customConfirm('✅ 링크가 복사되었습니다!<br><br>새로 열리는 "OnlyMP3" 검색창에<br>방금 복사된 링크를 <b>붙여넣기(Ctrl+V)</b> 하세요.<br><br><span style="color:#ef4444; font-size:0.9rem;">⚠️ <b>모바일/앱 사용자 필독:</b><br>"사람 확인"이 안 넘어가면,<br><b>크롬/사파리</b>를 따로 열어서 이용해주세요.</span><br><br>사이트로 이동하시겠습니까?');
-
-                if (go) {
-                    window.open('https://en.onlymp3.to/youtube-to-mp3/', '_blank');
-                }
-            } catch (e) {
-                // Clipboard failure fallback
-                prompt('자동 복사에 실패했습니다. 아래 링크를 직접 복사하세요:', url);
-                window.open('https://en.onlymp3.to/youtube-to-mp3/', '_blank');
+                // Close current overlay
+                closePlayer();
             }
-        }
 
-        window.deletePost = async (id) => { if (await customConfirm('이 음악을 삭제하시겠습니까?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
+            window.loadComments = (id) => {
 
-        async function loadComments(id) {
-            const list = document.getElementById('comment-list'); list.innerHTML = '<div style="color:#aaa; font-size:0.9rem;">로딩중...</div>';
-            const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
-            list.innerHTML = snap.empty ? '<div style="color:#ccc; padding:10px 0;">첫 댓글을 남겨주세요! 👇</div>' :
-                snap.docs.map(d => {
-                    const data = d.data();
-                    const date = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
-                    const hours = String(date.getHours()).padStart(2, '0');
-                    const mins = String(date.getMinutes()).padStart(2, '0');
-                    const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${hours}:${mins}`;
-                    const isMine = (currentUser && currentUser.uid === data.uid) || isAdmin;
+                // Custom Confirm Logic (Imported from utils)
 
-                    return `
+                window.startOnlyMP3Flow = async (videoId) => {
+                    const url = `https://www.youtube.com/watch?v=${videoId}`;
+
+                    try {
+                        await navigator.clipboard.writeText(url);
+
+                        // Use Custom Confirm with PWA Warning
+                        const go = await customConfirm('✅ 링크가 복사되었습니다!<br><br>새로 열리는 "OnlyMP3" 검색창에<br>방금 복사된 링크를 <b>붙여넣기(Ctrl+V)</b> 하세요.<br><br><span style="color:#ef4444; font-size:0.9rem;">⚠️ <b>모바일/앱 사용자 필독:</b><br>"사람 확인"이 안 넘어가면,<br><b>크롬/사파리</b>를 따로 열어서 이용해주세요.</span><br><br>사이트로 이동하시겠습니까?');
+
+                        if (go) {
+                            window.open('https://en.onlymp3.to/youtube-to-mp3/', '_blank');
+                        }
+                    } catch (e) {
+                        // Clipboard failure fallback
+                        prompt('자동 복사에 실패했습니다. 아래 링크를 직접 복사하세요:', url);
+                        window.open('https://en.onlymp3.to/youtube-to-mp3/', '_blank');
+                    }
+                }
+
+                window.deletePost = async (id) => { if (await customConfirm('이 음악을 삭제하시겠습니까?')) { await db.collection(COLLECTION).doc(id).delete(); loadPosts(); } }
+
+                async function loadComments(id) {
+                    const list = document.getElementById('comment-list'); list.innerHTML = '<div style="color:#aaa; font-size:0.9rem;">로딩중...</div>';
+                    const snap = await db.collection(COLLECTION).doc(id).collection('comments').orderBy('createdAt', 'asc').get();
+                    list.innerHTML = snap.empty ? '<div style="color:#ccc; padding:10px 0;">첫 댓글을 남겨주세요! 👇</div>' :
+                        snap.docs.map(d => {
+                            const data = d.data();
+                            const date = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
+                            const hours = String(date.getHours()).padStart(2, '0');
+                            const mins = String(date.getMinutes()).padStart(2, '0');
+                            const dateStr = `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${hours}:${mins}`;
+                            const isMine = (currentUser && currentUser.uid === data.uid) || isAdmin;
+
+                            return `
                     <div class="comment-bubble">
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px; align-items:center;">
                             <div>
@@ -825,90 +826,90 @@
                         <div style="word-break:break-all;">${data.text}</div>
                     </div>
                     `;
-                }).join('');
-            const scrollArea = document.querySelector('.player-scroll-content');
-            if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
-        }
+                        }).join('');
+                    const scrollArea = document.querySelector('.player-scroll-content');
+                    if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
+                }
 
-        window.postComment = async (e) => {
-            e.preventDefault(); const input = document.getElementById('comment-input');
-            const val = input.value.trim();
-            if (!val || !window.currentPlayingId) return;
-            await db.collection(COLLECTION).doc(window.currentPlayingId).collection('comments').add({
-                text: val, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
-            });
+                window.postComment = async (e) => {
+                    e.preventDefault(); const input = document.getElementById('comment-input');
+                    const val = input.value.trim();
+                    if (!val || !window.currentPlayingId) return;
+                    await db.collection(COLLECTION).doc(window.currentPlayingId).collection('comments').add({
+                        text: val, author: sessionStorage.getItem('user_name') || '가족', uid: currentUser.uid, createdAt: new Date()
+                    });
 
-            // Increment Comment Count
-            await db.collection(COLLECTION).doc(window.currentPlayingId).update({
-                commentCount: firebase.firestore.FieldValue.increment(1)
-            });
+                    // Increment Comment Count
+                    await db.collection(COLLECTION).doc(window.currentPlayingId).update({
+                        commentCount: firebase.firestore.FieldValue.increment(1)
+                    });
 
-            input.value = '';
-            loadComments(window.currentPlayingId);
-            loadPosts(); // Refresh main list to show updated count
-        }
+                    input.value = '';
+                    loadComments(window.currentPlayingId);
+                    loadPosts(); // Refresh main list to show updated count
+                }
 
-        window.migrateCommentCounts = async () => {
-            if (!await customConfirm('모든 게시글의 덧글 수를 다시 계산하여 동기화하시겠습니까? (시간이 걸릴 수 있습니다)')) return;
+                window.migrateCommentCounts = async () => {
+                    if (!await customConfirm('모든 게시글의 덧글 수를 다시 계산하여 동기화하시겠습니까? (시간이 걸릴 수 있습니다)')) return;
 
-            try {
-                const snapshot = await db.collection(COLLECTION).get();
-                let count = 0;
-                for (const doc of snapshot.docs) {
-                    const commentsSnap = await db.collection(COLLECTION).doc(doc.id).collection('comments').get();
-                    const size = commentsSnap.size;
-                    if (doc.data().commentCount !== size) {
-                        await db.collection(COLLECTION).doc(doc.id).update({ commentCount: size });
-                        count++;
+                    try {
+                        const snapshot = await db.collection(COLLECTION).get();
+                        let count = 0;
+                        for (const doc of snapshot.docs) {
+                            const commentsSnap = await db.collection(COLLECTION).doc(doc.id).collection('comments').get();
+                            const size = commentsSnap.size;
+                            if (doc.data().commentCount !== size) {
+                                await db.collection(COLLECTION).doc(doc.id).update({ commentCount: size });
+                                count++;
+                            }
+                        }
+                        customAlert(`동기화 완료! ${count}개의 게시글이 업데이트 되었습니다.`);
+                        loadPosts();
+                    } catch (e) {
+                        customAlert('에러 발생: ' + e.message);
                     }
                 }
-                customAlert(`동기화 완료! ${count}개의 게시글이 업데이트 되었습니다.`);
-                loadPosts();
-            } catch (e) {
-                customAlert('에러 발생: ' + e.message);
-            }
-        }
-        window.deleteComment = async (postId, commentId) => {
-            if (!await customConfirm('댓글을 삭제하시겠습니까?')) return;
-            try {
-                await db.collection(COLLECTION).doc(postId).collection('comments').doc(commentId).delete();
-                // Decrement count
-                await db.collection(COLLECTION).doc(postId).update({
-                    commentCount: firebase.firestore.FieldValue.increment(-1)
-                });
-                loadComments(postId);
-                loadPosts(); // sync list count
-            } catch (e) { customAlert('삭제 실패'); }
-        };
+                window.deleteComment = async (postId, commentId) => {
+                    if (!await customConfirm('댓글을 삭제하시겠습니까?')) return;
+                    try {
+                        await db.collection(COLLECTION).doc(postId).collection('comments').doc(commentId).delete();
+                        // Decrement count
+                        await db.collection(COLLECTION).doc(postId).update({
+                            commentCount: firebase.firestore.FieldValue.increment(-1)
+                        });
+                        loadComments(postId);
+                        loadPosts(); // sync list count
+                    } catch (e) { customAlert('삭제 실패'); }
+                };
 
-        window.openEdit = (id) => {
-            const p = allPosts.find(x => x.id === id);
-            if (!p) return;
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-title').value = p.title;
-            document.getElementById('edit-desc').value = p.description || '';
-            document.getElementById('edit-cat').value = p.category || '';
-            document.getElementById('edit-modal').style.display = 'flex';
-        };
+                window.openEdit = (id) => {
+                    const p = allPosts.find(x => x.id === id);
+                    if (!p) return;
+                    document.getElementById('edit-id').value = id;
+                    document.getElementById('edit-title').value = p.title;
+                    document.getElementById('edit-desc').value = p.description || '';
+                    document.getElementById('edit-cat').value = p.category || '';
+                    document.getElementById('edit-modal').style.display = 'flex';
+                };
 
-        window.updatePost = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-id').value;
-            const title = document.getElementById('edit-title').value;
-            const desc = document.getElementById('edit-desc').value;
-            const cat = document.getElementById('edit-cat').value;
+                window.updatePost = async (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById('edit-id').value;
+                    const title = document.getElementById('edit-title').value;
+                    const desc = document.getElementById('edit-desc').value;
+                    const cat = document.getElementById('edit-cat').value;
 
-            try {
-                await db.collection(COLLECTION).doc(id).update({
-                    title: title,
-                    description: desc,
-                    category: cat
-                });
-                customAlert('수정 완료!');
-                document.getElementById('edit-modal').style.display = 'none';
-                loadPosts();
-            } catch (err) { customAlert('수정 실패: ' + err.message); }
-        }
+                    try {
+                        await db.collection(COLLECTION).doc(id).update({
+                            title: title,
+                            description: desc,
+                            category: cat
+                        });
+                        customAlert('수정 완료!');
+                        document.getElementById('edit-modal').style.display = 'none';
+                        loadPosts();
+                    } catch (err) { customAlert('수정 실패: ' + err.message); }
+                }
     </script>
 </body>
 
