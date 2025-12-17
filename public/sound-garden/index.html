@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171650">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171655">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -359,14 +359,17 @@
         }
 
         .input-bar button {
-            background: var(--color-primary, #6366f1);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 25px;
-            font-weight: bold;
+            font-weight: 800;
+            /* Extra Bold */
             cursor: pointer;
             white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .load-more-btn {
@@ -510,10 +513,12 @@
             <!-- 3. Scrollable Content -->
             <div class="player-scroll-content">
                 <div style="margin-bottom:20px;">
-                    <h3 id="info-title" style="margin:0 0 8px 0; font-size:1.3rem; color:#1e293b;">Title</h3>
+                    <h3 id="info-title"
+                        style="margin:0 0 8px 0; font-size:1.3rem; color:#f8fafc; text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+                        Title</h3>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <p id="info-desc"
-                            style="margin:0; font-size:0.95rem; color:#64748b; background:white; display:inline-block; padding:6px 12px; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+                            style="margin:0; font-size:0.95rem; color:#e2e8f0; background:#334155; display:inline-block; padding:6px 12px; border-radius:8px; border:1px solid #475569; box-shadow:0 1px 2px rgba(0,0,0,0.2);">
                             Description</p>
                         <button id="mini-download-btn"
                             style="background:#fff7ed; color:#d97706; border:1px solid #fdba74; padding:4px 12px; border-radius:20px; font-size:0.85rem; cursor:pointer; font-weight:bold; height:auto; display:flex; align-items:center;"
@@ -526,8 +531,8 @@
                 <!-- Comment Section -->
 
                 <div
-                    style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#333; display:flex; align-items:center; gap:5px;">
-                    💬 댓글 <span id="comment-count" style="font-size:0.8rem; color:#94a3b8; font-weight:normal;"></span>
+                    style="font-size:1rem; font-weight:bold; margin-bottom:15px; color:#f1f5f9; display:flex; align-items:center; gap:5px;">
+                    💬 댓글 <span id="comment-count" style="font-size:0.8rem; color:#cbd5e1; font-weight:normal;"></span>
                 </div>
                 <div id="comment-list" class="comment-list"></div>
                 <div style="height: 20px;"></div>
