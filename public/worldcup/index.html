@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 시크릿 월드컵</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171127">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171130">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -94,13 +94,8 @@
             box-shadow: 0 8px 25px rgba(126, 214, 193, 0.3);
         }
 
-        .choice-emoji {
-            font-size: 4rem;
-            margin-bottom: 15px;
-        }
-
         .choice-name {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #333;
         }
@@ -128,11 +123,6 @@
         .trophy {
             font-size: 5rem;
             margin-bottom: 15px;
-        }
-
-        .winner-emoji {
-            font-size: 4rem;
-            margin: 10px 0;
         }
 
         .winner-name {
@@ -236,14 +226,12 @@
 
                 <div class="vs-container">
                     <div class="choice-card" onclick="selectChoice(0)">
-                        <div class="choice-emoji" id="choice-emoji-0">🍗</div>
                         <div class="choice-name" id="choice-name-0">치킨</div>
                     </div>
 
                     <div class="vs-text">VS</div>
 
                     <div class="choice-card" onclick="selectChoice(1)">
-                        <div class="choice-emoji" id="choice-emoji-1">🍕</div>
                         <div class="choice-name" id="choice-name-1">피자</div>
                     </div>
                 </div>
@@ -254,7 +242,6 @@
                 <div class="winner-card">
                     <div class="trophy">🏆</div>
                     <h2 style="margin-bottom: 10px;">최종 우승!</h2>
-                    <div class="winner-emoji" id="winner-emoji">🍗</div>
                     <div class="winner-name" id="winner-name">치킨</div>
                 </div>
 
@@ -270,7 +257,7 @@
         </div>
     </div>
 
-    <script type="module" src="../../src/worldcup.js?v=202512171127"></script>
+    <script type="module" src="../../src/worldcup.js?v=202512171130"></script>
 </body>
 
 </html>

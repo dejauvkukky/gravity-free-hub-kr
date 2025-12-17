@@ -93,9 +93,7 @@ function showCurrentMatch() {
     document.getElementById('match-count').textContent = `${currentMatchIndex + 1} / ${currentMatches.length}`;
 
     // 선택지 표시
-    document.getElementById('choice-emoji-0').textContent = match[0].emoji;
     document.getElementById('choice-name-0').textContent = match[0].name;
-    document.getElementById('choice-emoji-1').textContent = match[1].emoji;
     document.getElementById('choice-name-1').textContent = match[1].name;
 }
 
@@ -138,7 +136,6 @@ async function showResult(winner) {
     document.getElementById('result-screen').style.display = 'block';
 
     // 우승자 표시
-    document.getElementById('winner-emoji').textContent = winner.emoji;
     document.getElementById('winner-name').textContent = winner.name;
 
     // 결과 저장
@@ -158,7 +155,6 @@ async function saveResult(winner) {
             userName: userName,
             winner: winner.id,
             winnerName: winner.name,
-            winnerEmoji: winner.emoji,
             playedAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -185,7 +181,7 @@ async function loadFamilyStats() {
             div.className = 'stat-item';
             div.innerHTML = `
                 <span>${data.userName}</span>
-                <span>${data.winnerEmoji} ${data.winnerName}</span>
+                <span>${data.winnerName}</span>
             `;
             statsList.appendChild(div);
         });

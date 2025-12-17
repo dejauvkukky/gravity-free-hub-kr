@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 월드컵 관리</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171116">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171130">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -58,11 +58,7 @@
             flex: 1;
         }
 
-        .choice-emoji-input {
-            width: 80px;
-            text-align: center;
-            font-size: 1.2rem;
-        }
+
 
         .btn-group {
             display: flex;
@@ -153,8 +149,8 @@
     </div>
 
     <script type="module">
-        import { auth, db } from '../../src/firebase.js?v=202512171116';
-        import { customAlert, customConfirm } from '../../src/ui-utils.js?v=202512171116';
+        import { auth, db } from '../../src/firebase.js?v=202512171130';
+        import { customAlert, customConfirm } from '../../src/ui-utils.js?v=202512171130';
 
         let currentUser = null;
 
@@ -182,10 +178,10 @@
                 } else {
                     // 기본 초기화
                     renderChoices([
-                        { id: 'c1', name: '', emoji: '' },
-                        { id: 'c2', name: '', emoji: '' },
-                        { id: 'c3', name: '', emoji: '' },
-                        { id: 'c4', name: '', emoji: '' }
+                        { id: 'c1', name: '' },
+                        { id: 'c2', name: '' },
+                        { id: 'c3', name: '' },
+                        { id: 'c4', name: '' }
                     ]);
                 }
             } catch (error) {
@@ -202,11 +198,8 @@
                 const div = document.createElement('div');
                 div.className = 'choice-item';
                 div.innerHTML = `
-                    <input type="text" class="form-input choice-emoji-input" 
-                           placeholder="🍗" value="${choice.emoji || ''}" 
-                           data-index="${index}" data-field="emoji">
                     <input type="text" class="form-input" 
-                           placeholder="이름" value="${choice.name || ''}" 
+                           placeholder="선택지 이름" value="${choice.name || ''}" 
                            data-index="${index}" data-field="name">
                     <button class="admin-btn remove" onclick="removeChoice(${index})">×</button>
                 `;
@@ -229,10 +222,8 @@
             const div = document.createElement('div');
             div.className = 'choice-item';
             div.innerHTML = `
-                <input type="text" class="form-input choice-emoji-input" 
-                       placeholder="🍗" data-index="${currentCount}" data-field="emoji">
                 <input type="text" class="form-input" 
-                       placeholder="이름" data-index="${currentCount}" data-field="name">
+                       placeholder="선택지 이름" data-index="${currentCount}" data-field="name">
                 <button class="admin-btn remove" onclick="removeChoice(${currentCount})">×</button>
             `;
             container.appendChild(div);
@@ -277,13 +268,11 @@
 
             const choices = [];
             choiceInputs.forEach((item, index) => {
-                const emoji = item.querySelector('[data-field="emoji"]').value.trim();
                 const name = item.querySelector('[data-field="name"]').value.trim();
 
-                if (emoji && name) {
+                if (name) {
                     choices.push({
                         id: `c${index + 1}`,
-                        emoji: emoji,
                         name: name
                     });
                 }
