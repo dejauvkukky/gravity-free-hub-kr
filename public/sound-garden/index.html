@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171415">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171420">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -22,7 +22,10 @@
         .container {
             max-width: 480px;
             margin: 0 auto;
-            /* padding: 20px; Removed for full-width header */
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+            /* Space for FAB */
             box-sizing: border-box;
         }
 
