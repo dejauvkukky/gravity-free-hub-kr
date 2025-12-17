@@ -29,6 +29,7 @@
 | 🎵 Sound Garden | YouTube 음악 공유, 댓글 및 이모지 반응 |
 | 🏗️ 아빠를 이겨라 | 스택 쌓기 게임, 아빠 AI 경쟁, 주간 랭킹 |
 | 🎒 챙겨줘요 | 가족 위시리스트 & 준비물 메모, D-Day 관리 |
+| 🏆 시크릿 월드컵 | 이상형 월드컵, VS 토너먼트 게임 |
 | 📢 공지사항 | 팝업 공지, kukky 전용 관리 기능 |
 
 ---
@@ -46,7 +47,9 @@ root/
 │   ├── mbti/               # MBTI 테스트
 │   ├── sound-garden/       # 음악 공유
 │   ├── wishlist/           # 챙겨줘요 (New)
-
+│   ├── worldcup/           # 시크릿 월드컵 (New)
+│   │   ├── index.html      # 게임 플레이
+│   │   └── admin.html      # 관리자 페이지
 │   └── games/
 │       ├── beat-dad/       # 스택 쌓기 게임
 │       └── beat-dad-2048/  # 2048 퍼즐 게임 (New)
@@ -56,7 +59,7 @@ root/
 │   ├── users.js            # 가족 생년월일 데이터
 │   ├── fortune_engine.js   # 운세 생성 엔진
 │   ├── wishlist.js         # 위시리스트 로직
-
+│   ├── worldcup.js         # 월드컵 게임 로직 (New)
 │   └── mbti_data.js        # MBTI 질문/결과 데이터
 └── assets/
     └── css/                # 스타일시트
