@@ -636,7 +636,7 @@
 
                 // Populate Category Datalist dynamically (Main & Edit)
                 const uniqueCats = new Set(allPosts.map(p => p.category).filter(Boolean));
-                const catHtml = Array.from(uniqueCats).sort().map(c => `< option value = "${c}" > `).join('');
+                const catHtml = Array.from(uniqueCats).sort().map(c => `<option value="${c}">`).join('');
 
                 const dataList = document.getElementById('cat-options');
                 if (dataList) dataList.innerHTML = catHtml;
@@ -682,18 +682,18 @@
             const container = document.getElementById('featured-list');
             if (featured.length === 0) { container.innerHTML = '<div style="color:#999; grid-column:1/-1; text-align:center; padding:20px;">등록된 음악이 없습니다.</div>'; return; }
             container.innerHTML = featured.map(post => `
-                < div class="video-card" onclick = "playMusic('${post.id}')" >
+                <div class="video-card" onclick="playMusic('${post.id}')">
                     <div class="thumb-area"><img src="https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg" loading="lazy"><div class="play-icon">▶</div></div>
                     <div class="v-info"><div class="v-title">${post.title}</div><div class="v-desc">${post.description || post.category}</div></div>
-                </div >
-                `).join('');
+                </div>
+            `).join('');
         }
 
         function renderCategories() {
             const used = new Set(allPosts.map(p => p.category).filter(Boolean));
             const cats = ['all', ...Array.from(used).sort()];
             document.getElementById('category-list').innerHTML = cats.map(cat =>
-                `< button class="cat-btn ${cat === currentCat ? 'active' : ''}" onclick = "filterCat('${cat}')" > ${cat === 'all' ? '전체' : cat}</button > `
+                `<button class="cat-btn ${cat === currentCat ? 'active' : ''}" onclick="filterCat('${cat}')">${cat === 'all' ? '전체' : cat}</button>`
             ).join('');
         }
 
@@ -710,22 +710,22 @@
             }
 
             listEl.innerHTML = displayList.map(post => `
-                < div class="music-item" onclick = "playMusic('${post.id}')" >
+                <div class="music-item" onclick="playMusic('${post.id}')">
                     <img class="music-thumb-mini" src="https://img.youtube.com/vi/${post.videoId}/mqdefault.jpg" loading="lazy">
-                        <div class="m-info">
-                            <div class="m-title">
-                                ${post.title}
-                                ${(post.commentCount || 0) > 0 ? `<span style="font-size:0.8rem; color:#6366f1; margin-left:5px; vertical-align:middle;">💬 ${post.commentCount}</span>` : ''}
-                            </div>
-                            <div class="m-meta">${post.category} • ${post.description}</div>
+                    <div class="m-info">
+                        <div class="m-title">
+                            ${post.title}
+                            ${(post.commentCount || 0) > 0 ? `<span style="font-size:0.8rem; color:#6366f1; margin-left:5px; vertical-align:middle;">💬 ${post.commentCount}</span>` : ''}
                         </div>
-                        ${isAdmin ? `
+                        <div class="m-meta">${post.category} • ${post.description}</div>
+                    </div>
+                    ${isAdmin ? `
                         <div style="display:flex; flex-direction:column; gap:5px;">
                             <button onclick="event.stopPropagation(); openEdit('${post.id}')" style="color:#3b82f6; background:none; border:none; padding:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">수정</button>
                             <button onclick="event.stopPropagation(); deletePost('${post.id}')" style="color:#ef4444; background:none; border:none; padding:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">삭제</button>
                         </div>
                     ` : ''}
-                    </div>
+                </div>
             `).join('');
 
             // Handle Button Visibility
@@ -764,7 +764,7 @@
             document.getElementById('player-title').innerText = p.title;
             document.getElementById('info-title').innerText = p.title;
             document.getElementById('info-desc').innerText = p.description + (p.category ? ` | ${p.category} ` : '');
-            document.getElementById('youtube-embed-container').innerHTML = `< iframe src = "https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder = "0" allowfullscreen ></iframe > `;
+            document.getElementById('youtube-embed-container').innerHTML = `<iframe src="https://www.youtube.com/embed/${p.videoId}?autoplay=1&playsinline=1" frameborder="0" allowfullscreen></iframe>`;
 
             document.getElementById('player-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
