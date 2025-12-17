@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171430">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171435">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -16,7 +16,9 @@
         /* Base Layout */
         body {
             margin: 0;
-            background-color: #f8fafc;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            /* Deep Dark Gradient */
+            color: #f1f5f9;
         }
 
         .container {
@@ -39,7 +41,8 @@
         .featured-title {
             font-size: 1.2rem;
             font-weight: 800;
-            color: #1e293b;
+            color: #e2e8f0;
+            /* Light Title */
             margin-bottom: 15px;
             display: flex;
             align-items: center;
@@ -55,13 +58,16 @@
         /* 2 Columns */
 
         .video-card {
-            background: white;
+            background: #1e293b;
+            /* Dark Card */
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            /* Stronger Shadow */
             cursor: pointer;
             transition: transform 0.2s;
-            border: 1px solid #f1f5f9;
+            border: 1px solid #334155;
+            /* Dark Border */
         }
 
         .video-card:active {
@@ -106,7 +112,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: #334155;
+            color: #f1f5f9;
+            /* Light Text */
         }
 
         .v-desc {
@@ -131,12 +138,14 @@
         }
 
         .cat-btn {
-            background: white;
-            border: 1px solid #e2e8f0;
+            background: #1e293b;
+            /* Dark Button */
+            border: 1px solid #334155;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.95rem;
-            color: #64748b;
+            color: #cbd5e1;
+            /* Light Grey Text */
             white-space: nowrap;
             cursor: pointer;
             flex-shrink: 0;
@@ -145,10 +154,13 @@
         }
 
         .cat-btn.active {
-            background: var(--color-primary, #6366f1);
+            background: #6366f1;
+            /* Soulful Indigo */
             color: white;
-            border-color: var(--color-primary, #6366f1);
+            border-color: #6366f1;
             font-weight: bold;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+            /* Neon Glow */
         }
 
         .music-list {
@@ -345,9 +357,9 @@
         .load-more-btn {
             width: 100%;
             padding: 15px;
-            background: white;
-            color: #64748b;
-            border: 1px solid #cbd5e1;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
@@ -382,7 +394,7 @@
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <select id="sort-select" onchange="changeSort()"
-                        style="padding:10px; border-radius:12px; border:1px solid #cbd5e1; font-size:0.9rem; background:white; color:#334155; font-weight:500;">
+                        style="padding:10px; border-radius:12px; border:1px solid #334155; font-size:0.9rem; background:#1e293b; color:#f1f5f9; font-weight:500;">
                         <option value="new">최신순</option>
                         <option value="old">오래된순</option>
                         <option value="name">이름순</option>
