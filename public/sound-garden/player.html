@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Player</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171655">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            /* Deep Dark */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .player-header {
+            padding: 10px 15px;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            flex-shrink: 0;
+        }
+
+        .title {
+            font-size: 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .desc {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .video-box {
+            flex-grow: 1;
+            width: 100%;
+            position: relative;
+            background: black;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .controls {
+            padding: 10px;
+            text-align: center;
+            background: #1e293b;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="player-header">
+        <div class="title" id="p-title">Loading...</div>
+        <div class="desc" id="p-desc"></div>
+    </div>
+    <div class="video-box">
+        <div id="player-container" style="width:100%; height:100%;"></div>
+    </div>
+    <div class="controls">
+        창을 닫으면 재생이 멈춥니다 🎵
+    </div>
+
+    <script>
+        // Parse URL params
+        const params = new URLSearchParams(window.location.search);
+        const videoId = params.get('v');
+        const title = params.get('t');
+        const desc = params.get('d');
+
+        if (title) document.getElementById('p-title').textContent = title;
+        if (desc) document.getElementById('p-desc').textContent = desc;
+
+        if (videoId) {
+            document.getElementById('player-container').innerHTML =
+                `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        } else {
+            document.getElementById('player-container').innerHTML = '<div style="padding:20px; text-align:center;">비디오 정보가 없습니다.</div>';
+        }
+    </script>
+</body>
+
+</html>
