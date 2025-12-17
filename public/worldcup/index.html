@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Garden - 시크릿 월드컵</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171116">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        .worldcup-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-start {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .worldcup-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+
+        .start-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #20C997 100%);
+            color: var(--color-secondary);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(126, 214, 193, 0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(126, 214, 193, 0.4);
+        }
+
+        /* VS Screen */
+        .vs-screen {
+            display: none;
+        }
+
+        .round-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .round-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-primary);
+        }
+
+        .match-count {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .vs-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .choice-card {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .choice-card:hover {
+            transform: scale(1.05);
+            border-color: var(--color-primary);
+            box-shadow: 0 8px 25px rgba(126, 214, 193, 0.3);
+        }
+
+        .choice-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .choice-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .vs-text {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ff6b6b;
+        }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .winner-card {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 3px solid #ffb84d;
+        }
+
+        .trophy {
+            font-size: 5rem;
+            margin-bottom: 15px;
+        }
+
+        .winner-emoji {
+            font-size: 4rem;
+            margin: 10px 0;
+        }
+
+        .winner-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ff8c00;
+        }
+
+        .family-stats {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .replay-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .replay-btn.primary {
+            background: var(--color-primary);
+            color: var(--color-secondary);
+        }
+
+        .replay-btn.secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
+            <span>시크릿 월드컵</span>
+        </header>
+
+        <div class="worldcup-container">
+            <!-- Game Start Screen -->
+            <div id="game-start" class="game-start">
+                <h1 class="worldcup-title" id="worldcup-title">최애 음식 월드컵</h1>
+                <p style="color: #666; margin-bottom: 30px;">두 가지 중 하나를 선택하세요!</p>
+                <button class="start-btn" onclick="startGame()">🎮 게임 시작</button>
+            </div>
+
+            <!-- VS Screen -->
+            <div id="vs-screen" class="vs-screen">
+                <div class="round-info">
+                    <div class="round-name" id="round-name">8강</div>
+                    <div class="match-count" id="match-count">1 / 4</div>
+                </div>
+
+                <div class="vs-container">
+                    <div class="choice-card" onclick="selectChoice(0)">
+                        <div class="choice-emoji" id="choice-emoji-0">🍗</div>
+                        <div class="choice-name" id="choice-name-0">치킨</div>
+                    </div>
+
+                    <div class="vs-text">VS</div>
+
+                    <div class="choice-card" onclick="selectChoice(1)">
+                        <div class="choice-emoji" id="choice-emoji-1">🍕</div>
+                        <div class="choice-name" id="choice-name-1">피자</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="result-screen">
+                <div class="winner-card">
+                    <div class="trophy">🏆</div>
+                    <h2 style="margin-bottom: 10px;">최종 우승!</h2>
+                    <div class="winner-emoji" id="winner-emoji">🍗</div>
+                    <div class="winner-name" id="winner-name">치킨</div>
+                </div>
+
+                <div class="family-stats">
+                    <div class="stats-title">👨‍👩‍👧‍👦 가족 결과</div>
+                    <div id="family-stats-list">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+
+                <button class="replay-btn primary" onclick="startGame()">🔄 다시하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../../src/worldcup.js?v=202512171116"></script>
+</body>
+
+</html>

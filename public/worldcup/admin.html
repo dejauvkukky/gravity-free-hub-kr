@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Garden - 월드컵 관리</title>
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171116">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        .admin-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .choices-container {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .choice-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .choice-item input {
+            flex: 1;
+        }
+
+        .choice-emoji-input {
+            width: 80px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-btn.save {
+            background: var(--color-primary);
+            color: var(--color-secondary);
+        }
+
+        .admin-btn.reset {
+            background: #ef4444;
+            color: white;
+        }
+
+        .admin-btn.add {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .admin-btn.remove {
+            background: #94a3b8;
+            color: white;
+            width: 40px;
+            padding: 8px;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background: #e0f2fe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../dashboard.html" class="logo">← Secret Garden</a>
+            <span>월드컵 관리</span>
+        </header>
+
+        <div class="admin-container">
+            <div class="info-box">
+                <strong>🔑 관리자 전용 페이지</strong><br>
+                선택지는 4~16개, 반드시 짝수 개수로 등록하세요.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">월드컵 제목</label>
+                <input type="text" id="worldcup-title" class="form-input" placeholder="예: 최애 음식 월드컵">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">선택지 (현재: <span id="choice-count">0</span>개)</label>
+                <div class="choices-container" id="choices-container">
+                    <!-- 동적 생성 -->
+                </div>
+                <button class="admin-btn add" onclick="addChoice()">+ 선택지 추가</button>
+                <div class="error-msg" id="count-error"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="admin-btn save" onclick="saveWorldcup()">💾 저장</button>
+                <button class="admin-btn reset" onclick="resetResults()">🗑️ 결과 초기화</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from '../../src/firebase.js?v=202512171116';
+        import { customAlert, customConfirm } from '../../src/ui-utils.js?v=202512171116';
+
+        let currentUser = null;
+
+        // 관리자 확인
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                location.href = '../login.html';
+            } else if (user.email !== 'kukky@family.com') {
+                customAlert('관리자 전용 페이지입니다.');
+                location.href = '../dashboard.html';
+            } else {
+                currentUser = user;
+                loadWorldcup();
+            }
+        });
+
+        // 월드컵 정보 로드
+        async function loadWorldcup() {
+            try {
+                const doc = await db.collection('worldcup').doc('current').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('worldcup-title').value = data.title || '';
+                    renderChoices(data.choices || []);
+                } else {
+                    // 기본 초기화
+                    renderChoices([
+                        { id: 'c1', name: '', emoji: '' },
+                        { id: 'c2', name: '', emoji: '' },
+                        { id: 'c3', name: '', emoji: '' },
+                        { id: 'c4', name: '', emoji: '' }
+                    ]);
+                }
+            } catch (error) {
+                console.error('Load error:', error);
+            }
+        }
+
+        // 선택지 렌더링
+        function renderChoices(choices) {
+            const container = document.getElementById('choices-container');
+            container.innerHTML = '';
+
+            choices.forEach((choice, index) => {
+                const div = document.createElement('div');
+                div.className = 'choice-item';
+                div.innerHTML = `
+                    <input type="text" class="form-input choice-emoji-input" 
+                           placeholder="🍗" value="${choice.emoji || ''}" 
+                           data-index="${index}" data-field="emoji">
+                    <input type="text" class="form-input" 
+                           placeholder="이름" value="${choice.name || ''}" 
+                           data-index="${index}" data-field="name">
+                    <button class="admin-btn remove" onclick="removeChoice(${index})">×</button>
+                `;
+                container.appendChild(div);
+            });
+
+            updateChoiceCount();
+        }
+
+        // 선택지 추가
+        window.addChoice = function () {
+            const container = document.getElementById('choices-container');
+            const currentCount = container.children.length;
+
+            if (currentCount >= 16) {
+                document.getElementById('count-error').textContent = '최대 16개까지 등록 가능합니다.';
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'choice-item';
+            div.innerHTML = `
+                <input type="text" class="form-input choice-emoji-input" 
+                       placeholder="🍗" data-index="${currentCount}" data-field="emoji">
+                <input type="text" class="form-input" 
+                       placeholder="이름" data-index="${currentCount}" data-field="name">
+                <button class="admin-btn remove" onclick="removeChoice(${currentCount})">×</button>
+            `;
+            container.appendChild(div);
+            updateChoiceCount();
+        };
+
+        // 선택지 제거
+        window.removeChoice = function (index) {
+            const container = document.getElementById('choices-container');
+            if (container.children.length <= 4) {
+                document.getElementById('count-error').textContent = '최소 4개는 필요합니다.';
+                return;
+            }
+            container.children[index].remove();
+            updateChoiceCount();
+        };
+
+        // 개수 업데이트
+        function updateChoiceCount() {
+            const count = document.getElementById('choices-container').children.length;
+            document.getElementById('choice-count').textContent = count;
+
+            // 짝수 검증
+            if (count % 2 !== 0) {
+                document.getElementById('count-error').textContent = '⚠️ 짝수 개수로 입력하세요!';
+            } else if (count < 4) {
+                document.getElementById('count-error').textContent = '⚠️ 최소 4개는 필요합니다.';
+            } else {
+                document.getElementById('count-error').textContent = '';
+            }
+        }
+
+        // 월드컵 저장
+        window.saveWorldcup = async function () {
+            const title = document.getElementById('worldcup-title').value.trim();
+            const choiceInputs = document.querySelectorAll('.choice-item');
+
+            if (!title) {
+                customAlert('월드컵 제목을 입력하세요.');
+                return;
+            }
+
+            const choices = [];
+            choiceInputs.forEach((item, index) => {
+                const emoji = item.querySelector('[data-field="emoji"]').value.trim();
+                const name = item.querySelector('[data-field="name"]').value.trim();
+
+                if (emoji && name) {
+                    choices.push({
+                        id: `c${index + 1}`,
+                        emoji: emoji,
+                        name: name
+                    });
+                }
+            });
+
+            // 검증
+            if (choices.length < 4) {
+                customAlert('선택지를 4개 이상 입력하세요.');
+                return;
+            }
+
+            if (choices.length % 2 !== 0) {
+                customAlert('선택지는 짝수 개수여야 합니다.');
+                return;
+            }
+
+            try {
+                await db.collection('worldcup').doc('current').set({
+                    title: title,
+                    choices: choices,
+                    createdBy: currentUser.email,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                customAlert('월드컵이 저장되었습니다!');
+            } catch (error) {
+                console.error('Save error:', error);
+                customAlert('저장 중 오류가 발생했습니다.');
+            }
+        };
+
+        // 결과 초기화
+        window.resetResults = async function () {
+            if (!await customConfirm('모든 게임 결과를 초기화하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const results = await db.collection('worldcup_results').get();
+                const batch = db.batch();
+                results.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                customAlert('모든 결과가 초기화되었습니다!');
+            } catch (error) {
+                console.error('Reset error:', error);
+                customAlert('초기화 중 오류가 발생했습니다.');
+            }
+        };
+    </script>
+</body>
+
+</html>
