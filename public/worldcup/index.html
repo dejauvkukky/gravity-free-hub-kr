@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 시크릿 월드컵</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171130">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171200">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -13,7 +13,7 @@
         .worldcup-container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
         }
 
         .game-start {
@@ -62,6 +62,7 @@
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--color-primary);
+            margin-bottom: 8px;
         }
 
         .match-count {
@@ -71,39 +72,46 @@
 
         .vs-container {
             display: flex;
-            gap: 20px;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
             margin-bottom: 30px;
         }
 
         .choice-card {
-            flex: 1;
-            background: white;
+            flex: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
-            padding: 40px 20px;
+            padding: 50px 20px;
             text-align: center;
             cursor: pointer;
             border: 3px solid transparent;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
         .choice-card:hover {
-            transform: scale(1.05);
-            border-color: var(--color-primary);
-            box-shadow: 0 8px 25px rgba(126, 214, 193, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .choice-card:active {
+            transform: translateY(-2px);
         }
 
         .choice-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #333;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .vs-text {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: #ff6b6b;
+            text-align: center;
+            padding: 10px 0;
         }
 
         /* Result Screen */
@@ -113,11 +121,12 @@
         }
 
         .winner-card {
-            background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 24px;
-            padding: 40px;
-            margin-bottom: 30px;
-            border: 3px solid #ffb84d;
+            padding: 50px 20px;
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
         }
 
         .trophy {
@@ -126,17 +135,19 @@
         }
 
         .winner-name {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #ff8c00;
+            color: white;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
         }
 
         .family-stats {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .stats-title {
@@ -257,7 +268,7 @@
         </div>
     </div>
 
-    <script type="module" src="../../src/worldcup.js?v=202512171130"></script>
+    <script type="module" src="../../src/worldcup.js?v=202512171200"></script>
 </body>
 
 </html>
