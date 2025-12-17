@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - Sound Garden</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171420">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171430">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -158,20 +158,27 @@
         }
 
         .music-item {
-            background: white;
+            background: #1e293b;
+            /* Dark Slate */
             border-radius: 12px;
             padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            /* Deep shadow */
             cursor: pointer;
-            transition: background 0.2s;
-            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+            border: 1px solid #334155;
+            /* Subtle border */
         }
 
         .music-item:active {
-            background: #f8fafc;
+            transform: scale(0.98);
+            background: #0f172a;
+            /* Even darker on click */
+            border-color: #6366f1;
+            /* Soulful accent */
         }
 
         .music-thumb-mini {
@@ -192,12 +199,14 @@
             font-size: 1.05rem;
             font-weight: bold;
             margin-bottom: 4px;
-            color: #334155;
+            color: #f1f5f9;
+            /* Light text */
         }
 
         .m-meta {
             font-size: 0.85rem;
             color: #94a3b8;
+            /* Muted text */
             display: flex;
             gap: 8px;
             align-items: center;
