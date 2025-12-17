@@ -5,25 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 시크릿 월드컵</title>
-    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171210">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=202512171221">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
         .worldcup-container {
-            max-width: 90%;
+            max-width: 95%;
             margin: 0 auto;
             padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
 
         .game-start {
             text-align: center;
             padding: 40px 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .game-start.loaded {
+            opacity: 1;
         }
 
         .worldcup-title {
@@ -81,13 +84,14 @@
             gap: 15px;
             align-items: stretch;
             margin-bottom: 30px;
+            padding: 0 5%;
         }
 
         .choice-card {
             flex: none;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
-            padding: 50px 20px;
+            padding: 60px 30px;
             text-align: center;
             cursor: pointer;
             border: 3px solid transparent;
@@ -128,8 +132,8 @@
         .winner-card {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 24px;
-            padding: 50px 20px;
-            margin-bottom: 20px;
+            padding: 60px 30px;
+            margin: 0 5% 20px;
             border: none;
             box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
         }
@@ -207,6 +211,10 @@
             text-align: center;
         }
 
+        .stat-item:last-child {
+            border-bottom: none !important;
+        }
+
         .replay-btn.secondary {
             background: #f1f5f9;
             color: #64748b;
@@ -251,7 +259,7 @@
 
                 <!-- 가족 통계 -->
                 <div class="start-family-stats" id="start-family-stats" style="display: none;">
-                    <div class="start-stats-title">👨‍👩‍👧‍👦 가족의 마지막 선택</div>
+                    <div class="start-stats-title">누가 뭘 골랐을까?</div>
                     <div id="start-stats-list">
                         <!-- 동적 생성 -->
                     </div>
@@ -291,7 +299,7 @@
         </div>
     </div>
 
-    <script type="module" src="../../src/worldcup.js?v=202512171210"></script>
+    <script type="module" src="../../src/worldcup.js?v=202512171221"></script>
 </body>
 
 </html>

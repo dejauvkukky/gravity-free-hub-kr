@@ -42,6 +42,12 @@ async function loadWorldcup() {
 
         // 게임 시작 화면에 가족 통계 표시
         await loadStartFamilyStats();
+
+        // 로드 완료 후 화면 표시 (깜빡임 방지)
+        const gameStart = document.getElementById('game-start');
+        if (gameStart) {
+            gameStart.classList.add('loaded');
+        }
     } catch (error) {
         console.error('Load error:', error);
         customAlert('월드컵 로드 중 오류가 발생했습니다.');
