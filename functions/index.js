@@ -42,14 +42,28 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
             return { success: 0, message: 'No valid tokens.' };
         }
 
-        // 3. Construct Message
+        // 3. Construct Message (More robust structure for web)
         const message = {
             notification: {
                 title: title,
                 body: body,
             },
             data: {
+                title: title,
+                body: body,
                 url: link || '/'
+            },
+            webpush: {
+                notification: {
+                    title: title,
+                    body: body,
+                    icon: 'assets/icons/icon-192.png',
+                    tag: 'secret-garden-push',
+                    renotify: true
+                },
+                fcm_options: {
+                    link: link || '/'
+                }
             },
             tokens: tokens,
         };

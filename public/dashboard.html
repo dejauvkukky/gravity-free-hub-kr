@@ -876,6 +876,9 @@
                 });
 
                 if (token) {
+                    // DEBUG ALERT: Token generated
+                    // customAlert('Debug: FCM 토큰 생성 성공'); 
+
                     const user = firebase.auth().currentUser;
                     if (user) {
                         // Use token as document ID to support multiple devices per user
@@ -889,10 +892,15 @@
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
                         console.log('FCM Device Registered.');
+                        // customAlert('Debug: 토큰이 서버에 등록되었습니다.');
                     }
+                } else {
+                    console.warn('No FCM registration token available.');
+                    customAlert('FCM 토큰을 생성할 수 없습니다. 브라우저 설정을 확인해 주세요.');
                 }
             } catch (err) {
                 console.error('FCM initialization error:', err);
+                customAlert('FCM 초기화 오류: ' + err.message);
             }
 
             // 2. Admin Logic
