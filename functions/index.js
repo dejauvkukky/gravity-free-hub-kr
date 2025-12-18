@@ -120,6 +120,7 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
 /**
  * sendSelfPush
  * Target specific token for debugging.
+ * Updated to support both PC and Android with complete message structure.
  */
 exports.sendSelfPush = functions.https.onCall(async (data, context) => {
     if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
@@ -127,14 +128,37 @@ exports.sendSelfPush = functions.https.onCall(async (data, context) => {
     const { token, title, body, link } = data;
     if (!token) throw new functions.https.HttpsError('invalid-argument', 'Token is required.');
 
+    const testTitle = `[Self-Test] ${title}`;
+
+    // Complete message structure for both PC and Android
     const message = {
-        notification: { title: `[Self-Test] ${title}`, body: body },
-        data: { title: title, body: body, url: link || '/' },
+        notification: {
+            title: testTitle,
+            body: body
+        },
+        data: {
+            title: testTitle,
+            body: body,
+            url: link || '/'
+        },
+        webpush: {
+            notification: {
+                title: testTitle,
+                body: body,
+                icon: '/assets/icons/icon-192.png',
+                tag: 'secret-garden-self-test',
+                renotify: true
+            },
+            fcm_options: {
+                link: link || '/'
+            }
+        },
         token: token
     };
 
     try {
         const response = await admin.messaging().send(message);
+        console.log('Self push sent successfully:', response);
         return { success: true, messageId: response };
     } catch (error) {
         console.error('Self push error:', error);

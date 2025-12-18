@@ -14,19 +14,32 @@ const messaging = firebase.messaging();
 console.log('[firebase-messaging-sw.js] Service Worker Loaded Successfully.');
 
 messaging.onBackgroundMessage(function (payload) {
-    console.log('[firebase-messaging-sw.js] Received background message ', payload);
+    console.log('[SW] Background message received:', payload);
 
-    const notificationTitle = payload.notification.title || '[Secret Garden]';
+    // notification 또는 data에서 제목/본문 추출
+    const notificationTitle =
+        (payload.notification && payload.notification.title) ||
+        (payload.data && payload.data.title) ||
+        '[Secret Garden]';
+
+    const notificationBody =
+        (payload.notification && payload.notification.body) ||
+        (payload.data && payload.data.body) ||
+        '새로운 메시지가 도착했습니다.';
+
     const notificationOptions = {
-        body: payload.notification.body || '새로운 메시지가 도착했습니다.',
-        icon: 'assets/icons/icon-192.png', // Relative path to SW location
+        body: notificationBody,
+        icon: '/assets/icons/icon-192.png',  // 절대 경로
+        badge: '/assets/icons/icon-192.png',
         tag: 'secret-garden-push',
         renotify: true,
+        requireInteraction: false,
         data: {
-            url: payload.data ? (payload.data.url || './dashboard.html') : './dashboard.html'
+            url: (payload.data && payload.data.url) || './dashboard.html'
         }
     };
 
+    console.log('[SW] Showing notification:', notificationTitle, notificationOptions);
     return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
