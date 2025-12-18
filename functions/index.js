@@ -42,7 +42,7 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
             return { success: 0, message: 'No valid tokens.' };
         }
 
-        // 3. Construct Message (More robust structure for web)
+        // 3. Construct Message (Full-spectrum for Web/Mobile)
         const message = {
             notification: {
                 title: title,
@@ -53,13 +53,35 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
                 body: body,
                 url: link || '/'
             },
+            android: {
+                notification: {
+                    title: title,
+                    body: body,
+                    clickAction: link || '/',
+                    icon: 'stock_ticker_update',
+                    color: '#6366f1'
+                }
+            },
+            apns: {
+                payload: {
+                    aps: {
+                        alert: {
+                            title: title,
+                            body: body
+                        },
+                        mutableContent: true,
+                        sound: 'default'
+                    }
+                }
+            },
             webpush: {
                 notification: {
                     title: title,
                     body: body,
                     icon: 'assets/icons/icon-192.png',
                     tag: 'secret-garden-push',
-                    renotify: true
+                    renotify: true,
+                    requireInteraction: true
                 },
                 fcm_options: {
                     link: link || '/'
