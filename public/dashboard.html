@@ -748,6 +748,17 @@
                 <button id="push-send-btn" class="notice-admin-btn" style="background:#6366f1; margin-bottom:20px;">즉시
                     발송</button>
 
+                <div
+                    style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                    <div style="font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">기기 상태 진단</div>
+                    <div id="push-diag-info" style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">
+                        상태: 확인 중...
+                    </div>
+                    <button id="push-retry-btn"
+                        style="margin-top:8px; width:100%; border:none; background:#e2e8f0; color:#475569; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">토큰
+                        강제 재등록</button>
+                </div>
+
                 <div style="border-top: 1px solid #f1f5f9; padding-top:15px;">
                     <h5 style="margin:0 0 10px 0; color:#64748b; font-size:0.9rem;">최근 발송 로그 (5건)</h5>
                     <div id="push-logs" style="font-size:0.8rem; color:#334155;">
@@ -840,68 +851,83 @@
         async function initPushSystem(userName) {
             const db = firebase.firestore();
             const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
-            const isAdmin = userName === 'kukky';
+            const isAdmin = userName === 'kukky' || firebase.auth().currentUser.email === 'kukky@family.com';
             const btn = document.getElementById('btn-push-admin');
 
-            if (!messaging) return;
-
-            // 1. Token Collection Logic (For all users)
-            try {
-                // Foreground Message Handler
-                messaging.onMessage((payload) => {
-                    console.log('Message received. ', payload);
-                    const { title, body } = payload.notification;
-                    // Use standard alert as fallback if customAlert fails
-                    try {
-                        customAlert(`🔔 ${title}\n${body}`);
-                    } catch (e) {
-                        alert(`[Secret Garden] ${title}\n${body}`);
-                    }
-                });
-
-                // Request Permission
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    console.warn('알림 권한이 거부되었습니다.');
-                    return;
-                }
-
-                // Explicitly register service worker
-                const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
-
-                // Get Token
-                const token = await messaging.getToken({
-                    vapidKey: 'BGd_i1UoJEmKgiGJXm_9rhThux-mU5OmssMJDbIs7IGjcFZ07KfleWD1UnYX6EcVh1opxJO69Rwq4S8VN6j81wo',
-                    serviceWorkerRegistration: registration
-                });
-
-                if (token) {
-                    // DEBUG ALERT: Token generated
-                    // customAlert('Debug: FCM 토큰 생성 성공'); 
-
-                    const user = firebase.auth().currentUser;
-                    if (user) {
-                        // Use token as document ID to support multiple devices per user
-                        const tokenRef = db.collection('fcm_tokens').doc(token.substring(0, 50)); // Limit ID length if needed
-                        await tokenRef.set({
-                            token: token,
-                            uid: user.uid,
-                            name: userName,
-                            email: user.email,
-                            platform: navigator.userAgent.includes('Mobi') ? 'mobile' : 'pc',
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
-                        console.log('FCM Device Registered.');
-                        // customAlert('Debug: 토큰이 서버에 등록되었습니다.');
-                    }
-                } else {
-                    console.warn('No FCM registration token available.');
-                    customAlert('FCM 토큰을 생성할 수 없습니다. 브라우저 설정을 확인해 주세요.');
-                }
-            } catch (err) {
-                console.error('FCM initialization error:', err);
-                customAlert('FCM 초기화 오류: ' + err.message);
+            if (!messaging) {
+                console.warn('FCM is not supported in this browser.');
+                return;
             }
+
+            // Diagnostic Function
+            const updateDiag = (info) => {
+                const diag = document.getElementById('push-diag-info');
+                if (diag) diag.innerText = info;
+                console.log('[PushDiag]', info);
+            };
+
+            const registerToken = async (force = false) => {
+                try {
+                    updateDiag('상태: 권한 요청 중...');
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        updateDiag('상태: 권한 거부됨');
+                        if (force) customAlert('브라우저 설정에서 알림 권한을 허용해 주세요.');
+                        return;
+                    }
+
+                    updateDiag('상태: 서비스 워커 등록 중...');
+                    const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+
+                    if (force) {
+                        await new Promise(r => setTimeout(r, 1000));
+                        updateDiag('상태: 토큰 갱신 시도 중...');
+                    }
+
+                    updateDiag('상태: 토큰 생성 중...');
+                    const token = await messaging.getToken({
+                        vapidKey: 'BGd_i1UoJEmKgiGJXm_9rhThux-mU5OmssMJDbIs7IGjcFZ07KfleWD1UnYX6EcVh1opxJO69Rwq4S8VN6j81wo',
+                        serviceWorkerRegistration: registration
+                    });
+
+                    if (token) {
+                        const user = firebase.auth().currentUser;
+                        if (user) {
+                            updateDiag('상태: 서버 등록 중...');
+                            const tokenRef = db.collection('fcm_tokens').doc(token.substring(0, 50));
+                            await tokenRef.set({
+                                token: token,
+                                uid: user.uid,
+                                name: userName,
+                                email: user.email,
+                                platform: navigator.userAgent.includes('Mobi') ? 'mobile' : 'pc',
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }, { merge: true });
+                            updateDiag('상태: 등록 완료 (토큰 감지됨)');
+                            if (force) customAlert('토큰이 성공적으로 서버에 재등록되었습니다!');
+                        }
+                    } else {
+                        updateDiag('상태: 토큰 생성 실패');
+                    }
+                } catch (err) {
+                    console.error('Push system error:', err);
+                    updateDiag('오류: ' + err.message);
+                }
+            };
+
+            // Foreground Message Handler
+            messaging.onMessage((payload) => {
+                console.log('Message received. ', payload);
+                const { title, body } = payload.notification;
+                try {
+                    customAlert(`🔔 ${title}\n${body}`);
+                } catch (e) {
+                    alert(`[Secret Garden] ${title}\n${body}`);
+                }
+            });
+
+            // Initial Registration
+            registerToken();
 
             // 2. Admin Logic
             if (isAdmin) {
@@ -909,12 +935,16 @@
                 const modal = document.getElementById('push-modal');
                 const closeBtn = document.getElementById('push-modal-close');
                 const sendBtn = document.getElementById('push-send-btn');
+                const retryBtn = document.getElementById('push-retry-btn');
 
                 btn.onclick = () => {
                     modal.classList.remove('hidden');
                     loadPushLogs();
+                    registerToken(); // Refresh status when opening
                 };
                 closeBtn.onclick = () => modal.classList.add('hidden');
+
+                retryBtn.onclick = () => registerToken(true);
 
                 sendBtn.onclick = async () => {
                     const title = document.getElementById('push-title').value.trim();
@@ -933,8 +963,7 @@
                         sendBtn.disabled = true;
                         sendBtn.innerText = '발송 중...';
 
-                        // Use Cloud Function via HttpsCallable
-                        const sendBroadcastPush = functions.httpsCallable('sendBroadcastPush');
+                        const sendBroadcastPush = firebase.functions().httpsCallable('sendBroadcastPush');
                         const result = await sendBroadcastPush({ title, body, link });
 
                         if (result.data && result.data.success !== undefined) {
