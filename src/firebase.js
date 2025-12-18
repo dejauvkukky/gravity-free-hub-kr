@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
-const functions = firebase.functions();
+const messaging = (typeof firebase.messaging === 'function' && firebase.messaging.isSupported()) ? firebase.messaging() : null;
+const functions = (typeof firebase.functions === 'function') ? firebase.functions() : null;
 
 export { auth, db, messaging, functions };
