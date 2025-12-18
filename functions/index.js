@@ -101,16 +101,59 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
             link,
             sentAt: admin.firestore.FieldValue.serverTimestamp(),
             successCount: response.successCount,
-            failureCount: response.failureCount
+            failureCount: response.failureCount,
+            totalTokens: tokens.length
         });
 
         return {
             success: response.successCount,
-            failure: response.failureCount
+            failure: response.failureCount,
+            total: tokens.length
         };
 
     } catch (error) {
         console.error('Error sending broadcast push:', error);
         throw new functions.https.HttpsError('internal', error.message);
     }
+});
+
+/**
+ * sendSelfPush
+ * Target specific token for debugging.
+ */
+exports.sendSelfPush = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
+
+    const { token, title, body, link } = data;
+    if (!token) throw new functions.https.HttpsError('invalid-argument', 'Token is required.');
+
+    const message = {
+        notification: { title: `[Self-Test] ${title}`, body: body },
+        data: { title: title, body: body, url: link || '/' },
+        token: token
+    };
+
+    try {
+        const response = await admin.messaging().send(message);
+        return { success: true, messageId: response };
+    } catch (error) {
+        console.error('Self push error:', error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});
+
+/**
+ * clearAllTokens
+ * Emergency cleanup for admin.
+ */
+exports.clearAllTokens = functions.https.onCall(async (data, context) => {
+    if (context.auth.token.email !== 'kukky@family.com') {
+        throw new functions.https.HttpsError('permission-denied', 'Unauthorized.');
+    }
+    const db = admin.firestore();
+    const snap = await db.collection('fcm_tokens').get();
+    const batch = db.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    return { success: snap.size };
 });

@@ -751,14 +751,19 @@
                 <div
                     style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px;">
                     <div style="font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">기기 상태 진단</div>
-                    <div id="push-diag-info" style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">
+                    <div id="push-diag-info"
+                        style="font-size:0.75rem; color:#94a3b8; line-height:1.4; word-break:break-all;">
                         상태: 확인 중...
                     </div>
-                    <div style="display:flex; gap:5px; margin-top:8px;">
+                    <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:8px;">
                         <button id="push-retry-btn"
-                            style="flex:1; border:none; background:#e2e8f0; color:#475569; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">재등록</button>
+                            style="flex:1; min-width:80px; border:none; background:#e2e8f0; color:#475569; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">토큰재등록</button>
                         <button id="push-test-alert"
-                            style="flex:1; border:none; background:#fee2e2; color:#b91c1c; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">알림테스트</button>
+                            style="flex:1; min-width:80px; border:none; background:#fee2e2; color:#b91c1c; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">UI테스트</button>
+                        <button id="push-send-me-btn"
+                            style="flex:1; min-width:80px; border:none; background:#6366f1; color:white; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">나에게발송</button>
+                        <button id="push-flush-btn"
+                            style="flex:1; min-width:80px; border:none; background:#fbbf24; color:white; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">DB초기화</button>
                     </div>
                 </div>
 
@@ -948,9 +953,48 @@
                 const sendBtn = document.getElementById('push-send-btn');
                 const retryBtn = document.getElementById('push-retry-btn');
                 const testAlertBtn = document.getElementById('push-test-alert');
+                const sendMeBtn = document.getElementById('push-send-me-btn');
+                const flushBtn = document.getElementById('push-flush-btn');
 
                 testAlertBtn.onclick = () => {
-                    customAlert('화면 알림 시스템 정상 작동 중!');
+                    customAlert('화면 알림 시스템(UI)은 정상입니다. FCM 서버 수신만 확인하면 됩니다.');
+                };
+
+                sendMeBtn.onclick = async () => {
+                    updateDiag('상태: 나에게 테스트 발송 중...');
+                    try {
+                        const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+                        const token = await messaging.getToken({
+                            vapidKey: 'BGd_i1UoJEmKgiGJXm_9rhThux-mU5OmssMJDbIs7IGjcFZ07KfleWD1UnYX6EcVh1opxJO69Rwq4S8VN6j81wo',
+                            serviceWorkerRegistration: registration
+                        });
+
+                        if (!token) throw new Error('토큰이 없습니다.');
+
+                        const sendSelfPush = firebase.functions().httpsCallable('sendSelfPush');
+                        const res = await sendSelfPush({
+                            token: token,
+                            title: '나에게만 테스트',
+                            body: '이 메시지가 보인다면 FCM 수신 정상입니다.',
+                            link: './dashboard.html'
+                        });
+                        customAlert('나에게 테스트 발송 요청 성공! 잠시 후 alert이 뜨는지 보세요.');
+                    } catch (e) {
+                        customAlert('자가 테스트 실패: ' + e.message);
+                    }
+                    registerToken();
+                };
+
+                flushBtn.onclick = async () => {
+                    const go = await customConfirm('모든 기기 토큰을 삭제하시겠습니까? (테스트 초기화용)');
+                    if (!go) return;
+                    try {
+                        const clearAllTokens = firebase.functions().httpsCallable('clearAllTokens');
+                        const res = await clearAllTokens();
+                        customAlert(`${res.data.success}개의 토큰을 삭제했습니다. 이제 각 기기에서 재점검을 눌러 깨끗하게 다시 등록하세요.`);
+                    } catch (e) {
+                        customAlert('초기화 실패: ' + e.message);
+                    }
                 };
 
                 btn.onclick = () => {
