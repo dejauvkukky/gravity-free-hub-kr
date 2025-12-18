@@ -847,9 +847,17 @@
 
             // 1. Token Collection Logic (For all users)
             try {
+                // Foreground Message Handler
+                messaging.onMessage((payload) => {
+                    console.log('Message received. ', payload);
+                    const { title, body } = payload.notification;
+                    customAlert(`🔔 ${title}\n${body}`);
+                });
+
                 // Request Permission & Get Token
                 const token = await messaging.getToken({ vapidKey: 'BGd_i1UoJEmKgiGJXm_9rhThux-mU5OmssMJDbIs7IGjcFZ07KfleWD1UnYX6EcVh1opxJO69Rwq4S8VN6j81wo' });
                 if (token) {
+                    console.log('FCM Token generated successfully.');
                     const user = firebase.auth().currentUser;
                     if (user) {
                         await db.collection('fcm_tokens').doc(user.uid).set({
@@ -857,10 +865,13 @@
                             name: userName,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
+                        console.log('FCM Token synced to Firestore.');
                     }
+                } else {
+                    console.warn('No FCM registration token available. Request permission to generate one.');
                 }
             } catch (err) {
-                console.log('FCM Token error:', err);
+                console.error('FCM initialization error:', err);
             }
 
             // 2. Admin Logic

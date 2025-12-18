@@ -12,16 +12,19 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
     }
 
-    // Authorization: Only allow 'kukky' or admin UID
-    // In this project, 'kukky' is checked by email prefix or name. 
-    // Here we can use email or a specific UID if known.
-    if (context.auth.token.email !== 'kukky@example.com' && !context.auth.token.email.startsWith('kukky')) {
-        throw new functions.https.HttpsError('permission-denied', 'Only kukky can send push notifications.');
+    // Authorization: Only allow 'kukky@family.com'
+    if (context.auth.token.email !== 'kukky@family.com') {
+        throw new functions.https.HttpsError('permission-denied', 'Only kukky@family.com can send push notifications.');
     }
 
-    const { title, body, link } = data;
+    let { title, body, link } = data;
     if (!title || !body) {
         throw new functions.https.HttpsError('invalid-argument', 'Title and Body are required.');
+    }
+
+    // Prepend App Name to title
+    if (!title.startsWith('[Secret Garden]')) {
+        title = `[Secret Garden] ${title}`;
     }
 
     const db = admin.firestore();
