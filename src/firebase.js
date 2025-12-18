@@ -14,5 +14,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+const functions = firebase.functions();
 
-export { auth, db, messaging };
+export { auth, db, messaging, functions };
