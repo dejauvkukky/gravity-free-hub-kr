@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=202512171355">
+    <link rel="stylesheet" href="../assets/css/style.css?v=202512181515">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
     <meta name="theme-color" content="#6366f1">
@@ -227,7 +228,9 @@
         <div class="dashboard-header">
             <div class="header-top">
                 <a href="#" class="header-logo">Secret Garden</a>
-                <div style="display:flex; gap:10px;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button id="btn-push-admin" class="hidden"
+                        style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; cursor:pointer;">🔔</button>
                     <button id="btn-password-change" class="hidden"
                         style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; cursor:pointer;">🔑</button>
                     <button onclick="AuthService.logout()"
@@ -683,7 +686,7 @@
     </style>
 
     <!-- Scripts -->
-    <script src="../src/auth.js?v=202512171355"></script>
+    <script src="../src/auth.js?v=202512181515"></script>
     </script>
     <!-- Password Change Modal -->
     <div id="password-modal" class="notice-overlay hidden">
@@ -726,10 +729,38 @@
         </div>
     </div>
 
+    <!-- Push Management Modal (Admin Only) -->
+    <div id="push-modal" class="notice-overlay hidden">
+        <div class="notice-admin" style="max-width: 400px;">
+            <div class="notice-admin-header" style="background:#6366f1;">
+                <h4>Push 알림 발송</h4>
+                <button id="push-modal-close" class="notice-admin-close">✕</button>
+            </div>
+            <div class="notice-admin-body">
+                <input type="text" id="push-title" placeholder="제목"
+                    style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:10px; margin-bottom:10px; font-size:1rem; box-sizing:border-box;">
+                <textarea id="push-body" placeholder="내용"
+                    style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:10px; margin-bottom:10px; font-size:1rem; box-sizing:border-box; min-height:80px; font-family:inherit;"></textarea>
+                <input type="text" id="push-link" placeholder="이동 링크 (예: /public/sound-garden/)"
+                    style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:10px; margin-bottom:15px; font-size:1rem; box-sizing:border-box;">
+
+                <button id="push-send-btn" class="notice-admin-btn" style="background:#6366f1; margin-bottom:20px;">즉시
+                    발송</button>
+
+                <div style="border-top: 1px solid #f1f5f9; padding-top:15px;">
+                    <h5 style="margin:0 0 10px 0; color:#64748b; font-size:0.9rem;">최근 발송 로그 (5건)</h5>
+                    <div id="push-logs" style="font-size:0.8rem; color:#334155;">
+                        <div style="padding:10px; text-align:center; color:#94a3b8;">로그가 없습니다.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        import '../src/firebase.js?v=202512171355';
-        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512171355';
-        import { QUOTES } from '../src/quote-db.js?v=202512171355';
+        import '../src/firebase.js?v=202512181515';
+        import { customAlert, customConfirm } from '../src/ui-utils.js?v=202512181515';
+        import { QUOTES } from '../src/quote-db.js?v=202512181515';
 
         // Display Random Quote
         function setRandomQuote() {
@@ -800,8 +831,154 @@
                 // Initialize Systems
                 initNoticeSystem(displayName);
                 initPasswordSystem(displayName);
+                initPushSystem(displayName);
             }
         });
+
+        // --- Push Notification System ---
+        async function initPushSystem(userName) {
+            const db = firebase.firestore();
+            const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+            const isAdmin = userName === 'kukky';
+            const btn = document.getElementById('btn-push-admin');
+
+            if (!messaging) return;
+
+            // 1. Token Collection Logic (For all users)
+            try {
+                // Request Permission & Get Token
+                const token = await messaging.getToken({ vapidKey: 'BMD_U6q4p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY1p9pY' }); // Placeholder VAPID
+                if (token) {
+                    const user = firebase.auth().currentUser;
+                    if (user) {
+                        await db.collection('fcm_tokens').doc(user.uid).set({
+                            token: token,
+                            name: userName,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                }
+            } catch (err) {
+                console.log('FCM Token error:', err);
+            }
+
+            // 2. Admin Logic
+            if (isAdmin) {
+                btn.classList.remove('hidden');
+                const modal = document.getElementById('push-modal');
+                const closeBtn = document.getElementById('push-modal-close');
+                const sendBtn = document.getElementById('push-send-btn');
+
+                btn.onclick = () => {
+                    modal.classList.remove('hidden');
+                    loadPushLogs();
+                };
+                closeBtn.onclick = () => modal.classList.add('hidden');
+
+                sendBtn.onclick = async () => {
+                    const title = document.getElementById('push-title').value.trim();
+                    const body = document.getElementById('push-body').value.trim();
+                    const link = document.getElementById('push-link').value.trim() || '/';
+
+                    if (!title || !body) {
+                        customAlert('제목과 내용을 모두 입력해주세요.');
+                        return;
+                    }
+
+                    const go = await customConfirm('전체 사용자에게 푸시 알림을 발송하시겠습니까?');
+                    if (!go) return;
+
+                    try {
+                        sendBtn.disabled = true;
+                        sendBtn.innerText = '발송 중...';
+
+                        // Get Server Key from Firestore (Admin should set this in Firebase Console/Firestore)
+                        const configDoc = await db.collection('config').doc('fcm').get();
+                        if (!configDoc.exists || !configDoc.data().serverKey) {
+                            customAlert('FCM 서버 키가 설정되지 않았습니다.\nFirestore [config/fcm] 문서에 serverKey를 등록해주세요.');
+                            return;
+                        }
+                        const serverKey = configDoc.data().serverKey;
+
+                        // Get all tokens
+                        const tokensSnap = await db.collection('fcm_tokens').get();
+                        const tokens = tokensSnap.docs.map(d => d.data().token);
+
+                        if (tokens.length === 0) {
+                            customAlert('발송할 대상(토큰)이 없습니다.');
+                            return;
+                        }
+
+                        // Broadcast via FCM Legacy API (Iteration for simplicity)
+                        let successCount = 0;
+                        for (const token of tokens) {
+                            const res = await fetch('https://fcm.googleapis.com/fcm/send', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'key=' + serverKey
+                                },
+                                body: JSON.stringify({
+                                    to: token,
+                                    notification: {
+                                        title: title,
+                                        body: body,
+                                        icon: '/assets/icons/icon-192.png',
+                                        click_action: window.location.origin + link
+                                    },
+                                    data: {
+                                        url: window.location.origin + link
+                                    }
+                                })
+                            });
+                            if (res.ok) successCount++;
+                        }
+
+                        // Log to Firestore
+                        await db.collection('push_logs').add({
+                            title, body, link,
+                            sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            successCount
+                        });
+
+                        customAlert('푸시 발송 완료!');
+                        document.getElementById('push-title').value = '';
+                        document.getElementById('push-body').value = '';
+                        loadPushLogs();
+
+                    } catch (err) {
+                        console.error(err);
+                        customAlert('발송 실패: ' + err.message);
+                    } finally {
+                        sendBtn.disabled = false;
+                        sendBtn.innerText = '즉시 발송';
+                    }
+                };
+
+                async function loadPushLogs() {
+                    const logContainer = document.getElementById('push-logs');
+                    try {
+                        const snap = await db.collection('push_logs').orderBy('sentAt', 'desc').limit(5).get();
+                        if (snap.empty) {
+                            logContainer.innerHTML = '<div style="padding:10px; text-align:center; color:#94a3b8;">로그가 없습니다.</div>';
+                            return;
+                        }
+                        logContainer.innerHTML = snap.docs.map(d => {
+                            const data = d.data();
+                            const time = data.sentAt ? new Date(data.sentAt.seconds * 1000).toLocaleString() : '-';
+                            return `
+                                <div style="border-bottom:1px solid #f1f5f9; padding:8px 0;">
+                                    <div style="font-weight:bold;">${data.title}</div>
+                                    <div style="font-size:0.75rem; color:#94a3b8;">${time} (${data.successCount}건 성공)</div>
+                                </div>
+                            `;
+                        }).join('');
+                    } catch (err) {
+                        logContainer.innerHTML = '로그 로드 실패';
+                    }
+                }
+            }
+        }
 
         // --- Password System ---
         async function initPasswordSystem(userName) {
