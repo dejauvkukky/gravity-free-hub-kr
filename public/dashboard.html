@@ -754,9 +754,12 @@
                     <div id="push-diag-info" style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">
                         상태: 확인 중...
                     </div>
-                    <button id="push-retry-btn"
-                        style="margin-top:8px; width:100%; border:none; background:#e2e8f0; color:#475569; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">토큰
-                        강제 재등록</button>
+                    <div style="display:flex; gap:5px; margin-top:8px;">
+                        <button id="push-retry-btn"
+                            style="flex:1; border:none; background:#e2e8f0; color:#475569; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">재등록</button>
+                        <button id="push-test-alert"
+                            style="flex:1; border:none; background:#fee2e2; color:#b91c1c; padding:6px; border-radius:6px; font-size:0.7rem; cursor:pointer;">알림테스트</button>
+                    </div>
                 </div>
 
                 <div style="border-top: 1px solid #f1f5f9; padding-top:15px;">
@@ -876,8 +879,11 @@
                         return;
                     }
 
-                    updateDiag('상태: 서비스 워커 등록 중...');
-                    const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+                    updateDiag(`상태: 서비스 워커 등록 중... (Scope: ./)`);
+                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' });
+
+                    updateDiag('상태: 활성화 대기 중...');
+                    await navigator.serviceWorker.ready;
 
                     if (force) {
                         await new Promise(r => setTimeout(r, 1000));
@@ -917,12 +923,17 @@
 
             // Foreground Message Handler
             messaging.onMessage((payload) => {
-                console.log('Message received. ', payload);
-                const { title, body } = payload.notification;
+                console.log('[FCM] Foreground Message:', payload);
+                const title = (payload.notification && payload.notification.title) || (payload.data && payload.data.title) || '알림';
+                const body = (payload.notification && payload.notification.body) || (payload.data && payload.data.body) || '새 메시지';
+
+                // Immediate fallback alert to ENSURE visibility
+                alert(`[Secret Garden 푸시 수신]\n제목: ${title}\n내용: ${body}`);
+
                 try {
                     customAlert(`🔔 ${title}\n${body}`);
                 } catch (e) {
-                    alert(`[Secret Garden] ${title}\n${body}`);
+                    console.error('customAlert error:', e);
                 }
             });
 
@@ -936,6 +947,11 @@
                 const closeBtn = document.getElementById('push-modal-close');
                 const sendBtn = document.getElementById('push-send-btn');
                 const retryBtn = document.getElementById('push-retry-btn');
+                const testAlertBtn = document.getElementById('push-test-alert');
+
+                testAlertBtn.onclick = () => {
+                    customAlert('화면 알림 시스템 정상 작동 중!');
+                };
 
                 btn.onclick = () => {
                     modal.classList.remove('hidden');

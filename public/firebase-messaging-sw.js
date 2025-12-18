@@ -11,6 +11,7 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+console.log('[firebase-messaging-sw.js] Service Worker Loaded Successfully.');
 
 messaging.onBackgroundMessage(function (payload) {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
