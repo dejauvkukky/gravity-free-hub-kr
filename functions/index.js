@@ -54,8 +54,8 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
             tokens: tokens,
         };
 
-        // 4. Send using Admin SDK (sendMulticast is efficient for many tokens)
-        const response = await admin.messaging().sendMulticast(message);
+        // 4. Send using Admin SDK (sendEachForMulticast is the modern replacement for sendMulticast)
+        const response = await admin.messaging().sendEachForMulticast(message);
 
         // 5. Log the result
         await db.collection('push_logs').add({
