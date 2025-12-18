@@ -15,14 +15,18 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function (payload) {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-    const notificationTitle = payload.notification.title;
+    const notificationTitle = payload.notification.title || '[Secret Garden]';
     const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/assets/icons/icon-192.png',
-        data: { url: payload.data.url }
+        body: payload.notification.body || '새로운 메시지가 도착했습니다.',
+        icon: 'assets/icons/icon-192.png', // Relative path to SW location
+        tag: 'secret-garden-push',
+        renotify: true,
+        data: {
+            url: payload.data ? (payload.data.url || './dashboard.html') : './dashboard.html'
+        }
     };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 self.addEventListener('notificationclick', function (event) {

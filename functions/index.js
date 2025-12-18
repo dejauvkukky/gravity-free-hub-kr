@@ -54,10 +54,33 @@ exports.sendBroadcastPush = functions.https.onCall(async (data, context) => {
             tokens: tokens,
         };
 
-        // 4. Send using Admin SDK (sendEachForMulticast is the modern replacement for sendMulticast)
+        // 4. Send using Admin SDK
         const response = await admin.messaging().sendEachForMulticast(message);
 
-        // 5. Log the result
+        // 5. Cleanup invalid tokens
+        const tokensToDelete = [];
+        response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+                const error = resp.error;
+                if (error.code === 'messaging/registration-token-not-registered' ||
+                    error.code === 'messaging/invalid-registration-token') {
+                    // Find the doc with this token and mark for deletion
+                    tokensToDelete.push(tokensSnap.docs[idx].id);
+                }
+                console.error(`Token ${idx} failure:`, error.code);
+            }
+        });
+
+        if (tokensToDelete.length > 0) {
+            const batch = db.batch();
+            tokensToDelete.forEach(id => {
+                batch.delete(db.collection('fcm_tokens').doc(id));
+            });
+            await batch.commit();
+            console.log(`Cleaned up ${tokensToDelete.length} invalid tokens.`);
+        }
+
+        // 6. Log the result
         await db.collection('push_logs').add({
             title,
             body,
