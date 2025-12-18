@@ -71,24 +71,87 @@
         <div id="player-container" style="width:100%; height:100%;"></div>
     </div>
     <div class="controls">
-        창을 닫으면 재생이 멈춥니다 🎵
+        <button id="pip-btn"
+            style="background:#334155; color:white; border:none; padding:5px 15px; border-radius:15px; cursor:pointer; font-size:0.8rem; margin-bottom:5px; display:none;">내려놓기
+            (PiP)</button>
+        <div style="font-size:0.75rem; color:#64748b;">창을 닫으면 재생이 멈춥니다 🎵</div>
     </div>
 
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        // Parse URL params
         const params = new URLSearchParams(window.location.search);
         const videoId = params.get('v');
-        const title = params.get('t');
-        const desc = params.get('d');
+        const title = params.get('t') || 'Secret Player';
+        const desc = params.get('d') || '';
 
-        if (title) document.getElementById('p-title').textContent = title;
-        if (desc) document.getElementById('p-desc').textContent = desc;
+        document.getElementById('p-title').textContent = title;
+        document.getElementById('p-desc').textContent = desc;
 
-        if (videoId) {
-            document.getElementById('player-container').innerHTML =
-                `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-        } else {
-            document.getElementById('player-container').innerHTML = '<div style="padding:20px; text-align:center;">비디오 정보가 없습니다.</div>';
+        let player;
+        function onYouTubeIframeAPIReady() {
+            if (!videoId) {
+                document.getElementById('player-container').innerHTML = '<div style="padding:20px; text-align:center;">비디오 정보가 없습니다.</div>';
+                return;
+            }
+
+            player = new YT.Player('player-container', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,
+                    'playsinline': 1,
+                    'origin': window.location.origin
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            setupMediaSession();
+            setupPiP();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                navigator.mediaSession.playbackState = "playing";
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                navigator.mediaSession.playbackState = "paused";
+            }
+        }
+
+        function setupMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: title,
+                    artist: desc,
+                    album: 'Sound Garden',
+                    artwork: [
+                        { src: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' }
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => player.playVideo());
+                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
+                navigator.mediaSession.setActionHandler('stop', () => player.stopVideo());
+            }
+        }
+
+        async function setupPiP() {
+            const pipBtn = document.getElementById('pip-btn');
+            // Check if documentPictureInPicture is supported (experimental) or standard PiP
+            const iframe = document.querySelector('iframe');
+
+            // Note: Conventional PiP often doesn't work directly with YT iframes due to cross-origin
+            // But we keep the UI ready or fallback to simple instructions.
+            if (document.pictureInPictureEnabled) {
+                // Typically works for <video> tags. For IFrames, it's limited.
+                // pipBtn.style.display = 'inline-block';
+            }
         }
     </script>
 </body>
