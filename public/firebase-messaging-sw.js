@@ -20,10 +20,8 @@ messaging.onBackgroundMessage(function (payload) {
     const notificationOptions = {
         body: payload.notification.body || '새로운 메시지가 도착했습니다.',
         icon: 'assets/icons/icon-192.png', // Relative path to SW location
-        badge: 'assets/icons/icon-192.png',
         tag: 'secret-garden-push',
         renotify: true,
-        vibrate: [200, 100, 200],
         data: {
             url: payload.data ? (payload.data.url || './dashboard.html') : './dashboard.html'
         }
