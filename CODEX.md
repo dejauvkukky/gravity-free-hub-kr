@@ -169,10 +169,19 @@ git push
 - 챙겨줘요 (가족 위시리스트)
 - 공지사항 팝업 시스템
 - 웹 푸시 알림 시스템 (FCM 기반, 관리자 전용)
-  - PC 브라우저(Chrome, Edge) 및 Android 모바일 수신 안정화 완료
-  - "나에게만 발송" 기능 정상화 (webpush 구조 보완)
-  - Service Worker 백그라운드 핸들러 강화 (payload.data 대체 처리)
-  - Dashboard 포그라운드 핸들러 개선 (Notification API fallback)
+  - **PC 브라우저 (Chrome, Edge)**: ✅ 포그라운드/백그라운드 모두 완벽 동작
+    - 포그라운드: 화면 내 커스텀 알림 모달 표시
+    - 백그라운드: Windows 시스템 알림 표시
+  - **안드로이드 모바일**: ⚠️ 제한적 지원 (알려진 제약)
+    - FCM 메시지가 Google Play Services를 통해 기기에 도달하지 않음
+    - 토큰 등록, 메시지 전송은 정상이나 최종 수신 단계에서 차단
+    - Google Play Services 설정, 배터리 최적화, Chrome 데이터 등 다양한 방법 시도했으나 미해결
+    - 안드로이드 플랫폼 차원의 FCM 전달 제약으로 추정
+  - 코드 개선 사항:
+    - messaging 변수 섀도잉 문제 해결 (initPushSystem 내 재선언 제거)
+    - sendSelfPush webpush 구조 보완 (Android 호환성)
+    - Service Worker 백그라운드 핸들러 강화 (payload.data 대체 처리)
+    - Dashboard 포그라운드 핸들러 안정화 (Notification API fallback)
   - 기기별 푸시 진단 도구 및 자가 테스트 기능
 
 
