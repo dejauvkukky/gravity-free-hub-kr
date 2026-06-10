@@ -1486,6 +1486,193 @@
         padding: 90px 0 130px;
       }
     }
+
+    /* ══════════════════════════════
+       LOCK / PASSCODE MODAL
+    ══════════════════════════════ */
+    .lock-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(5, 8, 15, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lock-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .lock-panel {
+      background: linear-gradient(160deg, #141b2d 0%, #0f172a 100%);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 28px;
+      padding: 44px 36px 40px;
+      width: min(380px, 90vw);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(245, 158, 11, 0.08) inset;
+      text-align: center;
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lock-overlay.open .lock-panel {
+      transform: scale(1) translateY(0);
+    }
+
+    .lock-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1.5px solid rgba(245, 158, 11, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+
+    .lock-title {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .lock-subtitle {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .lock-inputs {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .lock-char-input {
+      width: 56px;
+      height: 64px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      color: #f59e0b;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 0.05em;
+      outline: none;
+      caret-color: #f59e0b;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .lock-char-input:focus {
+      border-color: rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+      background: rgba(20, 30, 55, 0.9);
+    }
+
+    .lock-char-input.filled {
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+
+    .lock-char-input.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    @keyframes lockShake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-8px);
+      }
+
+      40% {
+        transform: translateX(8px);
+      }
+
+      60% {
+        transform: translateX(-6px);
+      }
+
+      80% {
+        transform: translateX(6px);
+      }
+    }
+
+    .lock-inputs.shake {
+      animation: lockShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    .lock-error-msg {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px;
+      color: #ef4444;
+      min-height: 18px;
+      margin-top: -16px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: opacity 0.2s;
+    }
+
+    .lock-btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent-grad);
+      border: none;
+      border-radius: 14px;
+      color: #0b0f19;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+      letter-spacing: 0.03em;
+    }
+
+    .lock-btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(245, 158, 11, 0.45);
+    }
+
+    .lock-btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .lock-success-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid #f59e0b;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .lock-icon.unlocked .lock-success-ring {
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -1493,6 +1680,27 @@
 
   <!-- 읽기 진행 바 -->
   <div class="progress-bar" id="progressBar"></div>
+
+  <!-- ══════════════════════════ PASSCODE LOCK MODAL ══════════════════════════ -->
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-panel" id="lockPanel">
+      <div class="lock-icon" id="lockIcon">🔒</div>
+      <div class="lock-title">비공개 작품</div>
+      <div class="lock-subtitle">이 작품은 초대된 독자만 열람할 수 있습니다.<br>4자리 열람 코드를 입력해 주세요.</div>
+      <div class="lock-inputs" id="lockInputs">
+        <input class="lock-char-input" id="lc0" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false"
+          oninput="handleLockInput(0, this)" onkeydown="handleLockKey(0, event)">
+        <input class="lock-char-input" id="lc1" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false"
+          oninput="handleLockInput(1, this)" onkeydown="handleLockKey(1, event)">
+        <input class="lock-char-input" id="lc2" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false"
+          oninput="handleLockInput(2, this)" onkeydown="handleLockKey(2, event)">
+        <input class="lock-char-input" id="lc3" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false"
+          oninput="handleLockInput(3, this)" onkeydown="handleLockKey(3, event)">
+      </div>
+      <div class="lock-error-msg" id="lockErrorMsg"></div>
+      <button class="lock-btn-submit" onclick="submitPasscode()">확인 ▶</button>
+    </div>
+  </div>
 
   <!-- ══════════════════════════ COVER PAGE ══════════════════════════ -->
   <div class="page active" id="page-cover">
@@ -2630,6 +2838,11 @@
     // 챕터 렌더링
     // ══════════════════════════════════════
     function goToChapter(idx, restoreScroll = true) {
+      // 보안 인증 체크: 인증 미완료 시 패스코드 모달 표시 후 중단
+      if (!isAuthenticated()) {
+        showLockModal(idx, restoreScroll);
+        return;
+      }
       currentChapter = idx;
       const ch = chapters[idx];
 
@@ -3004,7 +3217,134 @@
         btn.textContent = isAutoScrollPaused ? '▶' : '||';
       }
     }
+
+    // ══════════════════════════════════════
+    // 보안 인증 (Passcode Gate)
+    // ══════════════════════════════════════
+    const PASSCODE = 'raim';
+    const AUTH_KEY = 'webNovel_auth_v1';
+    let _pendingChapterIdx = null;
+    let _pendingRestoreScroll = true;
+
+    function isAuthenticated() {
+      return localStorage.getItem(AUTH_KEY) === 'true';
+    }
+
+    function showLockModal(chapterIdx, restoreScroll) {
+      _pendingChapterIdx = chapterIdx;
+      _pendingRestoreScroll = restoreScroll;
+      // 입력창 초기화
+      for (let i = 0; i < 4; i++) {
+        const el = document.getElementById('lc' + i);
+        if (el) { el.value = ''; el.classList.remove('error', 'filled'); }
+      }
+      const errorMsg = document.getElementById('lockErrorMsg');
+      if (errorMsg) errorMsg.textContent = '';
+      const lockIcon = document.getElementById('lockIcon');
+      if (lockIcon) { lockIcon.textContent = '🔒'; lockIcon.style.background = 'rgba(245,158,11,0.1)'; }
+      // 모달 열기
+      const overlay = document.getElementById('lockOverlay');
+      if (overlay) overlay.classList.add('open');
+      // 첫 입력창 포커스
+      setTimeout(() => {
+        const first = document.getElementById('lc0');
+        if (first) first.focus();
+      }, 400);
+    }
+
+    function closeLockModal() {
+      const overlay = document.getElementById('lockOverlay');
+      if (overlay) overlay.classList.remove('open');
+    }
+
+    function handleLockInput(idx, el) {
+      const val = el.value;
+      el.classList.toggle('filled', val.length > 0);
+      el.classList.remove('error');
+      // 다음 칸으로 자동 이동
+      if (val.length === 1 && idx < 3) {
+        const next = document.getElementById('lc' + (idx + 1));
+        if (next) next.focus();
+      }
+      // 4번째 칸이면 자동 제출
+      if (idx === 3 && val.length === 1) {
+        submitPasscode();
+      }
+    }
+
+    function handleLockKey(idx, e) {
+      if (e.key === 'Backspace') {
+        const el = document.getElementById('lc' + idx);
+        if (el && el.value === '' && idx > 0) {
+          const prev = document.getElementById('lc' + (idx - 1));
+          if (prev) { prev.value = ''; prev.classList.remove('filled'); prev.focus(); }
+        }
+      }
+      if (e.key === 'Enter') {
+        submitPasscode();
+      }
+    }
+
+    function submitPasscode() {
+      let entered = '';
+      for (let i = 0; i < 4; i++) {
+        const el = document.getElementById('lc' + i);
+        entered += (el ? el.value : '');
+      }
+
+      if (entered.toLowerCase() === PASSCODE) {
+        // 인증 성공 — localStorage 저장 후 챕터 진입
+        localStorage.setItem(AUTH_KEY, 'true');
+        lockSuccess();
+      } else {
+        // 인증 실패 — 흔들기 애니메이션 + 에러 메시지
+        const inputs = document.getElementById('lockInputs');
+        const errorMsg = document.getElementById('lockErrorMsg');
+        if (inputs) {
+          inputs.classList.remove('shake');
+          void inputs.offsetWidth; // reflow for re-trigger
+          inputs.classList.add('shake');
+          for (let i = 0; i < 4; i++) {
+            const el = document.getElementById('lc' + i);
+            if (el) el.classList.add('error');
+          }
+          setTimeout(() => inputs.classList.remove('shake'), 500);
+        }
+        if (errorMsg) errorMsg.textContent = '열람 코드가 맞지 않습니다.';
+        // 첫 칸 초기화 후 포커스
+        setTimeout(() => {
+          for (let i = 0; i < 4; i++) {
+            const el = document.getElementById('lc' + i);
+            if (el) { el.value = ''; el.classList.remove('error', 'filled'); }
+          }
+          const first = document.getElementById('lc0');
+          if (first) first.focus();
+        }, 600);
+      }
+    }
+
+    function lockSuccess() {
+      const lockIcon = document.getElementById('lockIcon');
+      if (lockIcon) {
+        lockIcon.textContent = '🔓';
+        lockIcon.style.background = 'rgba(245,158,11,0.25)';
+        lockIcon.style.border = '1.5px solid rgba(245,158,11,0.7)';
+      }
+      const errorMsg = document.getElementById('lockErrorMsg');
+      if (errorMsg) { errorMsg.style.color = '#22c55e'; errorMsg.textContent = '인증되었습니다!'; }
+      setTimeout(() => {
+        closeLockModal();
+        if (_pendingChapterIdx !== null) {
+          const idx = _pendingChapterIdx;
+          const restore = _pendingRestoreScroll;
+          _pendingChapterIdx = null;
+          _pendingRestoreScroll = true;
+          goToChapter(idx, restore);
+        }
+      }, 900);
+    }
   </script>
+
 </body>
 
 </html>
