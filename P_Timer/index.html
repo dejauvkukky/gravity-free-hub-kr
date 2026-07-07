@@ -296,6 +296,54 @@
       const [cheerBubble, setCheerBubble] = useState(null); // 응원 말풍선 내용
 
       const timerInterval = useRef(null);
+      const wakeLockRef = useRef(null); // Screen Wake Lock 참조
+
+      // --- [Wake Lock: 타이머 실행 중 화면 잠금 방지] ---
+      const requestWakeLock = async () => {
+        try {
+          if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+            wakeLockRef.current = await navigator.wakeLock.request('screen');
+          }
+        } catch (err) {
+          // 권한 거부 또는 미지원 환경에서는 조용히 무시
+          console.warn('Wake Lock 요청 실패:', err.message);
+        }
+      };
+
+      const releaseWakeLock = () => {
+        if (wakeLockRef.current) {
+          wakeLockRef.current.release().catch(() => {});
+          wakeLockRef.current = null;
+        }
+      };
+
+      // 타이머 상태에 따라 Wake Lock 자동 제어
+      useEffect(() => {
+        if (timerState === 'running') {
+          requestWakeLock();
+        } else {
+          releaseWakeLock();
+        }
+        return () => releaseWakeLock();
+      }, [timerState]);
+
+      // 탭/앱 다시 포커스 시 Wake Lock 재요청 (백그라운드→포그라운드 복귀 대응)
+      useEffect(() => {
+        const handleVisibilityForWakeLock = () => {
+          if (document.visibilityState === 'visible' && timerState === 'running') {
+            requestWakeLock();
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityForWakeLock);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityForWakeLock);
+      }, [timerState]);
+
+      // 브라우저 알림 권한 획득 확인
+      useEffect(() => {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      }, []);
 
       // --- [2. 로컬 스토리지 자동 저장 동기화] ---
       useEffect(() => { localStorage.setItem('cat_pomodoro_fishCount', fishCount); }, [fishCount]);
@@ -323,13 +371,6 @@
           localStorage.removeItem('cat_pomodoro_startTime');
         }
       }, [timerState, timerMode, duration, startTime, pausedTimeRemaining, cycleCount]);
-
-      // 브라우저 알림 권한 획득 확인
-      useEffect(() => {
-        if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-          Notification.requestPermission();
-        }
-      }, []);
 
       // --- [3. Web Audio API 신디사이저 효과음] ---
       const playSound = (type) => {
