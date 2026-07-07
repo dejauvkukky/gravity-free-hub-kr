@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>냥이 뽀모도로 타이머 🐾</title>
+  <!-- 구글 폰트 로드: 개구(Gaegu)와 주아(Jua) 폰트 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind 테마 커스텀 설정 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            gaegu: ['Gaegu', 'sans-serif'],
+            jua: ['Jua', 'sans-serif'],
+          },
+          colors: {
+            pastelPink: {
+              50: '#FFF5F7',
+              100: '#FFEBEF',
+              200: '#FFD1DC',
+              300: '#FFAEC1',
+              400: '#FF8FAB',
+              500: '#FF6F91',
+            },
+            pastelYellow: {
+              50: '#FEFDF0',
+              100: '#FFFCE0',
+              200: '#FFF8C4',
+              300: '#FFF39C',
+              400: '#FFE869',
+            },
+            catCream: '#F9F6F0',
+            catOrange: '#FFB84C',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 귀여운 이모지 및 UI 애니메이션 정의 -->
+  <style>
+    /* 1. 대기 모드: 조는 고양이 애니메이션 (꾸벅꾸벅 흔들림) */
+    @keyframes cat-sleep {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(6px) rotate(-3deg);
+      }
+    }
+
+    .animate-cat-sleep {
+      animation: cat-sleep 3.5s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+
+    /* 2. 집중 모드: 공부하는 고양이 맥박 애니메이션 (테두리 광채 효과 포함) */
+    @keyframes cat-study {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 6px rgba(255, 143, 171, 0.4));
+      }
+
+      50% {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 16px rgba(255, 143, 171, 0.8));
+      }
+    }
+
+    .animate-cat-study {
+      animation: cat-study 2s ease-in-out infinite;
+    }
+
+    /* 3. 휴식 모드: 신나게 바운스하는 애니메이션 */
+    @keyframes cat-eat {
+
+      0%,
+      100% {
+        transform: translateY(0) scaleY(1) scaleX(1);
+      }
+
+      30% {
+        transform: translateY(-16px) scaleY(1.08) scaleX(0.95);
+      }
+
+      60% {
+        transform: translateY(2px) scaleY(0.92) scaleX(1.05);
+      }
+
+      80% {
+        transform: translateY(0) scaleY(1.02) scaleX(0.98);
+      }
+    }
+
+    .animate-cat-eat {
+      animation: cat-eat 1.4s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+
+    /* 4. 레벨업: 색종이(Confetti)가 하늘에서 쏟아지는 애니메이션 */
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-5vh) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(105vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      animation: confetti-fall 3.5s linear forwards;
+    }
+
+    /* 말풍선 꼬리 그리기 */
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: #FFFFFF transparent;
+      display: block;
+      width: 0;
+    }
+
+    .speech-bubble-border::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 11px 11px 0;
+      border-style: solid;
+      border-color: #FFEBEF transparent;
+      display: block;
+      width: 0;
+      z-index: -1;
+    }
+
+    /* 스크롤바 커스텀 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #FFF5F7;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #FFD1DC;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FFAEC1;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-gradient-to-br from-pastelPink-50 via-white to-pastelYellow-50 min-h-screen font-gaegu text-slate-700 flex justify-center items-start py-6 sm:py-12 px-4 selection:bg-pastelPink-200">
+
+  <!-- React 앱이 마운트될 루트 엘리먼트 -->
+  <div id="root"
+    class="w-full max-w-md bg-white rounded-[2.5rem] shadow-xl border-4 border-pastelPink-100 overflow-hidden relative">
+  </div>
+
+  <!-- React 및 필수 라이브러리 CDN 로드 (Production 버전) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- JSX 컴파일을 위한 Babel Standalone CDN -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- React 소스코드 작성 (Babel 컴파일 대상) -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // 상점에서 판매하는 고양이 꾸미기 아이템 목록
+    const SHOP_ITEMS = [
+      // 컨테이너 176px 기준, 이모지(88px)는 translateY(-4%) 보정 후 약 top37px에서 시작
+      // 눈: top ~39% (68px), 목/턱: top ~57% (100px), 머리 정수리: top ~21%
+      { id: 'ribbon', name: '러블리 분홍 리본 🎀', emoji: '🎀', cost: 1, category: 'neck', style: { top: '65%', left: '50%', transform: 'translateX(-50%)', fontSize: '1.9rem', zIndex: 25 } },
+      { id: 'hat', name: '멋쟁이 신사 모자 🎩', emoji: '🎩', cost: 3, category: 'head', style: { top: '5%', left: '50%', transform: 'translateX(-50%)', fontSize: '2.7rem', zIndex: 10 } },
+      { id: 'sunglasses', name: '멋쟁이 선글라스 🕶️', emoji: '🕶️', cost: 2, category: 'eyes', style: { top: '34%', left: '50%', transform: 'translateX(-50%)', fontSize: '2.6rem', zIndex: 30 } },
+      { id: 'crown', name: '번쩍번쩍 황금 왕관 👑', emoji: '👑', cost: 5, category: 'head', style: { top: '5%', left: '50%', transform: 'translateX(-50%) rotate(-5deg)', fontSize: '2.7rem', zIndex: 10 } },
+      { id: 'glasses', name: '똑똑이 둥근 안경 👓', emoji: '👓', cost: 2, category: 'eyes', style: { top: '34%', left: '50%', transform: 'translateX(-50%)', fontSize: '2.6rem', zIndex: 30 } },
+      { id: 'scarf', name: '포근포근 빨간 목도리 🧣', emoji: '🧣', cost: 3, category: 'neck', style: { top: '65%', left: '50%', transform: 'translateX(-50%)', fontSize: '2.1rem', zIndex: 20 } },
+      { id: 'halo', name: '천사 야옹 링 💫', emoji: '💫', cost: 4, category: 'head_above', style: { top: '-6%', left: '55%', transform: 'translateX(-50%)', fontSize: '2rem', zIndex: 5 } },
+      { id: 'backpack', name: '공부 준비 책가방 🎒', emoji: '🎒', cost: 3, category: 'body', style: { top: '52%', right: '2%', transform: 'rotate(12deg)', fontSize: '2.2rem', zIndex: 5 } },
+    ];
+
+
+    // 5분마다 표출할 고양이의 랜덤 응원 말풍선 목록 (8개 이상)
+    const CHEER_MESSAGES = [
+      "조금만 더 힘내자냥! 다 왔다냥! 🐾",
+      "집중하는 네 모습, 너무 너무 멋지다냥! ❤️",
+      "나랑 같이 공부하니까 시간 잘 가지냥? 📖",
+      "딴짓하면 생선 안 줄 거다냥! 집중집중! 🐟",
+      "꾸벅꾸벅 졸릴 땐 기지개를 한번 켜라냥! 😽",
+      "우와, 집중력 완전 최고다냥! 대단해! ✨",
+      "꼬리를 살랑살랑 흔들며 열심히 응원할게냥! 🐈",
+      "조금 이따가 쉴 때 같이 맛난 생선 먹자냥! 🐠",
+      "오늘도 열일하는 모습이 정말 사랑스럽다냥! 🌟",
+      "차분하게 하나씩 하다 보면 다 끝난다냥! 🧠",
+    ];
+
+    // 오늘 날짜 구하기 (YYYY-MM-DD 형식)
+    const getTodayDateString = () => {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    function App() {
+      // --- [1. 기본 설정 및 상태 저장 값] ---
+      const [fishCount, setFishCount] = useState(() => Number(localStorage.getItem('cat_pomodoro_fishCount')) || 0);
+      const [level, setLevel] = useState(() => Number(localStorage.getItem('cat_pomodoro_level')) || 1);
+      const [xp, setXp] = useState(() => Number(localStorage.getItem('cat_pomodoro_xp')) || 0);
+
+      const [ownedItems, setOwnedItems] = useState(() => {
+        try {
+          return JSON.parse(localStorage.getItem('cat_pomodoro_ownedItems')) || [];
+        } catch { return []; }
+      });
+      const [equippedItems, setEquippedItems] = useState(() => {
+        try {
+          return JSON.parse(localStorage.getItem('cat_pomodoro_equippedItems')) || [];
+        } catch { return []; }
+      });
+      const [history, setHistory] = useState(() => {
+        try {
+          return JSON.parse(localStorage.getItem('cat_pomodoro_history')) || {};
+        } catch { return {}; }
+      });
+
+      // --- [타이머 시간 설정] ---
+      const [focusDuration, setFocusDuration] = useState(() => Number(localStorage.getItem('cat_pomodoro_focusDuration')) || 1500); // 25분 (1500초)
+      const [shortBreakDuration, setShortBreakDuration] = useState(() => Number(localStorage.getItem('cat_pomodoro_shortBreakDuration')) || 300); // 5분 (300초)
+      const [longBreakDuration, setLongBreakDuration] = useState(() => Number(localStorage.getItem('cat_pomodoro_longBreakDuration')) || 900); // 15분 (900초)
+
+      // 테스트용 빨리감기 모드 (1초가 1분처럼 흐름, 개발자용)
+      const [devMode, setDevMode] = useState(() => localStorage.getItem('cat_pomodoro_devMode') === 'true');
+
+      // --- [타이머 동작 핵심 상태] ---
+      const [timerState, setTimerState] = useState(() => localStorage.getItem('cat_pomodoro_timerState') || 'idle'); // 'idle' | 'running' | 'paused'
+      const [timerMode, setTimerMode] = useState(() => localStorage.getItem('cat_pomodoro_timerMode') || 'work'); // 'work' | 'shortBreak' | 'longBreak'
+      const [cycleCount, setCycleCount] = useState(() => Number(localStorage.getItem('cat_pomodoro_cycleCount')) || 0); // 0~4번의 집중 사이클
+
+      const [duration, setDuration] = useState(() => {
+        const savedDur = Number(localStorage.getItem('cat_pomodoro_duration'));
+        if (savedDur) return savedDur;
+        return 1500; // 기본값
+      });
+      const [timeRemaining, setTimeRemaining] = useState(duration);
+      const [pausedTimeRemaining, setPausedTimeRemaining] = useState(() => Number(localStorage.getItem('cat_pomodoro_pausedTimeRemaining')) || duration);
+      const [startTime, setStartTime] = useState(() => {
+        const savedStart = localStorage.getItem('cat_pomodoro_startTime');
+        return savedStart ? Number(savedStart) : null;
+      });
+
+      // --- [기타 UI 상태] ---
+      const [soundOn, setSoundOn] = useState(() => {
+        const saved = localStorage.getItem('cat_pomodoro_soundOn');
+        return saved === null ? true : saved === 'true';
+      });
+      const [activeTab, setActiveTab] = useState('timer'); // 'timer' | 'shop' | 'history'
+      const [showSettings, setShowSettings] = useState(false);
+      const [showBreakAlert, setShowBreakAlert] = useState(false); // 집중 끝난 후 휴식 시작 수동 안내 모달
+      const [showNextWorkAlert, setShowNextWorkAlert] = useState(false); // 휴식 끝난 후 집중 시작 수동 안내 모달
+      const [showLevelUpAlert, setShowLevelUpAlert] = useState(false); // 레벨업 축하 모달
+      const [confetti, setConfetti] = useState([]); // 색종이 효과 파티클
+      const [cheerBubble, setCheerBubble] = useState(null); // 응원 말풍선 내용
+
+      const timerInterval = useRef(null);
+
+      // --- [2. 로컬 스토리지 자동 저장 동기화] ---
+      useEffect(() => { localStorage.setItem('cat_pomodoro_fishCount', fishCount); }, [fishCount]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_level', level); }, [level]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_xp', xp); }, [xp]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_ownedItems', JSON.stringify(ownedItems)); }, [ownedItems]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_equippedItems', JSON.stringify(equippedItems)); }, [equippedItems]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_history', JSON.stringify(history)); }, [history]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_soundOn', soundOn); }, [soundOn]);
+
+      useEffect(() => { localStorage.setItem('cat_pomodoro_focusDuration', focusDuration); }, [focusDuration]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_shortBreakDuration', shortBreakDuration); }, [shortBreakDuration]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_longBreakDuration', longBreakDuration); }, [longBreakDuration]);
+      useEffect(() => { localStorage.setItem('cat_pomodoro_devMode', devMode); }, [devMode]);
+
+      useEffect(() => {
+        localStorage.setItem('cat_pomodoro_timerState', timerState);
+        localStorage.setItem('cat_pomodoro_timerMode', timerMode);
+        localStorage.setItem('cat_pomodoro_duration', duration);
+        localStorage.setItem('cat_pomodoro_cycleCount', cycleCount);
+        localStorage.setItem('cat_pomodoro_pausedTimeRemaining', pausedTimeRemaining);
+        if (startTime) {
+          localStorage.setItem('cat_pomodoro_startTime', startTime);
+        } else {
+          localStorage.removeItem('cat_pomodoro_startTime');
+        }
+      }, [timerState, timerMode, duration, startTime, pausedTimeRemaining, cycleCount]);
+
+      // 브라우저 알림 권한 획득 확인
+      useEffect(() => {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      }, []);
+
+      // --- [3. Web Audio API 신디사이저 효과음] ---
+      const playSound = (type) => {
+        if (!soundOn) return;
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          const ctx = new AudioContext();
+
+          if (type === 'click') {
+            // 귀여운 물방울/클릭 팝 소리
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.12);
+          } else if (type === 'success') {
+            // 도-미-솔-도 맑은 실로폰 멜로디 (성공 알람)
+            const playNote = (freq, start, dur) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, start);
+              gain.gain.setValueAtTime(0.15, start);
+              gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(start);
+              osc.stop(start + dur);
+            };
+            const now = ctx.currentTime;
+            playNote(523.25, now, 0.2);       // C5 (도)
+            playNote(659.25, now + 0.15, 0.2); // E5 (미)
+            playNote(783.99, now + 0.3, 0.2);  // G5 (솔)
+            playNote(1046.50, now + 0.45, 0.45); // C6 (도)
+          } else if (type === 'levelup') {
+            // 화려하고 신나는 레벨업 사운드
+            const now = ctx.currentTime;
+            const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+            notes.forEach((freq, idx) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+              gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(now + idx * 0.08);
+              osc.stop(now + idx * 0.08 + 0.2);
+            });
+          }
+        } catch (e) {
+          console.error("Audio Context 생성 실패:", e);
+        }
+      };
+
+      // --- [4. 브라우저 알림 전송] ---
+      const sendBrowserNotification = (title, message) => {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          try {
+            new Notification(title, {
+              body: message,
+              icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2005/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐱</text></svg>'
+            });
+          } catch (e) {
+            console.error("알림 발송 실패:", e);
+          }
+        }
+      };
+
+      // --- [5. 고정밀 타이머 동기화 로직 (핵심)] ---
+      // 타이머 남은 시간 업데이트 루프
+      const updateTimer = () => {
+        if (timerState !== 'running' || !startTime) return;
+
+        const timeDiffMs = Date.now() - startTime;
+        let timeDiffSec = Math.floor(timeDiffMs / 100); // 100ms 당 1초 (안정적 보정)
+        timeDiffSec = Math.floor(timeDiffMs / 1000);
+
+        // 빨리감기 모드인 경우 100ms당 1초 흐름 (테스트 가속화)
+        if (devMode) {
+          timeDiffSec = Math.floor(timeDiffMs / 100);
+        }
+
+        const remaining = pausedTimeRemaining - timeDiffSec;
+
+        if (remaining <= 0) {
+          // 타이머 완료!
+          setTimeRemaining(0);
+          handleTimerComplete();
+        } else {
+          setTimeRemaining(remaining);
+
+          // 집중(Work) 모드일 때만 5분 간격으로 응원 말풍선 띄우기
+          if (timerMode === 'work') {
+            const elapsedSec = duration - remaining;
+            const intervalSec = devMode ? 5 : 300; // 실시간: 300초(5분), 개발모드: 5초
+
+            if (elapsedSec > 0 && elapsedSec % intervalSec === 0) {
+              triggerCheerMessage();
+            }
+          }
+        }
+      };
+
+      // 매 200ms마다 정확한 타임스탬프 계산 확인 (setInterval 드리프트 방지)
+      useEffect(() => {
+        if (timerState === 'running') {
+          timerInterval.current = setInterval(updateTimer, 200);
+        } else {
+          if (timerInterval.current) clearInterval(timerInterval.current);
+          // 일시정지이거나 대기 중일 때는 남은 계산 값을 띄움
+          if (timerState === 'paused') {
+            setTimeRemaining(pausedTimeRemaining);
+          } else {
+            setTimeRemaining(duration);
+          }
+        }
+
+        return () => {
+          if (timerInterval.current) clearInterval(timerInterval.current);
+        };
+      }, [timerState, startTime, pausedTimeRemaining, duration, devMode, timerMode]);
+
+      // 브라우저 탭 활성화 감지 시 시간 리밸런싱 (백그라운드에서 돌아왔을 때)
+      useEffect(() => {
+        const handleVisibilityChange = () => {
+          if (document.visibilityState === 'visible' && timerState === 'running') {
+            updateTimer();
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }, [timerState, startTime, pausedTimeRemaining]);
+
+      // 타이머 모드(집중/휴식)나 기본 시간이 변경되면 시간 초기화
+      useEffect(() => {
+        let currentDur = focusDuration;
+        if (timerMode === 'shortBreak') currentDur = shortBreakDuration;
+        if (timerMode === 'longBreak') currentDur = longBreakDuration;
+
+        setDuration(currentDur);
+        if (timerState === 'idle') {
+          setTimeRemaining(currentDur);
+          setPausedTimeRemaining(currentDur);
+        }
+      }, [timerMode, focusDuration, shortBreakDuration, longBreakDuration, timerState]);
+
+      // --- [6. 타이머 완료 처리 (보상 및 사이클)] ---
+      const handleTimerComplete = () => {
+        setTimerState('idle');
+        setStartTime(null);
+        playSound('success');
+
+        if (timerMode === 'work') {
+          // --- [집중 완료] ---
+          const nextCycleCount = cycleCount + 1;
+          setCycleCount(nextCycleCount);
+
+          // 경험치 & 생선 보상 지급
+          const earnedFish = 1;
+          const earnedXp = 10;
+          setFishCount(prev => prev + earnedFish);
+
+          // 경험치 가산 및 레벨업 체크
+          setXp(prev => {
+            const nextXp = prev + earnedXp;
+            if (nextXp >= 100) {
+              // 레벨업 트리거
+              setTimeout(() => {
+                setLevel(l => l + 1);
+                playSound('levelup');
+                setShowLevelUpAlert(true);
+                triggerConfetti();
+              }, 600);
+              return nextXp - 100;
+            }
+            return nextXp;
+          });
+
+          // 날짜별 통계 누적
+          const today = getTodayDateString();
+          setHistory(prev => ({
+            ...prev,
+            [today]: (prev[today] || 0) + 1
+          }));
+
+          // 알림 발송
+          sendBrowserNotification("집중 완료! 🐾", "생선 1개와 경험치 10을 얻었다냥! 다음은 휴식이다냥~");
+
+          // 다음 휴식 수동 안내 모달 노출
+          setShowBreakAlert(true);
+        } else {
+          // --- [휴식 완료] ---
+          // 4번째 휴식(긴 휴식)이 끝나면 사이클 0으로 리셋
+          if (timerMode === 'longBreak') {
+            setCycleCount(0);
+          }
+
+          sendBrowserNotification("휴식 완료! 🐾", "푹 쉬었냥? 이제 다시 집중하러 가자냥!");
+          setShowNextWorkAlert(true);
+        }
+
+        // 시간 상태 초기화
+        setPausedTimeRemaining(0);
+      };
+
+      // --- [7. 타이머 제어 함수들] ---
+      const startTimer = () => {
+        playSound('click');
+        if (timerState === 'idle') {
+          setStartTime(Date.now());
+          setPausedTimeRemaining(duration);
+          setTimerState('running');
+        } else if (timerState === 'paused') {
+          setStartTime(Date.now());
+          setTimerState('running');
+        }
+      };
+
+      const pauseTimer = () => {
+        playSound('click');
+        if (timerState === 'running') {
+          const timeDiffMs = Date.now() - startTime;
+          let timeDiffSec = Math.floor(timeDiffMs / 1000);
+          if (devMode) {
+            timeDiffSec = Math.floor(timeDiffMs / 100);
+          }
+          const remaining = Math.max(0, pausedTimeRemaining - timeDiffSec);
+
+          setPausedTimeRemaining(remaining);
+          setTimeRemaining(remaining);
+          setStartTime(null);
+          setTimerState('paused');
+        }
+      };
+
+      const resetTimer = () => {
+        playSound('click');
+        setTimerState('idle');
+        setStartTime(null);
+        setPausedTimeRemaining(duration);
+        setTimeRemaining(duration);
+        setCheerBubble(null);
+      };
+
+      const skipTimer = () => {
+        playSound('click');
+        if (confirm("이 단계를 건너뛰겠냐냥? 보상은 받을 수 없다냥!")) {
+          setTimerState('idle');
+          setStartTime(null);
+
+          if (timerMode === 'work') {
+            // 집중 상태 건너뜀 -> 즉시 휴식 제안
+            const nextCycleCount = Math.min(4, cycleCount + 1);
+            setCycleCount(nextCycleCount);
+            setShowBreakAlert(true);
+          } else {
+            // 휴식 상태 건너뜀 -> 즉시 다시 집중 준비
+            if (timerMode === 'longBreak') {
+              setCycleCount(0);
+            }
+            setShowNextWorkAlert(true);
+          }
+        }
+      };
+
+      // --- [수동 전환 수락 함수들] ---
+      const startNextBreak = () => {
+        setShowBreakAlert(false);
+        playSound('click');
+
+        // 4번째 집중 완료 시 장기 휴식 제안
+        if (cycleCount >= 4) {
+          setTimerMode('longBreak');
+          setDuration(longBreakDuration);
+          setPausedTimeRemaining(longBreakDuration);
+          setTimeRemaining(longBreakDuration);
+        } else {
+          setTimerMode('shortBreak');
+          setDuration(shortBreakDuration);
+          setPausedTimeRemaining(shortBreakDuration);
+          setTimeRemaining(shortBreakDuration);
+        }
+
+        // 사용자 시작
+        setStartTime(Date.now());
+        setTimerState('running');
+      };
+
+      const startNextWork = () => {
+        setShowNextWorkAlert(false);
+        playSound('click');
+
+        setTimerMode('work');
+        setDuration(focusDuration);
+        setPausedTimeRemaining(focusDuration);
+        setTimeRemaining(focusDuration);
+
+        // 사용자 시작
+        setStartTime(Date.now());
+        setTimerState('running');
+      };
+
+      // --- [8. 상점 로직] ---
+      const buyItem = (item) => {
+        if (fishCount < item.cost) {
+          alert("생선이 모자라다냥! 집중을 성공해서 생선을 더 모아와라냥 🐟");
+          return;
+        }
+        playSound('click');
+        setFishCount(prev => prev - item.cost);
+        setOwnedItems(prev => [...prev, item.id]);
+      };
+
+      const toggleEquipItem = (item) => {
+        playSound('click');
+
+        if (equippedItems.includes(item.id)) {
+          // 장착 해제
+          setEquippedItems(prev => prev.filter(id => id !== item.id));
+        } else {
+          // 장착: 동일 카테고리(예: 모자 카테고리)의 기존 아이템이 있다면 해제하고 장착
+          const categoryItems = SHOP_ITEMS.filter(i => i.category === item.category).map(i => i.id);
+          setEquippedItems(prev => {
+            const filtered = prev.filter(id => !categoryItems.includes(id));
+            return [...filtered, item.id];
+          });
+        }
+      };
+
+      // --- [9. 아기자기한 연출 함수] ---
+      // 응원 말풍선 랜덤 생성
+      const triggerCheerMessage = () => {
+        const randomIndex = Math.floor(Math.random() * CHEER_MESSAGES.length);
+        setCheerBubble(CHEER_MESSAGES[randomIndex]);
+
+        // 4초 후 말풍선 닫기
+        setTimeout(() => {
+          setCheerBubble(null);
+        }, 4500);
+      };
+
+      // 레벨업 색종이 효과 생성
+      const triggerConfetti = () => {
+        const colors = ['#FF8FAB', '#FFF39C', '#CBE4DE', '#A0E4CB', '#FFAEC1', '#FFD1DC', '#FFE869'];
+        const shapes = ['circle', 'square', 'triangle'];
+        const pieces = Array.from({ length: 60 }).map((_, i) => ({
+          id: i,
+          left: Math.random() * 100,
+          delay: Math.random() * 2.5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 10 + 8,
+          shape: shapes[Math.floor(Math.random() * shapes.length)],
+          rotation: Math.random() * 360,
+          duration: Math.random() * 1.5 + 2.5
+        }));
+        setConfetti(pieces);
+
+        // 6초 후 색종이 엘리먼트 제거
+        setTimeout(() => {
+          setConfetti([]);
+        }, 6000);
+      };
+
+      // 포맷팅 헬퍼 (초 -> MM:SS)
+      const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      };
+
+      // --- [10. SVG 원형 테두리 계산] ---
+      const radius = 42;
+      const circumference = 2 * Math.PI * radius; // 약 263.89
+      const strokeDashoffset = circumference * (1 - timeRemaining / duration);
+
+      // 고양이 얼굴 이모지 (항상 고양이 하나만 반환 — 추가 이모지는 absolute badge로 분리)
+      const getCatFace = () => {
+        if (timerMode === 'work') {
+          return timerState === 'running' ? '🐱' : '🐱';
+        }
+        return '😸'; // 휴식 중
+      };
+
+      // 상태 배지 이모지 (고양이 오른쪽 아래에 작게 표시)
+      const getStateBadge = () => {
+        if (timerState === 'idle') return null;
+        if (timerMode === 'work') return timerState === 'running' ? '💻' : '📖';
+        return '🐟';
+      };
+
+      return (
+        <div className="flex flex-col min-h-[500px]">
+          {/* 레벨업 시 쏟아지는 꽃가루 효과 */}
+          {confetti.map(p => (
+            <div
+              key={p.id}
+              className="confetti-piece"
+              style={{
+                left: `${p.left}%`,
+                animationDelay: `${p.delay}s`,
+                animationDuration: `${p.duration}s`,
+                backgroundColor: p.shape === 'triangle' ? 'transparent' : p.color,
+                borderBottomColor: p.shape === 'triangle' ? p.color : 'transparent',
+                borderBottomWidth: p.shape === 'triangle' ? `${p.size}px` : '0px',
+                borderLeftWidth: p.shape === 'triangle' ? `${p.size / 2}px` : '0px',
+                borderRightWidth: p.shape === 'triangle' ? `${p.size / 2}px` : '0px',
+                borderLeftColor: 'transparent',
+                borderRightColor: 'transparent',
+                borderStyle: p.shape === 'triangle' ? 'solid' : 'none',
+                width: p.shape === 'triangle' ? '0px' : `${p.size}px`,
+                height: p.shape === 'triangle' ? '0px' : `${p.size}px`,
+                borderRadius: p.shape === 'circle' ? '50%' : '0px',
+                transform: `rotate(${p.rotation}deg)`,
+                zIndex: 99
+              }}
+            />
+          ))}
+
+          {/* --- [상단 헤더바] --- */}
+          <div className="bg-pastelPink-100 p-4 flex flex-col gap-2 border-b-4 border-pastelPink-200">
+            <div className="flex justify-between items-center">
+              {/* 왼쪽: 캐릭터 타이틀 및 레벨 정보 */}
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🐱</span>
+                <div>
+                  <div className="flex items-center gap-1.5 font-jua text-slate-800 text-xl">
+                    <span>Lv.{level}</span>
+                    <span className="text-sm font-bold text-pastelPink-500 bg-white px-2 py-0.5 rounded-full border border-pastelPink-200">
+                      {level >= 10 ? '대장냥이' : level >= 7 ? '공부천재냥' : level >= 4 ? '책벌레냥' : '아기냥이'}
+                    </span>
+                  </div>
+                  {/* 경험치 바 */}
+                  <div className="w-32 bg-white h-4 rounded-full border border-pastelPink-200 overflow-hidden mt-0.5 relative">
+                    <div
+                      className="bg-gradient-to-r from-pastelPink-400 to-pastelPink-500 h-full transition-all duration-300"
+                      style={{ width: `${xp}%` }}
+                    />
+                    <span className="absolute inset-0 text-[10px] font-bold text-center flex items-center justify-center text-slate-600">{xp}/100</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오른쪽: 사운드 토글, 설정 아이콘, 누적 생선 */}
+              <div className="flex items-center gap-2">
+                <div className="bg-white px-3 py-1.5 rounded-full border-2 border-pastelPink-200 flex items-center gap-1.5 font-jua text-base text-slate-700 shadow-sm">
+                  <span>오늘의 🐟</span>
+                  <span className="text-lg text-amber-500 font-bold">{fishCount}개</span>
+                </div>
+
+                {/* 볼륨 버튼 */}
+                <button
+                  onClick={() => { playSound('click'); setSoundOn(!soundOn); }}
+                  className="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-50 rounded-full border-2 border-slate-200 shadow-sm active:scale-90 transition text-base"
+                  title="소리 켜기/끄기"
+                >
+                  {soundOn ? '🔊' : '🔇'}
+                </button>
+
+                {/* 설정 버튼 */}
+                <button
+                  onClick={() => { playSound('click'); setShowSettings(true); }}
+                  className="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-50 rounded-full border-2 border-slate-200 shadow-sm active:scale-90 transition text-base"
+                  title="타이머 시간 설정"
+                >
+                  ⚙️
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* --- [탭 네비게이션] --- */}
+          <div className="flex border-b border-slate-100 bg-white">
+            <button
+              onClick={() => { playSound('click'); setActiveTab('timer'); }}
+              className={`flex-1 py-3 text-center font-jua text-lg transition-colors border-b-4 ${activeTab === 'timer' ? 'border-pastelPink-400 text-pastelPink-500 bg-pastelPink-50/40' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+            >
+              ⏱️ 타이머
+            </button>
+            <button
+              onClick={() => { playSound('click'); setActiveTab('shop'); }}
+              className={`flex-1 py-3 text-center font-jua text-lg transition-colors border-b-4 ${activeTab === 'shop' ? 'border-pastelPink-400 text-pastelPink-500 bg-pastelPink-50/40' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+            >
+              🛍️ 냥이 상점
+            </button>
+            <button
+              onClick={() => { playSound('click'); setActiveTab('history'); }}
+              className={`flex-1 py-3 text-center font-jua text-lg transition-colors border-b-4 ${activeTab === 'history' ? 'border-pastelPink-400 text-pastelPink-500 bg-pastelPink-50/40' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+            >
+              📊 오늘의 기록
+            </button>
+          </div>
+
+          {/* --- [메인 콘텐츠 영역] --- */}
+          <div className="p-6 flex-1 flex flex-col justify-between">
+            {activeTab === 'timer' && (
+              <div className="flex flex-col items-center gap-4 py-2">
+                {/* 1. 사이클 인디케이터 (●●○○) */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4].map(idx => {
+                      const isCompleted = cycleCount >= idx;
+                      const isCurrent = cycleCount === idx - 1 && timerState === 'running';
+                      return (
+                        <div
+                          key={idx}
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${isCompleted
+                            ? 'bg-pastelPink-400 border-pastelPink-500 text-white shadow-sm scale-110'
+                            : isCurrent
+                              ? 'bg-white border-pastelYellow-400 animate-pulse text-sm font-bold'
+                              : 'bg-slate-100 border-slate-200'
+                            }`}
+                          title={`${idx}번째 세트`}
+                        >
+                          {isCompleted ? '🐾' : idx}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <span className="text-sm text-slate-500 font-bold mt-1.5">
+                    {cycleCount >= 4
+                      ? "최종 집중 완료! 긴 휴식이 기다리고 있어요 ⭐️"
+                      : `${cycleCount} 세트 완료 (4세트 후 긴 휴식냥)`
+                    }
+                  </span>
+                </div>
+
+                {/* 2. 대기/집중 상태 캐릭터 & SVG 타이머 링 */}
+                <div className="relative w-64 h-64 flex items-center justify-center my-2">
+                  {/* 외곽 SVG 타이머 원형 링 */}
+                  <svg className="absolute w-full h-full -rotate-90 origin-center" viewBox="0 0 100 100">
+                    {/* 미반영 원 (배경) */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r={radius}
+                      className="stroke-pastelPink-50"
+                      strokeWidth="5"
+                      fill="transparent"
+                    />
+                    {/* 동적 진행 원 (전경) */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r={radius}
+                      stroke={timerMode === 'work' ? '#FF8FAB' : '#FFF39C'}
+                      strokeWidth="5"
+                      fill="transparent"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.4s ease' }}
+                    />
+                  </svg>
+
+                  {/* 원 중앙: 고양이 컨테이너 — 애니메이션은 컨테이너 테두리에만, 내용은 absolute 중앙 고정 */}
+                  <div
+                    className={`relative w-44 h-44 rounded-full bg-catCream border-4 shadow-inner overflow-visible transition-colors ${timerMode === 'work'
+                      ? timerState === 'running' ? 'border-pastelPink-300 animate-cat-study' : 'border-pastelPink-200'
+                      : timerState === 'running' ? 'border-pastelYellow-300 animate-cat-eat' : 'border-pastelYellow-200'
+                      }`}
+                  >
+                    {/* 고양이 이모지 — absolute로 컨테이너 정중앙에 완전 고정 */}
+                    <div
+                      className={`absolute inset-0 flex items-center justify-center ${timerState === 'idle' ? 'animate-cat-sleep' : ''
+                        }`}
+                    >
+                      <span
+                        className="text-[5.5rem] leading-none select-none"
+                        style={{ display: 'block', lineHeight: 1 }}
+                      >
+                        {timerState === 'idle' ? '😽' : getCatFace()}
+                      </span>
+                    </div>
+
+                    {/* 대기 중: 꾸벅꾸벅 잠 뱃지 */}
+                    {timerState === 'idle' && (
+                      <span className="absolute top-3 right-3 text-lg animate-bounce select-none pointer-events-none z-20">💤</span>
+                    )}
+
+                    {/* 실행/일시정지 상태 배지 (고양이 오른쪽 아래 모서리) */}
+                    {getStateBadge() && (
+                      <span className="absolute bottom-4 right-3 text-xl select-none pointer-events-none z-20">
+                        {getStateBadge()}
+                      </span>
+                    )}
+
+                    {/* 장착한 장식 아이템 오버레이 — absolute 기준은 w-44 h-44 컨테이너 */}
+                    {equippedItems.map(itemId => {
+                      const item = SHOP_ITEMS.find(i => i.id === itemId);
+                      if (!item) return null;
+                      return (
+                        <span
+                          key={item.id}
+                          className="absolute select-none pointer-events-none"
+                          style={item.style}
+                        >
+                          {item.emoji}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 남은 시간 표시 및 상태 메시지 */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="font-jua text-5xl text-slate-800 tracking-wider">
+                    {formatTime(timeRemaining)}
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 rounded-full border border-slate-200 mt-1.5">
+                    <span className="text-sm font-bold">
+                      {timerMode === 'work' ? '💻 집중 시간냥' : timerMode === 'shortBreak' ? '🐠 짧은 휴식냥' : '⭐️ 긴 휴식냥'}
+                    </span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-sm font-bold text-slate-600">
+                      {timerState === 'running' ? '흘러가는 중' : timerState === 'paused' ? '일시정지냥' : '준비완료'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. 고양이 응원 말풍선 */}
+                <div className="w-full h-16 relative flex items-center justify-center mt-1">
+                  {cheerBubble && (
+                    <div className="speech-bubble-border absolute bottom-1 bg-pastelPink-100 p-2.5 rounded-2xl max-w-[85%] text-center text-base shadow-sm transition-all duration-300">
+                      <div className="speech-bubble bg-white px-5 py-2.5 rounded-xl text-slate-800 font-bold border border-pastelPink-200 relative text-lg">
+                        {cheerBubble}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. 터치영역이 넉넉하고 둥근 하단 컨트롤 버튼 */}
+                <div className="flex gap-3 w-full justify-center mt-2">
+                  {/* 시작 / 일시정지 */}
+                  {timerState !== 'running' ? (
+                    <button
+                      onClick={startTimer}
+                      className="flex-1 max-w-[140px] py-4 bg-pastelPink-400 hover:bg-pastelPink-500 text-white rounded-2xl font-jua text-xl shadow-[0_5px_0_#d85d77] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all duration-75 text-center"
+                    >
+                      시작하기냥 🐾
+                    </button>
+                  ) : (
+                    <button
+                      onClick={pauseTimer}
+                      className="flex-1 max-w-[140px] py-4 bg-pastelYellow-300 hover:bg-pastelYellow-400 text-slate-700 rounded-2xl font-jua text-xl shadow-[0_5px_0_#d4b23b] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all duration-75 text-center"
+                    >
+                      잠시멈춤 🐾
+                    </button>
+                  )}
+
+                  {/* 건너뛰기 (진행중이거나 일시정지일 때만 활성) */}
+                  {timerState !== 'idle' && (
+                    <button
+                      onClick={skipTimer}
+                      className="flex-1 max-w-[110px] py-4 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-2xl font-jua text-lg shadow-[0_5px_0_#c77332] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all duration-75 text-center"
+                    >
+                      패스냥 💨
+                    </button>
+                  )}
+
+                  {/* 초기화 */}
+                  <button
+                    onClick={resetTimer}
+                    className="flex-1 max-w-[110px] py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-jua text-lg shadow-[0_5px_0_#94a3b8] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all duration-75 text-center"
+                  >
+                    리셋냥 🔄
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* --- [냥이 상점 화면] --- */}
+            {activeTab === 'shop' && (
+              <div className="flex-1 flex flex-col gap-4">
+                <div className="bg-pastelYellow-50 p-3 rounded-2xl border-2 border-pastelYellow-200 flex justify-between items-center shadow-inner">
+                  <span className="font-bold text-base">🐟 남은 생선 수:</span>
+                  <span className="font-jua text-2xl text-amber-500">{fishCount} 마리</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
+                  {SHOP_ITEMS.map(item => {
+                    const isOwned = ownedItems.includes(item.id);
+                    const isEquipped = equippedItems.includes(item.id);
+                    const canBuy = fishCount >= item.cost;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`bg-white border-2 rounded-2xl p-3 flex flex-col justify-between items-center text-center shadow-sm relative overflow-hidden transition-all ${isEquipped ? 'border-pastelPink-400 bg-pastelPink-50/20' : 'border-slate-100 hover:border-pastelPink-100'
+                          }`}
+                      >
+                        {isEquipped && (
+                          <div className="absolute top-0 right-0 bg-pastelPink-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                            장착함
+                          </div>
+                        )}
+
+                        <div className="text-4xl my-1.5 select-none">{item.emoji}</div>
+                        <div className="font-jua text-sm text-slate-800">{item.name}</div>
+
+                        <div className="flex items-center gap-1 text-xs text-amber-500 font-bold mt-1 mb-2">
+                          <span>🐟</span>
+                          <span>{item.cost}개</span>
+                        </div>
+
+                        {/* 구매 / 장착 버튼 */}
+                        {!isOwned ? (
+                          <button
+                            onClick={() => buyItem(item)}
+                            disabled={!canBuy}
+                            className={`w-full py-1.5 rounded-xl font-jua text-xs transition-all ${canBuy
+                              ? 'bg-pastelYellow-300 hover:bg-pastelYellow-400 text-slate-700 active:scale-95 shadow-sm'
+                              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                              }`}
+                          >
+                            생선으로 사냥
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => toggleEquipItem(item)}
+                            className={`w-full py-1.5 rounded-xl font-jua text-xs text-white active:scale-95 transition-all ${isEquipped
+                              ? 'bg-slate-400 hover:bg-slate-500'
+                              : 'bg-pastelPink-400 hover:bg-pastelPink-500'
+                              }`}
+                          >
+                            {isEquipped ? '벗기냥 ❌' : '입히냥 🎀'}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- [기록 화면] --- */}
+            {activeTab === 'history' && (
+              <div className="flex-1 flex flex-col gap-4">
+                {/* 누적 통계 간략 요약 */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-pastelPink-50/50 border border-pastelPink-100 p-3 rounded-2xl text-center">
+                    <div className="text-xs text-slate-400 font-bold">오늘 완료한 세트</div>
+                    <div className="font-jua text-2xl text-pastelPink-500 mt-1">
+                      {history[getTodayDateString()] || 0}세트
+                    </div>
+                  </div>
+                  <div className="bg-pastelYellow-50/50 border border-pastelYellow-200 p-3 rounded-2xl text-center">
+                    <div className="text-xs text-slate-400 font-bold">누적 획득 생선</div>
+                    <div className="font-jua text-2xl text-amber-500 mt-1">
+                      {Object.values(history).reduce((a, b) => a + b, 0) + fishCount}마리
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="font-jua text-base text-slate-800 mt-2 flex items-center gap-1">
+                  📅 최근 7일간의 기록냥 (물고기 그래프)
+                </h3>
+
+                {/* 막대 형태의 최근 7일 히스토리 그래프 */}
+                <div className="bg-slate-50 border border-slate-100 p-4 rounded-[2rem] flex-1 flex items-end justify-between min-h-[180px] gap-2">
+                  {(() => {
+                    const days = [];
+                    // 최근 7일 데이터 계산
+                    for (let i = 6; i >= 0; i--) {
+                      const date = new Date();
+                      date.setDate(date.getDate() - i);
+                      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                      const count = history[key] || 0;
+                      days.push({
+                        label: `${date.getDate()}일`,
+                        count: count
+                      });
+                    }
+
+                    const maxCount = Math.max(4, ...days.map(d => d.count));
+
+                    return days.map((day, idx) => {
+                      // 높이 백분율 계산
+                      const heightPercent = (day.count / maxCount) * 100;
+                      return (
+                        <div key={idx} className="flex flex-col items-center gap-1.5 flex-1 h-full justify-end">
+                          {/* 막대 상단의 숫자 */}
+                          <span className={`text-[10px] font-bold ${day.count > 0 ? 'text-pastelPink-500' : 'text-slate-300'}`}>
+                            {day.count > 0 ? `${day.count}🐾` : '0'}
+                          </span>
+
+                          {/* 막대 바 */}
+                          <div
+                            className={`w-full rounded-t-xl transition-all duration-500 relative flex flex-col justify-end items-center ${day.count > 0
+                              ? 'bg-gradient-to-t from-pastelPink-300 to-pastelPink-400 shadow-sm'
+                              : 'bg-slate-200/50'
+                              }`}
+                            style={{ height: `${Math.max(12, heightPercent)}%` }}
+                          >
+                            {/* 막대 내부에 귀여운 생선 뼈나 물고기 표시 */}
+                            {day.count > 0 && (
+                              <span className="text-[10px] mb-1 select-none pointer-events-none">🐟</span>
+                            )}
+                          </div>
+
+                          {/* 하단 날짜 레이블 */}
+                          <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">
+                            {day.label}
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* --- [모달 1: 집중 완료 수동 휴식 제안 모달] --- */}
+          {showBreakAlert && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-[2.5rem] p-6 max-w-sm w-full text-center border-4 border-pastelPink-200 shadow-xl animate-bounce-short">
+                <div className="text-6xl mb-3">🎉 😽 🐟</div>
+                <h3 className="font-jua text-2xl text-slate-800 mb-2">대단하다냥! 집중 완료!</h3>
+                <p className="text-base text-slate-600 mb-5 leading-relaxed font-bold">
+                  성공 보상으로 <span className="text-amber-500">생선 🐟 1마리</span>와<br />
+                  <span className="text-pastelPink-500">경험치 10★</span>을 얻었다냥!<br />
+                  <span className="text-xs text-slate-400">(레벨업 경험치는 100이다냥)</span>
+                </p>
+
+                <div className="bg-pastelPink-50/50 border border-pastelPink-100 p-3 rounded-2xl mb-5">
+                  <div className="text-sm font-bold text-slate-700">
+                    {cycleCount >= 4
+                      ? "✨ 벌써 4번의 집중을 끝냈구냥! 이번엔 15분 동안 푹 쉴 수 있는 긴 휴식을 추천한다냥!"
+                      : `🐾 ${cycleCount}번째 집중을 완료했다냥. 다음은 5분 짧은 휴식 시간이다냥.`
+                    }
+                  </div>
+                </div>
+
+                <button
+                  onClick={startNextBreak}
+                  className="w-full py-4 bg-pastelPink-400 hover:bg-pastelPink-500 text-white rounded-2xl font-jua text-lg shadow-[0_5px_0_#d85d77] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all"
+                >
+                  휴식 시작하기냥 🐾
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* --- [모달 2: 휴식 완료 수동 집중 제안 모달] --- */}
+          {showNextWorkAlert && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-[2.5rem] p-6 max-w-sm w-full text-center border-4 border-pastelYellow-200 shadow-xl">
+                <div className="text-6xl mb-3">⏰ 🐱💻</div>
+                <h3 className="font-jua text-3xl text-slate-800 mb-2">휴식 시간이 끝났다냥!</h3>
+                <p className="text-lg text-slate-600 mb-5 font-bold">
+                  머리가 시원해졌냥?<br />
+                  다시 나와 함께 열심히 집중하러 가겠냥? 📖
+                </p>
+                <button
+                  onClick={startNextWork}
+                  className="w-full py-4 bg-pastelYellow-300 hover:bg-pastelYellow-400 text-slate-700 rounded-2xl font-jua text-lg shadow-[0_5px_0_#d4b23b] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all"
+                >
+                  집중 시작하기냥 🐾
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* --- [모달 3: 레벨업 축하 모달] --- */}
+          {showLevelUpAlert && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-[2.5rem] p-6 max-w-sm w-full text-center border-4 border-amber-300 shadow-xl">
+                <div className="text-7xl mb-2 animate-bounce">👑 😺 ✨</div>
+                <h3 className="font-jua text-3xl text-slate-800 mb-1">축하한다냥! 레벨 업!</h3>
+                <div className="text-xl text-amber-500 font-bold mb-4">Lv.{level - 1} &rarr; Lv.{level}</div>
+                <p className="text-base text-slate-600 mb-6 font-bold leading-relaxed">
+                  고양이가 더 똑똑하고 귀엽게 성장했다냥!<br />
+                  앞으로도 나랑 매일매일 열공하는 거다냥 🐾
+                </p>
+                <button
+                  onClick={() => { playSound('click'); setShowLevelUpAlert(false); }}
+                  className="w-full py-3.5 bg-amber-400 hover:bg-amber-500 text-slate-800 rounded-2xl font-jua text-lg shadow-[0_5px_0_#c08b29] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all"
+                >
+                  야호! 고맙다냥 😽
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* --- [모달 4: 설정 변경 모달] --- */}
+          {showSettings && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-[2.5rem] p-6 max-w-sm w-full border-4 border-slate-200 shadow-xl">
+                <h3 className="font-jua text-3xl text-slate-800 mb-4 text-center">⚙️ 냥이 시간 타이머 설정</h3>
+
+                <div className="flex flex-col gap-4 text-base font-bold text-slate-600">
+                  {/* 집중 시간 */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between">
+                      <span>💻 집중 시간:</span>
+                      <span className="text-pastelPink-500 font-jua">{focusDuration / 60}분</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="5"
+                      max="60"
+                      step="5"
+                      value={focusDuration / 60}
+                      onChange={(e) => {
+                        const newSec = Number(e.target.value) * 60;
+                        setFocusDuration(newSec);
+                        if (timerMode === 'work') resetTimer();
+                      }}
+                      className="accent-pastelPink-400 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+
+                  {/* 짧은 휴식 시간 */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between">
+                      <span>🐠 짧은 휴식 시간:</span>
+                      <span className="text-pastelYellow-400 font-jua">{shortBreakDuration / 60}분</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="15"
+                      step="1"
+                      value={shortBreakDuration / 60}
+                      onChange={(e) => {
+                        const newSec = Number(e.target.value) * 60;
+                        setShortBreakDuration(newSec);
+                        if (timerMode === 'shortBreak') resetTimer();
+                      }}
+                      className="accent-pastelYellow-300 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+
+                  {/* 긴 휴식 시간 */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between">
+                      <span>⭐️ 긴 휴식 시간:</span>
+                      <span className="text-amber-500 font-jua">{longBreakDuration / 60}분</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="5"
+                      max="45"
+                      step="5"
+                      value={longBreakDuration / 60}
+                      onChange={(e) => {
+                        const newSec = Number(e.target.value) * 60;
+                        setLongBreakDuration(newSec);
+                        if (timerMode === 'longBreak') resetTimer();
+                      }}
+                      className="accent-amber-400 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+
+                  {/* 알림 권한 및 소리 체크 */}
+                  <div className="border-t border-slate-100 pt-3 flex flex-col gap-2.5">
+                    <button
+                      onClick={() => {
+                        playSound('click');
+                        if (typeof Notification !== 'undefined') {
+                          Notification.requestPermission().then(permission => {
+                            alert(permission === 'granted' ? '브라우저 알림 권한이 허용되었다냥! 🔔' : '알림 권한이 거절되었다냥. 브라우저 설정에서 켜달라냥.');
+                          });
+                        }
+                      }}
+                      className="w-full py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 text-sm font-bold text-center transition"
+                    >
+                      🔔 브라우저 바탕화면 알림 허용하기
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        playSound('success');
+                      }}
+                      className="w-full py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 text-sm font-bold text-center transition"
+                    >
+                      🎵 알림 소리 미리 듣기
+                    </button>
+                  </div>
+
+                  {/* 개발자 빨리감기 모드 (아이 테스트나 디버깅용) */}
+                  <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-dashed border-slate-200 text-sm mt-2">
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-700">⏱️ 빨리 감기 모드 (개발자용)</span>
+                        <span className="text-slate-400 text-xs">1초가 1분처럼 흐릅니다 (테스트용)</span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={devMode}
+                        onChange={(e) => {
+                          playSound('click');
+                          setDevMode(e.target.checked);
+                          resetTimer();
+                        }}
+                        className="w-4 h-4 accent-pastelPink-400 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => { playSound('click'); setShowSettings(false); }}
+                  className="w-full py-3 bg-slate-400 hover:bg-slate-500 text-white rounded-2xl font-jua text-lg shadow-[0_5px_0_#475569] active:shadow-none hover:translate-y-[2px] active:translate-y-[5px] transition-all mt-5"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 마운트 시작
+    const rootEl = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootEl);
+    root.render(<App />);
+  </script>
+</body>
+
+</html>
