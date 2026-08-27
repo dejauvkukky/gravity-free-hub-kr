@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Garden - 대시보드</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=202512190919">
+    <link rel="stylesheet" href="../assets/css/style.css?v=202608271600">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -218,7 +218,21 @@
             color: #b45309;
         }
 
-        /* Menu Card Backgrounds Removed - Using explicit classes above */
+        /* External Service Cards Hover */
+        .external-service-card > div {
+            transition: all 0.25s ease;
+        }
+
+        .external-service-card:hover > div {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        @media (max-width: 480px) {
+            .external-hub-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
     </style>
 </head>
 
@@ -260,7 +274,7 @@
 
 
 
-        <!-- Menu Grid -->
+        <!-- Menu Grid (Secret Garden Core Services) -->
         <div class="menu-grid" style="margin-top: 2px;">
 
             <!-- 1. Calendar (Blue) -->
@@ -293,18 +307,178 @@
                 <div class="menu-desc">서로의 성격을<br>이해해보아요</div>
             </div>
 
-            <!-- 6. Sound Garden -->
+            <!-- 5. Sound Garden -->
             <a href="sound-garden/index.html" class="menu-card card-color-purple" style="text-decoration: none;">
                 <div class="menu-icon bg-purple-soft">🎵</div>
                 <div class="menu-title">사운드 가든</div>
                 <div class="menu-desc">나만의 BGM 플레이리스트</div>
             </a>
 
-            <!-- 7. Worldcup (Orange) -->
+            <!-- 6. Worldcup (Orange) -->
             <div class="menu-card card-color-yellow" onclick="location.href='worldcup/index.html'">
                 <div class="menu-icon bg-yellow-soft">🏆</div>
                 <div class="menu-title">시크릿 월드컵</div>
                 <div class="menu-desc">이상형 월드컵<br>VS 대결</div>
+            </div>
+        </div>
+
+        <!-- Standalone Apps & Web Fiction Section (Dedicated Group) -->
+        <div class="external-hub-section" style="
+            margin: 16px 20px 10px 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+                <div style="font-size: 0.85rem; font-weight: 800; color: #334155; letter-spacing: -0.3px; display: flex; align-items: center; gap: 6px;">
+                    <span>INDEPENDENT APPS & FICTION</span>
+                    <span style="font-size: 0.65rem; background: #6366f1; color: white; padding: 2px 8px; border-radius: 10px; font-weight: 600;">서브 플랫폼</span>
+                </div>
+                <span style="font-size: 0.7rem; color: #64748b; font-weight: 500;">독립 실행 서비스</span>
+            </div>
+
+            <div class="external-hub-grid" style="
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            ">
+                <!-- 1. Life Calendar -->
+                <a href="../Life_Calendar/index.html" target="_blank" style="text-decoration: none;" class="external-service-card">
+                    <div style="
+                        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+                        border: 1.5px solid #bae6fd;
+                        border-radius: 14px;
+                        padding: 12px 10px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        position: relative;
+                    ">
+                        <div style="
+                            font-size: 1.6rem;
+                            width: 40px;
+                            height: 40px;
+                            background: #e0f2fe;
+                            color: #0284c7;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                        ">📆</div>
+                        <div style="flex-grow: 1; min-width: 0;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 4px;">
+                                인생 달력
+                                <span style="font-size: 0.65rem; color: #0284c7;">↗</span>
+                            </div>
+                            <div style="font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">주 단위 인생 기록 캘린더</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 2. Pomodoro Timer -->
+                <a href="../P_Timer/index.html" target="_blank" style="text-decoration: none;" class="external-service-card">
+                    <div style="
+                        background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
+                        border: 1.5px solid #fed7aa;
+                        border-radius: 14px;
+                        padding: 12px 10px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        position: relative;
+                    ">
+                        <div style="
+                            font-size: 1.6rem;
+                            width: 40px;
+                            height: 40px;
+                            background: #ffedd5;
+                            color: #ea580c;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                        ">⏱️</div>
+                        <div style="flex-grow: 1; min-width: 0;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 4px;">
+                                뽀모도로 타이머
+                                <span style="font-size: 0.65rem; color: #ea580c;">↗</span>
+                            </div>
+                            <div style="font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">냥이 집중 & 휴식 타이머</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 3. Web Fiction 1: 나에겐 너 -->
+                <a href="../web_fiction/ToMe_ItsU.html" target="_blank" style="text-decoration: none;" class="external-service-card">
+                    <div style="
+                        background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+                        border: 1.5px solid #fecdd3;
+                        border-radius: 14px;
+                        padding: 12px 10px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        position: relative;
+                    ">
+                        <div style="
+                            font-size: 1.6rem;
+                            width: 40px;
+                            height: 40px;
+                            background: #ffe4e6;
+                            color: #e11d48;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                        ">📖</div>
+                        <div style="flex-grow: 1; min-width: 0;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 4px;">
+                                나에겐 너
+                                <span style="font-size: 0.65rem; color: #e11d48;">↗</span>
+                            </div>
+                            <div style="font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">웹소설 #1 (로맨스/드라마)</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 4. Web Fiction 2: 경계의 기록자 -->
+                <a href="../web_fiction/Archivist.html" target="_blank" style="text-decoration: none;" class="external-service-card">
+                    <div style="
+                        background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+                        border: 1.5px solid #e9d5ff;
+                        border-radius: 14px;
+                        padding: 12px 10px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        position: relative;
+                    ">
+                        <div style="
+                            font-size: 1.6rem;
+                            width: 40px;
+                            height: 40px;
+                            background: #f3e8ff;
+                            color: #9333ea;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                        ">🏛️</div>
+                        <div style="flex-grow: 1; min-width: 0;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 4px;">
+                                경계의 기록자
+                                <span style="font-size: 0.65rem; color: #9333ea;">↗</span>
+                            </div>
+                            <div style="font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">웹소설 #2 (판타지/아키비스트)</div>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
 

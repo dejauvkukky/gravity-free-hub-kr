@@ -162,6 +162,17 @@ npm install new-library
 | 🎵 Sound Garden | YouTube 음악 공유 | `public/sound-garden/` |
 | 🏗️ 아빠를 이겨라 | 스택 쌓기 게임 | `public/games/beat-dad/` |
 | 🎒 챙겨줘요 | 위시리스트 & 준비물 메모 | `public/wishlist/` |
+| 🏆 시크릿 월드컵 | 이상형 월드컵 | `public/worldcup/` |
+
+#### 🚀 독립 실행 서브 플랫폼 & 웹소설 (INDEPENDENT APPS & FICTION)
+메인 대시보드 하단에 별도의 시각적 선명한 섹션(`INDEPENDENT APPS & FICTION`)으로 구분하여 연결된 독립 실행 웹 애플리케이션 및 콘텐츠입니다:
+
+| 기능 | 설명 | 경로 |
+|------|------|------|
+| 📆 인생 달력 | 주 단위로 나의 삶을 기록 및 시각화하는 캘린더 웹 앱 | `Life_Calendar/index.html` |
+| ⏱️ 뽀모도로 타이머 | 집중과 휴식을 돕는 냥이 뽀모도로 타이머 웹 앱 | `P_Timer/index.html` |
+| 📖 웹소설 #1 (나에겐 너) | 프리미엄 웹소설 작품 #1 | `web_fiction/ToMe_ItsU.html` |
+| 🏛️ 웹소설 #2 (경계의 기록자) | 판타지 아키비스트 웹소설 작품 #2 | `web_fiction/Archivist.html` |
 
 ---
 
@@ -465,4 +476,4 @@ git push
 새로운 대화창에서 작업을 이어갈 때도 이 문서를 참조하여 효율적으로 작업하시기 바랍니다.
 
 **Crafted by kukky**  
-**Last Updated**: 2025-12-17
+**Last Updated**: 2026-08-27
