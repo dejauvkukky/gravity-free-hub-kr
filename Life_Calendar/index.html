@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인생 달력 - Life in Weeks</title>
+  <meta name="description" content="주 단위로 나의 삶을 시각화하여 인생의 유한함을 느끼고 매 순간을 소중히 보낼 수 있도록 돕는 인생 달력(Life Calendar) 웹 애플리케이션입니다.">
+  
+  <!-- SEO Open Graph -->
+  <meta property="og:title" content="인생 달력 - Life in Weeks">
+  <meta property="og:description" content="주 단위로 나의 삶을 시각화하여 인생의 유한함을 느끼게 돕는 웹 서비스">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <!-- html2canvas CDN (Required for image download only, standard page logic is fully local) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    /* ==========================================
+       DESIGN SYSTEM & THEME VARIABLES
+       ========================================== */
+    :root {
+      /* Theme: Classic Dark Mode (Default) */
+      --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+      --bg-canvas-export: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --shadow-color: rgba(0, 0, 0, 0.4);
+      --primary-accent: #3b82f6;
+      --primary-accent-hover: #2563eb;
+      --card-hover-border: rgba(255, 255, 255, 0.15);
+      
+      /* Life Stages Colors */
+      --color-childhood: #f59e0b; /* Amber */
+      --color-education: #06b6d4; /* Cyan */
+      --color-career: #3b82f6; /* Royal Blue */
+      --color-retirement: #10b981; /* Emerald Green */
+      --color-current: #ef4444; /* Glowing Red */
+      --color-future-hover: rgba(255, 255, 255, 0.15);
+
+      /* Grid square size */
+      --square-size: 10px;
+    }
+
+    body.theme-classic-light {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      --bg-canvas-export: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(15, 23, 42, 0.08);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --shadow-color: rgba(15, 23, 42, 0.05);
+      --primary-accent: #2563eb;
+      --primary-accent-hover: #1d4ed8;
+      --card-hover-border: rgba(15, 23, 42, 0.15);
+      
+      /* Life Stages Colors (Light adjustments) */
+      --color-childhood: #d97706; 
+      --color-education: #0891b2;
+      --color-career: #2563eb;
+      --color-retirement: #059669;
+      --color-current: #dc2626;
+      --color-future-hover: rgba(15, 23, 42, 0.1);
+    }
+
+    body.theme-cyberpunk {
+      --bg-gradient: linear-gradient(135deg, #050515 0%, #0d0628 100%);
+      --bg-canvas-export: #050515;
+      --card-bg: rgba(15, 6, 40, 0.7);
+      --card-border: rgba(0, 245, 212, 0.2);
+      --text-main: #00f5d4;
+      --text-muted: #9d4edd;
+      --shadow-color: rgba(157, 78, 221, 0.15);
+      --primary-accent: #ec38bc;
+      --primary-accent-hover: #ff007f;
+      --card-hover-border: rgba(0, 245, 212, 0.4);
+      
+      /* Life Stages Colors (Cyberpunk Neon) */
+      --color-childhood: #ff007f; /* Neon Pink */
+      --color-education: #9d4edd; /* Neon Purple */
+      --color-career: #00f5d4; /* Neon Cyan */
+      --color-retirement: #fee440; /* Neon Yellow */
+      --color-current: #ff3333; /* Neon Red */
+      --color-future-hover: rgba(0, 245, 212, 0.2);
+    }
+
+    body.theme-forest {
+      --bg-gradient: linear-gradient(135deg, #111e16 0%, #1c2e24 100%);
+      --bg-canvas-export: #111e16;
+      --card-bg: rgba(28, 46, 36, 0.65);
+      --card-border: rgba(165, 214, 167, 0.1);
+      --text-main: #e8f5e9;
+      --text-muted: #a5d6a7;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+      --primary-accent: #81c784;
+      --primary-accent-hover: #66bb6a;
+      --card-hover-border: rgba(165, 214, 167, 0.25);
+      
+      /* Life Stages Colors (Nordic Forest) */
+      --color-childhood: #ddb892; /* Sandy Gold */
+      --color-education: #90a955; /* Sage */
+      --color-career: #31572c; /* Forest Green */
+      --color-retirement: #4f772d; /* Grass Green */
+      --color-current: #e63946; /* Coral Red */
+      --color-future-hover: rgba(165, 214, 167, 0.15);
+    }
+
+    body.theme-sunset {
+      --bg-gradient: linear-gradient(135deg, #1c0e18 0%, #2e1026 100%);
+      --bg-canvas-export: #1c0e18;
+      --card-bg: rgba(46, 16, 38, 0.55);
+      --card-border: rgba(251, 113, 133, 0.12);
+      --text-main: #ffe4e6;
+      --text-muted: #fda4af;
+      --shadow-color: rgba(0, 0, 0, 0.4);
+      --primary-accent: #f43f5e;
+      --primary-accent-hover: #e11d48;
+      --card-hover-border: rgba(251, 113, 133, 0.3);
+      
+      /* Life Stages Colors (Sunset Glow) */
+      --color-childhood: #fda4af; /* Peach Pink */
+      --color-education: #f43f5e; /* Rose Red */
+      --color-career: #fb7185; /* Soft Coral */
+      --color-retirement: #c084fc; /* Lavender */
+      --color-current: #fbbf24; /* Amber Gold */
+      --color-future-hover: rgba(251, 113, 133, 0.2);
+    }
+
+    /* ==========================================
+       BASE STYLES
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.4s ease, color 0.4s ease;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar Style */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    main {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    /* ==========================================
+       HEADER STYLE
+       ========================================== */
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+      background: linear-gradient(to right, var(--text-main), var(--primary-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    header p a {
+      color: var(--primary-accent);
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px dashed var(--primary-accent);
+      transition: color 0.2s;
+    }
+    header p a:hover {
+      color: var(--primary-accent-hover);
+      border-bottom-style: solid;
+    }
+
+    /* ==========================================
+       CARD STYLE (GLASSMORPHISM)
+       ========================================== */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(12px) saturate(185%);
+      -webkit-backdrop-filter: blur(12px) saturate(185%);
+      box-shadow: 0 10px 40px 0 var(--shadow-color);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      border-color: var(--card-hover-border);
+    }
+
+    /* ==========================================
+       SETTINGS & CONTROLS SECTION
+       ========================================== */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper svg, .btn svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2px;
+      fill: none;
+      stroke: currentColor;
+    }
+
+    .input-wrapper svg {
+      position: absolute;
+      left: 15px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 12px 16px 12px 45px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      height: 48px;
+    }
+
+    .btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary-accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .btn:hover {
+      background: var(--primary-accent-hover);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-muted);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Spinner Animation */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==========================================
+       STATS DASHBOARD
+       ========================================== */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary-accent);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--stat-accent, var(--primary-accent));
+    }
+
+    .stat-card.lived-stat { --stat-accent: var(--primary-accent); }
+    .stat-card.remaining-stat { --stat-accent: var(--color-education); }
+    .stat-card.percent-stat { --stat-accent: var(--color-retirement); }
+    .stat-card.summers-stat { --stat-accent: var(--color-childhood); }
+    .stat-card.mondays-stat { --stat-accent: var(--color-current); }
+
+    .stat-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.2;
+    }
+
+    .stat-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================
+       CALENDAR BOARD STYLES
+       ========================================== */
+    .calendar-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Infographic Title Block (Visible on Export) */
+    .export-title-block {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .export-title-block h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+    }
+
+    .export-title-block p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Legend Row */
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 10px 0;
+      padding: 12px 24px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--card-border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .legend-box {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .legend-box.childhood { background: var(--color-childhood); }
+    .legend-box.education { background: var(--color-education); }
+    .legend-box.career { background: var(--color-career); }
+    .legend-box.retirement { background: var(--color-retirement); }
+    .legend-box.current-week { 
+      background: var(--color-current); 
+      box-shadow: 0 0 6px var(--color-current);
+    }
+
+    /* Responsive Grid Container with scrollbars if too small */
+    .grid-outer-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      padding: 10px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .grid-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      user-select: none;
+      padding: 10px;
+    }
+
+    /* Calendar Grid Rows */
+    .grid-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .label-row {
+      margin-bottom: 8px;
+    }
+
+    .age-label {
+      width: 32px;
+      text-align: right;
+      padding-right: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .age-label.spacer {
+      visibility: hidden;
+    }
+
+    .row-blocks {
+      display: flex;
+      gap: 8px; /* Spacing between 4-week column groups */
+    }
+
+    .week-block {
+      display: flex;
+      gap: 2px; /* Spacing between squares in a group */
+    }
+
+    .week-box {
+      width: var(--square-size);
+      height: var(--square-size);
+      border-radius: 2px;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .week-box:hover {
+      transform: scale(1.35);
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Pulse animation for the current week */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      70% {
+        transform: scale(1.2);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+    .week-box.current {
+      animation: pulse 2.2s infinite;
+      z-index: 5;
+    }
+
+    /* Column Top Labels */
+    .col-label {
+      width: var(--square-size);
+      height: 14px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* 5-Year Gap spacing */
+    .five-year-gap {
+      margin-bottom: 8px;
+    }
+
+    /* Hover effects for future cells to preview filling */
+    .week-box.stage-childhood.future:hover { background-color: var(--color-childhood) !important; }
+    .week-box.stage-education.future:hover { background-color: var(--color-education) !important; }
+    .week-box.stage-career.future:hover { background-color: var(--color-career) !important; }
+    .week-box.stage-retirement.future:hover { background-color: var(--color-retirement) !important; }
+
+    /* ==========================================
+       TOOLTIP
+       ========================================== */
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(11, 15, 25, 0.95);
+      color: #ffffff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: opacity 0.1s ease, transform 0.1s ease;
+      transform: translate(-50%, -115%);
+      min-width: 180px;
+    }
+
+    .tooltip.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .tooltip-header {
+      font-weight: 800;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .tooltip-dates {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tooltip-stage {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .tooltip-stage-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .tooltip-status {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ==========================================
+       FOOTER STYLE
+       ========================================== */
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: auto;
+    }
+
+    footer p {
+      margin-bottom: 4px;
+    }
+
+    /* ==========================================
+       RESPONSIVE DESIGN PRESET
+       ========================================== */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .card {
+        padding: 20px;
+      }
+      body {
+        padding: 20px 10px;
+      }
+    }
+  </style>
+</head>
+<body class="theme-classic-dark">
+
+  <main>
+    <header>
+      <h1>MY LIFE IN WEEKS</h1>
+      <p>
+        인생의 매 순간은 한 번뿐입니다. (컨셉: <a href="https://waitbutwhy.com/2014/05/life-weeks.html" target="_blank" rel="noopener noreferrer">Tim Urban - Wait But Why</a>)
+      </p>
+    </header>
+
+    <!-- Settings Card -->
+    <section class="card" aria-label="설정 컨트롤">
+      <div class="settings-grid">
+        <div class="form-group">
+          <label for="birthDate">생년월일</label>
+          <div class="input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            <input type="date" id="birthDate" value="1976-11-22">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lifeExpectancy">기대 수명 (연도)</label>
+          <div class="input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <input type="number" id="lifeExpectancy" value="85" min="40" max="120">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="retirementAge">정년 나이 (은퇴)</label>
+          <div class="input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+            <input type="number" id="retirementAge" value="65" min="30" max="100">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="themeSelect">테마 선택</label>
+          <div class="input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 11.2386 21.6136 10.5341 21 10C20.3864 9.46591 19.5 9 19 9H17.5C16.6716 9 16 8.32843 16 7.5V6C16 4.89543 15.1046 4 14 4H12C6.47715 4 2 8.47715 2 14C2 19.5228 6.47715 22 12 22Z"/><circle cx="7.5" cy="10.5" r="1.5"/><circle cx="11.5" cy="7.5" r="1.5"/><circle cx="16.5" cy="11.5" r="1.5"/></svg>
+            <select id="themeSelect">
+              <option value="theme-classic-dark">클래식 다크 (Wait But Why)</option>
+              <option value="theme-classic-light">클래식 라이트 (화이트)</option>
+              <option value="theme-cyberpunk">사이버펑크 네온</option>
+              <option value="theme-forest">노르딕 포레스트 (숲)</option>
+              <option value="theme-sunset">선셋 글로우 (노을)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button id="resetBtn" class="btn btn-secondary" title="초기화">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+          <button id="exportBtn" class="btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> 이미지로 저장
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistics Cards -->
+    <section class="stats-container" aria-label="인생 통계 대시보드">
+      <div class="stat-card lived-stat">
+        <span class="stat-title">지나온 주차 (Lived)</span>
+        <span class="stat-value" id="statsLived">0</span>
+        <span class="stat-desc">인생의 총 주차 중 보낸 주차</span>
+      </div>
+      <div class="stat-card remaining-stat">
+        <span class="stat-title">남은 주차 (To Go)</span>
+        <span class="stat-value" id="statsRemaining">0</span>
+        <span class="stat-desc">기대 수명까지 남아있는 주차</span>
+      </div>
+      <div class="stat-card percent-stat">
+        <span class="stat-title">인생 진행률 (Elapsed)</span>
+        <span class="stat-value" id="statsPercent">0%</span>
+        <span class="stat-desc">살아온 삶의 비율</span>
+      </div>
+      <div class="stat-card summers-stat">
+        <span class="stat-title">남은 여름 (Summers)</span>
+        <span class="stat-value" id="statsSummers">0</span>
+        <span class="stat-desc">앞으로 맞이할 따뜻한 계절</span>
+      </div>
+      <div class="stat-card mondays-stat">
+        <span class="stat-title">정년까지 월요일 (Mondays)</span>
+        <span class="stat-value" id="statsMondays">0</span>
+        <span class="stat-desc">65세 은퇴까지 출근할 월요일 수</span>
+      </div>
+    </section>
+
+    <!-- Calendar Board Container (Target for Export) -->
+    <section class="card calendar-card" id="capture-area">
+      <!-- Title Block only visible/styled beautifully inside card -->
+      <div class="export-title-block">
+        <h2>YOUR LIFE IN WEEKS</h2>
+        <p><span id="subStatsLived">0</span> weeks lived  ·  <span id="subStatsRemaining">0</span> to go  ·  every square is one week</p>
+      </div>
+
+      <!-- Legend Indicator -->
+      <div class="legend-row">
+        <div class="legend-item">
+          <div class="legend-box childhood"></div>
+          <span>유년기 (0~5세)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box education"></div>
+          <span>교육기 (6~21세)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box career"></div>
+          <span id="legendCareerText">사회생활 (22~64세)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box retirement"></div>
+          <span id="legendRetirementText">은퇴기 (65세 이상)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box current-week"></div>
+          <span>현재 주 (This Week)</span>
+        </div>
+      </div>
+
+      <!-- Scroll wrapper to prevent overflow -->
+      <div class="grid-outer-wrapper">
+        <div class="grid-container" id="grid-container">
+          <!-- Calendar grid rendered here dynamically -->
+        </div>
+      </div>
+
+      <!-- Creator & Credit footer in exported image -->
+      <div style="margin-top: 20px; font-size: 0.75rem; color: var(--text-muted); text-align: center; width: 100%; border-top: 1px solid var(--card-border); padding-top: 12px; font-family: 'JetBrains Mono', monospace;">
+        Created by <strong>Kukky</strong> | Concept by Wait But Why
+      </div>
+    </section>
+  </main>
+
+  <!-- Tooltip element -->
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <footer>
+    <p>Created by <strong>Kukky</strong> · © 2026 인생 달력 시각화 도구. All rights reserved.</p>
+    <p>Runs entirely in your browser. Your input data is never sent to any server.</p>
+  </footer>
+
+  <script>
+    /* ==========================================
+       JAVASCRIPT LOGIC
+       ========================================== */
+
+    // DOM Elements
+    const birthDateInput = document.getElementById('birthDate');
+    const lifeExpectancyInput = document.getElementById('lifeExpectancy');
+    const retirementAgeInput = document.getElementById('retirementAge');
+    const themeSelect = document.getElementById('themeSelect');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const captureArea = document.getElementById('capture-area');
+    const gridContainer = document.getElementById('grid-container');
+    const tooltip = document.getElementById('tooltip');
+
+    // Stats Elements
+    const statsLived = document.getElementById('statsLived');
+    const statsRemaining = document.getElementById('statsRemaining');
+    const statsPercent = document.getElementById('statsPercent');
+    const statsSummers = document.getElementById('statsSummers');
+    const statsMondays = document.getElementById('statsMondays');
+    
+    const subStatsLived = document.getElementById('subStatsLived');
+    const subStatsRemaining = document.getElementById('subStatsRemaining');
+
+    // Default configuration constants
+    const DEFAULTS = {
+      birthDate: '1976-11-22',
+      lifeExpectancy: 85,
+      retirementAge: 65,
+      theme: 'theme-classic-dark'
+    };
+
+    // State Variables
+    let birthDate = new Date(DEFAULTS.birthDate);
+    let lifeExpectancy = DEFAULTS.lifeExpectancy;
+    let retirementAge = DEFAULTS.retirementAge;
+    let currentTheme = DEFAULTS.theme;
+    let weeksLived = 0;
+
+    // Load from LocalStorage if available
+    function loadSavedState() {
+      const savedBirthDate = localStorage.getItem('life_cal_birthDate');
+      const savedLifeExpectancy = localStorage.getItem('life_cal_lifeExpectancy');
+      const savedRetirementAge = localStorage.getItem('life_cal_retirementAge');
+      const savedTheme = localStorage.getItem('life_cal_theme');
+
+      if (savedBirthDate) birthDateInput.value = savedBirthDate;
+      if (savedLifeExpectancy) lifeExpectancyInput.value = savedLifeExpectancy;
+      if (savedRetirementAge) retirementAgeInput.value = savedRetirementAge;
+      if (savedTheme) themeSelect.value = savedTheme;
+
+      updateStateFromInputs();
+    }
+
+    // Save active state to LocalStorage
+    function saveState() {
+      localStorage.setItem('life_cal_birthDate', birthDateInput.value);
+      localStorage.setItem('life_cal_lifeExpectancy', lifeExpectancyInput.value);
+      localStorage.setItem('life_cal_retirementAge', retirementAgeInput.value);
+      localStorage.setItem('life_cal_theme', themeSelect.value);
+    }
+
+    // Sync input values to active state variables
+    function updateStateFromInputs() {
+      birthDate = new Date(birthDateInput.value);
+      lifeExpectancy = parseInt(lifeExpectancyInput.value) || DEFAULTS.lifeExpectancy;
+      retirementAge = parseInt(retirementAgeInput.value) || DEFAULTS.retirementAge;
+      currentTheme = themeSelect.value;
+      
+      // Update Body Class for Theme CSS variables
+      document.body.className = '';
+      document.body.classList.add(currentTheme);
+
+      // Dynamically update legend text based on retirement age
+      const legendCareerText = document.getElementById('legendCareerText');
+      const legendRetirementText = document.getElementById('legendRetirementText');
+      if (legendCareerText) {
+        legendCareerText.textContent = `사회생활 (22~${retirementAge - 1}세)`;
+      }
+      if (legendRetirementText) {
+        legendRetirementText.textContent = `은퇴기 (${retirementAge}세 이상)`;
+      }
+      
+      // Update stats description text
+      const statDescMondays = document.querySelector('.mondays-stat .stat-desc');
+      if (statDescMondays) {
+        statDescMondays.textContent = `${retirementAge}세 은퇴까지 출근할 월요일 수`;
+      }
+    }
+
+    // Helper: Find total Mondays between two dates
+    function countMondaysBetween(start, end) {
+      if (start >= end) return 0;
+      let count = 0;
+      let tempDate = new Date(start);
+      
+      // Move to the next Monday
+      while (tempDate.getDay() !== 1) { // 1 is Monday
+        tempDate.setDate(tempDate.getDate() + 1);
+        if (tempDate >= end) return 0;
+      }
+      
+      const diffTime = end - tempDate;
+      const diffDays = Math.floor(diffTime / (24 * 60 * 60 * 1000));
+      count = 1 + Math.floor(diffDays / 7);
+      return count;
+    }
+
+    // Compute stats
+    function calculateStatistics() {
+      const today = new Date();
+      
+      // Weeks lived calculation
+      const diffTime = Math.max(0, today - birthDate);
+      const totalDays = Math.floor(diffTime / (24 * 60 * 60 * 1000));
+      weeksLived = Math.floor(totalDays / 7);
+
+      const totalWeeks = lifeExpectancy * 52;
+      const weeksRemaining = Math.max(0, totalWeeks - weeksLived);
+      
+      const elapsedPercent = totalWeeks > 0 ? ((weeksLived / totalWeeks) * 100).toFixed(1) : 0;
+      
+      const currentAge = totalDays / 365.2425;
+      const summersLeft = Math.max(0, Math.ceil(lifeExpectancy - currentAge));
+      
+      // Mondays count to retirement
+      const retirementDate = new Date(birthDate);
+      retirementDate.setFullYear(birthDate.getFullYear() + retirementAge);
+      const mondaysToRetire = countMondaysBetween(today, retirementDate);
+
+      // Render stats to dashboard
+      statsLived.textContent = weeksLived.toLocaleString();
+      statsRemaining.textContent = weeksRemaining.toLocaleString();
+      statsPercent.textContent = `${elapsedPercent}%`;
+      statsSummers.textContent = summersLeft.toLocaleString();
+      statsMondays.textContent = mondaysToRetire.toLocaleString();
+
+      // Render to calendar sub-header
+      subStatsLived.textContent = weeksLived.toLocaleString();
+      subStatsRemaining.textContent = weeksRemaining.toLocaleString();
+    }
+
+    // Determine Stage and Color Variables
+    function getStageInfo(age) {
+      if (age < 6) {
+        return {
+          name: '유년기 (Childhood)',
+          colorVar: 'var(--color-childhood)',
+          class: 'stage-childhood'
+        };
+      } else if (age < 22) {
+        return {
+          name: '학창 시절 (Education)',
+          colorVar: 'var(--color-education)',
+          class: 'stage-education'
+        };
+      } else if (age < retirementAge) {
+        return {
+          name: '사회 생활 (Career)',
+          colorVar: 'var(--color-career)',
+          class: 'stage-career'
+        };
+      } else {
+        return {
+          name: '은퇴 이후 (Retirement)',
+          colorVar: 'var(--color-retirement)',
+          class: 'stage-retirement'
+        };
+      }
+    }
+
+    // Stylize each box in the grid
+    function updateBoxStyle(box, index, age) {
+      box.className = 'week-box';
+      box.style.backgroundColor = '';
+      box.style.borderColor = '';
+      box.style.boxShadow = '';
+      
+      const stage = getStageInfo(age);
+      box.classList.add(stage.class);
+      
+      if (index < weeksLived) {
+        // Lived
+        box.classList.add('lived');
+        box.style.backgroundColor = stage.colorVar;
+        box.style.borderColor = stage.colorVar;
+      } else if (index === weeksLived) {
+        // This Week
+        box.classList.add('current');
+        box.style.backgroundColor = 'var(--color-current)';
+        box.style.borderColor = 'var(--color-current)';
+        box.style.boxShadow = '0 0 8px var(--color-current)';
+      } else {
+        // Future
+        box.classList.add('future');
+        box.style.borderColor = stage.colorVar;
+        box.style.borderWidth = '1px';
+        box.style.borderStyle = 'solid';
+        box.style.backgroundColor = 'transparent';
+      }
+    }
+
+    // Redraw and render calendar grid
+    function renderGrid() {
+      gridContainer.innerHTML = '';
+      
+      // 1. Create Top Label Row (Columns 1, 4, 8, 12, ..., 52)
+      const labelRow = document.createElement('div');
+      labelRow.className = 'grid-row label-row';
+      
+      const spacer = document.createElement('div');
+      spacer.className = 'age-label spacer';
+      labelRow.appendChild(spacer);
+      
+      const blocksContainer = document.createElement('div');
+      blocksContainer.className = 'row-blocks';
+      
+      for (let b = 0; b < 13; b++) {
+        const block = document.createElement('div');
+        block.className = 'week-block';
+        
+        for (let w = 0; w < 4; w++) {
+          const weekNum = b * 4 + w + 1;
+          const colLabel = document.createElement('div');
+          colLabel.className = 'col-label';
+          
+          if (weekNum === 1 || weekNum % 4 === 0) {
+            colLabel.textContent = weekNum;
+          } else {
+            colLabel.textContent = '';
+          }
+          block.appendChild(colLabel);
+        }
+        blocksContainer.appendChild(block);
+      }
+      labelRow.appendChild(blocksContainer);
+      gridContainer.appendChild(labelRow);
+
+      // 2. Create Age Rows
+      for (let age = 0; age < lifeExpectancy; age++) {
+        const row = document.createElement('div');
+        row.className = 'grid-row';
+        
+        // Add vertical spacing block gap every 5 years
+        if ((age + 1) % 5 === 0 && age < lifeExpectancy - 1) {
+          row.classList.add('five-year-gap');
+        }
+        
+        // Age label on the left
+        const ageLabel = document.createElement('div');
+        ageLabel.className = 'age-label';
+        ageLabel.textContent = age;
+        row.appendChild(ageLabel);
+        
+        // Blocks container for columns
+        const rowBlocks = document.createElement('div');
+        rowBlocks.className = 'row-blocks';
+        
+        for (let b = 0; b < 13; b++) {
+          const block = document.createElement('div');
+          block.className = 'week-block';
+          
+          for (let w = 0; w < 4; w++) {
+            const weekIndex = age * 52 + (b * 4 + w);
+            const box = document.createElement('div');
+            box.className = 'week-box';
+            box.dataset.index = weekIndex;
+            box.dataset.age = age;
+            box.dataset.weekNum = b * 4 + w + 1;
+            
+            updateBoxStyle(box, weekIndex, age);
+            
+            block.appendChild(box);
+          }
+          rowBlocks.appendChild(block);
+        }
+        row.appendChild(rowBlocks);
+        gridContainer.appendChild(row);
+      }
+    }
+
+    // Refresh entire board
+    function updateDashboard() {
+      updateStateFromInputs();
+      calculateStatistics();
+      renderGrid();
+      saveState();
+    }
+
+    // ==========================================
+    // INTERACTION & LISTENERS
+    // ==========================================
+
+    // Auto-update inputs on change
+    birthDateInput.addEventListener('change', updateDashboard);
+    lifeExpectancyInput.addEventListener('input', updateDashboard);
+    retirementAgeInput.addEventListener('input', updateDashboard);
+    themeSelect.addEventListener('change', updateDashboard);
+
+    // Reset button listener
+    resetBtn.addEventListener('click', () => {
+      birthDateInput.value = DEFAULTS.birthDate;
+      lifeExpectancyInput.value = DEFAULTS.lifeExpectancy;
+      retirementAgeInput.value = DEFAULTS.retirementAge;
+      themeSelect.value = DEFAULTS.theme;
+      updateDashboard();
+    });
+
+    // Tooltip Mouse Interaction
+    gridContainer.addEventListener('mouseover', (e) => {
+      const box = e.target.closest('.week-box');
+      if (!box) return;
+      
+      const index = parseInt(box.dataset.index);
+      const age = parseInt(box.dataset.age);
+      const weekNum = parseInt(box.dataset.weekNum);
+      
+      // Date bounds calculation for this exact week
+      const startMs = birthDate.getTime() + index * 7 * 24 * 60 * 60 * 1000;
+      const weekStartDate = new Date(startMs);
+      const weekEndDate = new Date(startMs + 6 * 24 * 60 * 60 * 1000);
+      
+      const formatDate = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      };
+
+      const stage = getStageInfo(age);
+      
+      let statusHtml = '';
+      if (index < weeksLived) {
+        statusHtml = '<span style="color: var(--text-muted); font-weight: 600;">지나온 시간 (Lived)</span>';
+      } else if (index === weeksLived) {
+        statusHtml = '<span style="color: var(--color-current); font-weight: 800; text-shadow: 0 0 4px rgba(239,68,68,0.3);">★ 이번 주 (This Week)</span>';
+      } else {
+        statusHtml = '<span style="color: var(--primary-accent); font-weight: 600;">남은 시간 (Future)</span>';
+      }
+
+      tooltip.innerHTML = `
+        <div class="tooltip-header">나이 ${age}세 · ${weekNum}주차</div>
+        <div class="tooltip-dates">${formatDate(weekStartDate)} ~ ${formatDate(weekEndDate)}</div>
+        <div class="tooltip-stage">
+          <span class="tooltip-stage-dot" style="background: ${box.style.backgroundColor || 'transparent'}; border: 1px solid ${box.style.borderColor}"></span>
+          <span>${stage.name}</span>
+        </div>
+        <div class="tooltip-status">상태: ${statusHtml}</div>
+      `;
+      
+      tooltip.classList.remove('hidden');
+
+      // Coordinate placement relative to viewport
+      const rect = box.getBoundingClientRect();
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      tooltip.style.left = `${rect.left + rect.width / 2 + scrollLeft}px`;
+      tooltip.style.top = `${rect.top - 6 + scrollTop}px`;
+    });
+
+    gridContainer.addEventListener('mouseout', (e) => {
+      if (e.target.closest('.week-box')) {
+        tooltip.classList.add('hidden');
+      }
+    });
+
+    // ==========================================
+    // EXPORT INFOGRAPHIC AS PNG
+    // ==========================================
+    exportBtn.addEventListener('click', async () => {
+      exportBtn.disabled = true;
+      const originalHtml = exportBtn.innerHTML;
+      exportBtn.innerHTML = `<span class="spinner"></span> 이미지 렌더링 중...`;
+
+      // Save styling configurations
+      const originalWidth = captureArea.style.width;
+      const originalMaxHeight = captureArea.style.maxHeight;
+      const originalOverflow = captureArea.style.overflow;
+      const originalBorder = captureArea.style.border;
+      const originalBoxShadow = captureArea.style.boxShadow;
+
+      // Force container width and full visibility to draw cleanly on canvas
+      captureArea.style.width = '880px';
+      captureArea.style.maxHeight = 'none';
+      captureArea.style.overflow = 'visible';
+      captureArea.style.border = 'none';
+      captureArea.style.boxShadow = 'none';
+
+      // Slight timeout for layout adjustments to trigger in renderer
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      const activeThemeClass = document.body.className;
+      let computedBg = '#0b0f19'; // fallback dark mode background
+
+      if (activeThemeClass.includes('theme-classic-light')) computedBg = '#f8fafc';
+      else if (activeThemeClass.includes('theme-cyberpunk')) computedBg = '#050515';
+      else if (activeThemeClass.includes('theme-forest')) computedBg = '#111e16';
+      else if (activeThemeClass.includes('theme-sunset')) computedBg = '#1c0e18';
+
+      html2canvas(captureArea, {
+        scale: 2, // Capture in double resolution for sharp rendering
+        useCORS: false, // Set to false to avoid cross-origin tainted canvas security issues under file://
+        backgroundColor: computedBg,
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Additional custom styles inside the cloned area for printing if necessary
+          const clonedArea = clonedDoc.getElementById('capture-area');
+          clonedArea.style.borderRadius = '0';
+          clonedArea.style.padding = '40px';
+        }
+      }).then(canvas => {
+        // Reset properties
+        captureArea.style.width = originalWidth;
+        captureArea.style.maxHeight = originalMaxHeight;
+        captureArea.style.overflow = originalOverflow;
+        captureArea.style.border = originalBorder;
+        captureArea.style.boxShadow = originalBoxShadow;
+
+        // Convert to blob and download to handle large images and file:// restrictions robustly
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            alert('이미지 파일 생성에 실패했습니다.');
+            exportBtn.disabled = false;
+            exportBtn.innerHTML = originalHtml;
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const formattedDate = birthDateInput.value;
+          link.download = `life_calendar_${formattedDate}.png`;
+          link.href = url;
+          link.click();
+
+          // Revoke the object URL after a small delay to free memory
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+          }, 1000);
+
+          // Restore button state
+          exportBtn.disabled = false;
+          exportBtn.innerHTML = originalHtml;
+        }, 'image/png');
+      }).catch(err => {
+        console.error('Export Error:', err);
+        alert('이미지 저장을 완료할 수 없습니다. 시스템 설정을 확인해 주세요.');
+        
+        // Ensure restoration on error
+        captureArea.style.width = originalWidth;
+        captureArea.style.maxHeight = originalMaxHeight;
+        captureArea.style.overflow = originalOverflow;
+        captureArea.style.border = originalBorder;
+        captureArea.style.boxShadow = originalBoxShadow;
+        
+        exportBtn.disabled = false;
+        exportBtn.innerHTML = originalHtml;
+      });
+    });
+
+    // Run on startup
+    loadSavedState();
+    updateDashboard();
+
+  </script>
+</body>
+</html>
