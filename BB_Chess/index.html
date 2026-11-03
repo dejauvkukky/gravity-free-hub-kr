@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>쁘니토체스 (BB Chess) - 3D 피규어 오토배틀러</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 9:16 모바일 반응형 컨테이너 (논리 해상도 390 x 844) -->
+  <div id="device-wrapper">
+
+    <!-- ==================== 상단 상태 HUD ==================== -->
+    <header class="game-header px-3 py-2 text-white flex items-center justify-between gap-2 z-20">
+      <div class="flex items-center min-w-0">
+        <div class="px-2.5 py-0.5 rounded-lg bg-gradient-to-b from-amber-300 to-amber-500 border border-yellow-100 text-stone-950 font-black text-[11px] tracking-tight shadow-sm shrink-0">
+          <span id="stage-badge">STAGE 1 / 15</span>
+        </div>
+      </div>
+
+      <!-- 플레이어 체력 · 골드 · 유틸 버튼 -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <div class="resource-pill" title="플레이어 체력">
+          <span id="hud-heart-icon" class="flex items-center"></span>
+          <span id="hp-text" class="text-[11.5px] font-black text-rose-100">100</span>
+        </div>
+
+        <button id="gold-pill-btn" type="button" class="resource-pill cursor-pointer active:scale-95" title="골드 및 이자 상세">
+          <span id="hud-coin-icon" class="flex items-center"></span>
+          <span id="gold-text" class="text-[11.5px] font-black text-amber-300">10G</span>
+        </button>
+
+        <button id="btn-open-codex" type="button" class="icon-square-btn" title="30종 피규어 & 시너지 도감"></button>
+        <button id="btn-fullscreen" type="button" class="icon-square-btn text-amber-200" title="전체화면으로 보기"></button>
+        <button id="btn-open-settings" type="button" class="icon-square-btn" title="설정 & 메뉴"></button>
+      </div>
+    </header>
+
+    <!-- 골드 이자 & 연승 툴팁 팝오버 (100% 불투명 솔리드 배경) -->
+    <div id="gold-tooltip" class="hidden absolute top-12 right-12 z-50 w-64 p-3.5 rounded-2xl text-white text-[11.5px] border-2 border-amber-500 shadow-2xl" style="background-color: #15100c;">
+      <div class="font-black text-amber-300 mb-2 pb-1.5 border-b border-amber-500/30 flex items-center justify-between">
+        <span class="flex items-center gap-1.5">
+          <span class="text-amber-400">골드(코스트) 수입 정산표</span>
+        </span>
+        <span id="tooltip-streak-badge" class="text-[10px] px-2 py-0.5 bg-stone-800 text-amber-200 rounded-full font-bold">-</span>
+      </div>
+      <div class="space-y-1.5 text-stone-200 font-bold">
+        <div class="flex justify-between py-0.5 border-b border-stone-800/60"><span>기본 라운드 보수</span><span class="font-black text-emerald-400">+5G</span></div>
+        <div class="flex justify-between py-0.5 border-b border-stone-800/60"><span>이자 (10G당 +1, 최대 +5)</span><span id="tooltip-interest" class="font-black text-amber-300">+1G</span></div>
+        <div class="flex justify-between py-0.5 border-b border-stone-800/60"><span>연승 / 연패 보너스</span><span id="tooltip-streak" class="font-black text-sky-300">+0G</span></div>
+        <div class="flex justify-between py-0.5"><span>모험항해 승리 보너스</span><span id="tooltip-voyage" class="font-black text-cyan-300">+0G</span></div>
+      </div>
+      <div class="mt-2 pt-1 text-[9.5px] text-stone-400 text-center border-t border-stone-800">
+        화면 아무 곳이나 터치하면 닫힙니다
+      </div>
+    </div>
+
+    <!-- ==================== 레벨/XP 바 & 활성 시너지 문장 리스트 (영역 초과 방지 & 공간 확보) ==================== -->
+    <section class="tactical-strip px-2.5 py-1.5 flex items-center gap-2 z-10 w-full overflow-hidden">
+      <!-- 좌측 레벨 & XP 요약 박스 (공간 확보 및 가림 현상 방지) -->
+      <div class="level-status-pill flex items-center gap-2 px-2.5 py-1.5 shrink-0 min-w-[126px]">
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-1 leading-tight mb-1">
+            <span id="level-text" class="text-xs font-black text-amber-300 tracking-tight">Lv.3</span>
+            <span id="board-cap-text" class="text-[9.5px] font-black px-1.5 py-0.5 rounded bg-sky-500/25 text-sky-200">0/3</span>
+          </div>
+          <div class="w-full h-1.5 bg-stone-700/80 rounded-full overflow-hidden">
+            <div id="xp-bar-fill" class="h-full bg-gradient-to-r from-sky-400 to-cyan-300 transition-all duration-200" style="width: 0%;"></div>
+          </div>
+        </div>
+        <span id="xp-text" class="text-[9.5px] font-extrabold text-stone-300 shrink-0 whitespace-nowrap">0/4</span>
+      </div>
+
+      <!-- 중앙 활성 시너지 가로 스크롤 영역 (min-w-0으로 영역 초과 방지) -->
+      <div class="relative flex-1 min-w-0 flex items-center">
+        <div id="synergy-strip" class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 w-full scroll-smooth touch-pan-x"></div>
+        <!-- 우측 스크롤 페이드 인디케이터 -->
+        <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-l from-[#e4ceb0] to-transparent"></div>
+      </div>
+
+      <!-- 우측 전체 시너지 한눈에 보기 버튼 -->
+      <button id="btn-synergy-all" type="button" class="shrink-0 px-2 py-1 rounded-xl bg-stone-900 hover:bg-stone-800 border border-amber-500/60 text-amber-300 text-[10px] font-black flex items-center gap-1 shadow-sm active:scale-95 transition-all" title="부대 전체 시너지 목록 보기">
+        <span id="synergy-all-label">시너지</span>
+        <span id="synergy-all-count" class="px-1.5 py-[0.5px] rounded-full bg-amber-400 text-stone-950 font-black text-[9px]">0</span>
+      </button>
+    </section>
+
+    <!-- ==================== 중앙 5x6 디오라마 전장 Canvas ==================== -->
+    <main id="arena-container" class="relative flex-none">
+      <canvas id="battle-canvas" width="356" height="428"></canvas>
+
+      <!-- 스테이지 웨이브 서브배너 -->
+      <div id="wave-banner" class="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-stone-950/78 text-amber-100 text-[10px] font-extrabold border border-amber-400/35 shadow backdrop-blur-sm whitespace-nowrap">
+        1라운드 · 꼬마 들판 정찰대
+      </div>
+
+      <!-- 전투 타이머 배지 -->
+      <div id="combat-timer-pill" class="hidden pointer-events-none absolute top-2 right-5 px-2.5 py-0.5 rounded-full bg-rose-700/95 border border-rose-300/60 text-white text-[10.5px] font-black shadow">
+        0.0s
+      </div>
+
+      <!-- 토스트 알림 -->
+      <div id="toast-layer" class="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 z-30 w-80 flex flex-col items-center gap-1"></div>
+    </main>
+
+    <!-- ==================== 1열 7칸 원목 피규어 진열대 대기석 (Bench) ==================== -->
+    <section class="bench-shelf px-2.5 py-1.5 flex items-center justify-between">
+      <div id="bench-grid" class="flex items-center justify-between w-full gap-1"></div>
+    </section>
+
+    <!-- ==================== 하단 커맨드 데크 & 5슬롯 컬렉터 상점 ==================== -->
+    <footer class="shop-deck flex-1 px-2.5 pt-1.5 pb-2.5 text-white flex flex-col justify-between z-20">
+      <!-- 선택 기물 빠른 제어 바 (선택 시에만 노출되어 평소 상점 공간 완전히 확보) -->
+      <div id="selected-unit-actions" class="hidden items-center justify-end gap-1.5 text-[10px] leading-none mb-1 shrink-0">
+        <button id="btn-inspect-selected" type="button" class="px-2 py-0.5 rounded-md bg-slate-700 hover:bg-slate-600 border border-slate-500 text-[10px] font-extrabold text-sky-200 flex items-center gap-1"></button>
+        <button id="btn-sell-selected" type="button" class="px-2 py-0.5 rounded-md bg-rose-700 hover:bg-rose-600 border border-rose-400 text-[10px] font-extrabold text-white flex items-center gap-1"></button>
+      </div>
+
+      <!-- 3D 택타일 액션 버튼 4종 -->
+      <div class="grid grid-cols-12 gap-1.5 mb-2">
+        <button id="btn-buy-xp" type="button" class="btn-3d btn-3d-blue col-span-3 py-1.5 px-1 text-[11px]"></button>
+        <button id="btn-reroll" type="button" class="btn-3d btn-3d-gold col-span-3 py-1.5 px-1 text-[11px]"></button>
+        <button id="btn-lock" type="button" class="btn-3d btn-3d-slate col-span-2 py-1.5 px-1 text-[10.5px]"></button>
+        <button id="btn-start-combat" type="button" class="btn-3d btn-3d-battle col-span-4 py-1.5 px-2 text-[12px]"></button>
+      </div>
+
+      <!-- 5칸 피규어 부티크 상점 쇼케이스 (차양막 어닝 + 쇼케이스 매대) -->
+      <div class="shop-boutique-wrapper relative flex-1 flex flex-col justify-between">
+        <!-- 상점 어닝 차양막 헤더 (Storefront Awning Canopy) -->
+        <div class="shop-awning-header relative w-full flex flex-col items-center">
+          <!-- 상단 루프 빔 & 미니 매장 간판 -->
+          <div class="shop-awning-beam w-full flex items-center justify-between px-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm"></span>
+            <div class="shop-signboard flex items-center gap-1">
+              <span id="shop-sign-icon" class="flex items-center text-amber-300"></span>
+              <span>피규어 상점</span>
+            </div>
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm"></span>
+          </div>
+
+          <!-- 3D 스트라이프 패브릭 어닝 차양막 (SVG Scalloped Awning) -->
+          <svg class="shop-awning-svg w-full" viewBox="0 0 370 20" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="awningRed" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9f1239"/>
+                <stop offset="25%" stop-color="#e11d48"/>
+                <stop offset="60%" stop-color="#f43f5e"/>
+                <stop offset="100%" stop-color="#881337"/>
+              </linearGradient>
+              <linearGradient id="awningCream" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ca8a04"/>
+                <stop offset="25%" stop-color="#fef08a"/>
+                <stop offset="60%" stop-color="#ffffff"/>
+                <stop offset="100%" stop-color="#eab308"/>
+              </linearGradient>
+            </defs>
+            <path d="M 0.0 0 L 37.0 0 L 37.0 15 Q 18.5 20 0.0 15 Z" fill="url(#awningRed)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 37.0 0 L 74.0 0 L 74.0 15 Q 55.5 20 37.0 15 Z" fill="url(#awningCream)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 74.0 0 L 111.0 0 L 111.0 15 Q 92.5 20 74.0 15 Z" fill="url(#awningRed)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 111.0 0 L 148.0 0 L 148.0 15 Q 129.5 20 111.0 15 Z" fill="url(#awningCream)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 148.0 0 L 185.0 0 L 185.0 15 Q 166.5 20 148.0 15 Z" fill="url(#awningRed)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 185.0 0 L 222.0 0 L 222.0 15 Q 203.5 20 185.0 15 Z" fill="url(#awningCream)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 222.0 0 L 259.0 0 L 259.0 15 Q 240.5 20 222.0 15 Z" fill="url(#awningRed)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 259.0 0 L 296.0 0 L 296.0 15 Q 277.5 20 259.0 15 Z" fill="url(#awningCream)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 296.0 0 L 333.0 0 L 333.0 15 Q 314.5 20 296.0 15 Z" fill="url(#awningRed)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+            <path d="M 333.0 0 L 370.0 0 L 370.0 15 Q 351.5 20 333.0 15 Z" fill="url(#awningCream)" stroke="rgba(0,0,0,0.2)" stroke-width="0.8" />
+          </svg>
+        </div>
+
+        <!-- 5칸 카드 쇼케이스 매대 & 드래그 판매 드롭존 -->
+        <div class="relative flex-1 flex items-center pt-0.5">
+          <div id="shop-cards" class="flex items-center justify-between gap-1.5 w-full"></div>
+
+          <div id="sell-dropzone" class="hidden absolute inset-0 rounded-xl bg-gradient-to-b from-rose-600/95 to-rose-800/95 border-2 border-dashed border-amber-200 flex items-center justify-center gap-2 font-black text-sm text-white shadow-xl z-20">
+            <span id="sell-dropzone-icon" class="flex items-center"></span>
+            <span>여기에 놓아서 피규어 판매</span>
+            <span id="sell-dropzone-price" class="px-2.5 py-0.5 rounded-full bg-amber-300 text-stone-950 text-xs font-black">+1G</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ==================== 1. 오프닝 타이틀 스크린 (전체 일러스트 배경 모바일 스플래시) ==================== -->
+    <div id="title-screen" class="absolute inset-0 z-50 flex flex-col justify-between p-4 text-white overflow-hidden">
+      <!-- 1) 전체 화면 일러스트 배경 이미지 & 시네마틱 오버레이 (캐시 버스팅 적용) -->
+      <img src="./Title.png?v=2" alt="쁘니토체스 공식 일러스트" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-stone-950/85 pointer-events-none z-0"></div>
+
+      <!-- 2) 상단 브랜드 로고 (위치 하향 조정) -->
+      <div class="relative z-10 w-full flex flex-col items-center mt-14">
+        <h1 class="font-display text-4xl tracking-wide text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-amber-300 to-amber-500 drop-shadow-[0_4px_12px_rgba(0,0,0,0.85)]">
+          쁘니토체스
+        </h1>
+        <p class="text-[10.5px] text-amber-100/90 font-black tracking-widest mt-1 drop-shadow">MALLANG PPUNI TACTICAL ARENA</p>
+      </div>
+
+      <!-- 3) 중앙은 일러스트 속 피규어들이 시원하게 보이도록 비워둠 -->
+      <div class="flex-1 pointer-events-none"></div>
+
+      <!-- 4) 하단 모바일 글래스모피즘 액션 독 (위치 상향 조정) -->
+      <div class="relative z-10 w-full space-y-2.5 mb-10 bg-stone-950/80 backdrop-blur-md p-3.5 rounded-3xl border border-amber-500/40 shadow-2xl">
+        <button id="btn-enter-game" type="button" class="btn-3d btn-3d-gold btn-title-pulse w-full py-3.5 rounded-2xl text-base font-black tracking-wider flex items-center justify-center gap-2">
+          <span>TOUCH TO START</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-open-guide" type="button" class="py-2.5 px-3 rounded-xl bg-stone-900/90 hover:bg-stone-800 border border-stone-700/80 text-amber-200 text-xs font-black flex items-center justify-center gap-1.5 shadow active:scale-95 transition-all">
+            <span id="title-guide-icon" class="flex items-center"></span>
+            <span>게임 방법 & 룰</span>
+          </button>
+          <button id="btn-title-codex" type="button" class="py-2.5 px-3 rounded-xl bg-stone-900/90 hover:bg-stone-800 border border-stone-700/80 text-sky-200 text-xs font-black flex items-center justify-center gap-1.5 shadow active:scale-95 transition-all">
+            <span id="title-codex-icon" class="flex items-center"></span>
+            <span>30종 피규어 도감</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 2. 피규어 / 시너지 상세 모달 ==================== -->
+    <div id="detail-modal" class="modal-backdrop hidden">
+      <div class="w-full max-h-[750px] bg-stone-900 text-stone-100 rounded-2xl shadow-2xl border-2 border-amber-500/60 flex flex-col overflow-hidden">
+        <div class="px-4 py-3 bg-stone-950 border-b border-stone-800 flex items-center justify-between">
+          <h3 id="detail-modal-title" class="font-black text-sm text-amber-300 flex items-center gap-1.5">상세 정보</h3>
+          <button id="btn-close-detail" type="button" class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div id="detail-modal-body" class="p-4 overflow-y-auto text-xs space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 3. 30종 피규어 & 13종 시너지 도감 모달 (캐릭터 하나씩 넘기기 + 그리드 전환) ==================== -->
+    <div id="codex-modal" class="modal-backdrop hidden">
+      <div class="w-full h-[780px] max-h-[94%] bg-stone-900 text-stone-100 rounded-2xl shadow-2xl border-2 border-amber-500/60 flex flex-col overflow-hidden">
+        <!-- 상단 헤더 & 뷰 모드 토글 바 -->
+        <div class="px-3.5 py-2.5 bg-stone-950 border-b border-stone-800 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <h2 class="font-black text-xs sm:text-sm text-amber-300 truncate">피규어 컬렉션 도감</h2>
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0">
+            <!-- 뷰 모드 전환 버튼 -->
+            <div class="flex items-center bg-stone-900 p-0.5 rounded-lg border border-stone-700/80">
+              <button id="btn-codex-card-view" type="button" class="px-2 py-1 rounded text-[10px] font-black flex items-center gap-1 bg-amber-400 text-stone-950">
+                <span id="codex-card-icon" class="flex items-center"></span>
+                <span>단일 카드</span>
+              </button>
+              <button id="btn-codex-grid-view" type="button" class="px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 text-stone-300 hover:text-white">
+                <span id="codex-grid-icon" class="flex items-center"></span>
+                <span>모아보기</span>
+              </button>
+            </div>
+
+            <button id="btn-close-codex" type="button" class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 flex items-center justify-center shrink-0">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 필터 탭 바 -->
+        <div id="codex-tabs" class="px-3 py-1.5 bg-stone-950/70 border-b border-stone-800 flex items-center gap-1 overflow-x-auto no-scrollbar text-[10.5px] font-extrabold shrink-0">
+          <button data-filter="ALL" class="codex-tab px-2.5 py-1 rounded-lg bg-amber-400 text-stone-950">전체(30)</button>
+          <button data-filter="1" class="codex-tab px-2.5 py-1 rounded-lg bg-stone-800 text-stone-300">1코(8)</button>
+          <button data-filter="2" class="codex-tab px-2.5 py-1 rounded-lg bg-stone-800 text-stone-300">2코(7)</button>
+          <button data-filter="3" class="codex-tab px-2.5 py-1 rounded-lg bg-stone-800 text-stone-300">3코(6)</button>
+          <button data-filter="4" class="codex-tab px-2.5 py-1 rounded-lg bg-stone-800 text-stone-300">4코(5)</button>
+          <button data-filter="5" class="codex-tab px-2.5 py-1 rounded-lg bg-stone-800 text-stone-300">5코(4)</button>
+          <button data-filter="SYN" class="codex-tab px-2.5 py-1 rounded-lg bg-stone-800 text-amber-300">시너지(13)</button>
+        </div>
+
+        <!-- 도감 메인 바디 컨테이너 -->
+        <div id="codex-body" class="p-3 overflow-y-auto flex-1 text-xs"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. 별도 게임 가이드 & 룰북 모달 (슬라이드 카드 시스템) ==================== -->
+    <div id="guide-modal" class="modal-backdrop hidden">
+      <div class="w-full max-h-[85vh] max-w-[360px] bg-stone-900 text-stone-100 rounded-3xl shadow-2xl border-2 border-amber-500/70 flex flex-col overflow-hidden">
+        <!-- 모달 상단 헤더 & 페이지 인디케이터 배지 -->
+        <div class="px-4 py-3 bg-stone-950 border-b border-stone-800 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span id="guide-modal-crown" class="flex items-center text-amber-400"></span>
+            <h2 class="font-black text-sm text-amber-300">핵심 룰 & 가이드</h2>
+            <span id="guide-page-badge" class="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 font-black text-[10px]">1 / 4</span>
+          </div>
+          <button id="btn-close-guide" type="button" class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 flex items-center justify-center transition-all active:scale-95">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <!-- 슬라이드 카드보드 컨테이너 (터치 스와이프 지원) -->
+        <div id="guide-slider-container" class="relative w-full flex-1 p-3.5 flex flex-col justify-center overflow-hidden touch-pan-y">
+          
+          <!-- 슬라이드 1: 3성 피규어 합성 -->
+          <div class="guide-slide" data-slide="0">
+            <div class="rule-cardboard border-amber-500/60 bg-gradient-to-br from-amber-950/50 via-stone-900 to-stone-950 flex flex-col justify-between min-h-[265px] p-4">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="rule-step-badge bg-amber-500/20 text-amber-300 border border-amber-500/40">STEP 1 · 피규어 진화</span>
+                  <span class="text-[10px] font-black text-amber-300 bg-amber-950/90 px-2 py-0.5 rounded-full border border-amber-500/30">스탯 1.8배 폭증</span>
+                </div>
+                <div class="font-black text-amber-200 text-base flex items-center gap-1.5 mb-2.5">
+                  <span id="guide-card-icon-1" class="flex items-center text-amber-400"></span>
+                  <span>동일 3체 합성 & 3성 승급</span>
+                </div>
+                
+                <!-- 비주얼 수식 다이어그램 칩 -->
+                <div class="rule-formula-box bg-stone-950/90 border border-amber-500/30 mb-3 flex items-center justify-around py-2 px-2 text-[11px] font-black text-stone-200">
+                  <span class="px-2 py-1 rounded-lg bg-stone-800 border border-stone-600 text-amber-200">1성 × 3체</span>
+                  <span class="text-amber-400 font-black">▶</span>
+                  <span class="px-2 py-1 rounded-lg bg-sky-950 border border-sky-400 text-sky-200">2성 피규어</span>
+                  <span class="text-amber-400 font-black">▶</span>
+                  <span class="px-2 py-1 rounded-lg bg-amber-500/30 border border-amber-400 text-yellow-300 flex items-center gap-1">
+                    <span id="guide-formula-crown-1" class="flex items-center"></span>
+                    <span>3성 왕관</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 text-stone-300 text-xs leading-relaxed">
+                <div class="flex items-start gap-1.5">
+                  <span class="text-amber-400 font-black shrink-0">·</span>
+                  <span>대기석과 전장의 동일 피규어(1성) 3체가 모이면 <b>즉시 2성으로 자동 승급</b>됩니다.</span>
+                </div>
+                <div class="flex items-start gap-1.5">
+                  <span class="text-amber-400 font-black shrink-0">·</span>
+                  <span>2성 피규어 3체가 모이면 <b>황금 왕관 3성 피규어</b>로 최종 진화하며 능력치가 성급당 <b>1.8배씩 폭발적으로 증폭</b>됩니다.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 슬라이드 2: 13종 시너지 & 궁극기 -->
+          <div class="guide-slide hidden" data-slide="1">
+            <div class="rule-cardboard border-sky-500/60 bg-gradient-to-br from-sky-950/50 via-stone-900 to-stone-950 flex flex-col justify-between min-h-[265px] p-4">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="rule-step-badge bg-sky-500/20 text-sky-300 border border-sky-500/40">STEP 2 · 팀 시너지</span>
+                  <span class="text-[10px] font-black text-sky-300 bg-sky-950/90 px-2 py-0.5 rounded-full border border-sky-500/30">마나 100 필살기</span>
+                </div>
+                <div class="font-black text-sky-200 text-base flex items-center gap-1.5 mb-2.5">
+                  <span id="guide-card-icon-2" class="flex items-center text-sky-400"></span>
+                  <span>13종 시너지 조합 & 궁극기</span>
+                </div>
+
+                <!-- 비주얼 수식 다이어그램 칩 -->
+                <div class="rule-formula-box bg-stone-950/90 border border-sky-500/30 mb-3 flex items-center justify-around py-2 px-2 text-[10.5px] font-black">
+                  <span class="text-cyan-300">계열 7종 (동물/스위트 등)</span>
+                  <span class="text-stone-500 font-extrabold">+</span>
+                  <span class="text-blue-300">직업 6종 (선봉/타격 등)</span>
+                  <span class="text-stone-500 font-extrabold">▶</span>
+                  <span class="text-emerald-300">아군 전체 버프</span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 text-stone-300 text-xs leading-relaxed">
+                <div class="flex items-start gap-1.5">
+                  <span class="text-sky-400 font-black shrink-0">·</span>
+                  <span>전장에 같은 계열·직업 피규어를 모으면 <b>고유 시너지 팀 버프</b>가 활성화됩니다.</span>
+                </div>
+                <div class="flex items-start gap-1.5">
+                  <span class="text-sky-400 font-black shrink-0">·</span>
+                  <span>모든 피규어는 전투 중 공격/피격으로 <b>마나가 100에 도달하면 고유 궁극기</b>를 자동 시전합니다.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 슬라이드 3: 이자 경제 & 레벨업 -->
+          <div class="guide-slide hidden" data-slide="2">
+            <div class="rule-cardboard border-emerald-500/60 bg-gradient-to-br from-emerald-950/50 via-stone-900 to-stone-950 flex flex-col justify-between min-h-[265px] p-4">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="rule-step-badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">STEP 3 · 골드 경제</span>
+                  <span class="text-[10px] font-black text-emerald-300 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-500/30">최대 +5G 이자</span>
+                </div>
+                <div class="font-black text-emerald-200 text-base flex items-center gap-1.5 mb-2.5">
+                  <span id="guide-card-icon-3" class="flex items-center text-emerald-400"></span>
+                  <span>10G 이자 경제 & 부대 레벨업</span>
+                </div>
+
+                <!-- 비주얼 수식 다이어그램 칩 -->
+                <div class="rule-formula-box bg-stone-950/90 border border-emerald-500/30 mb-3 flex items-center justify-around py-2 px-2 text-[10.5px] font-black">
+                  <span class="text-amber-300">10G당 +1G (최대 5G)</span>
+                  <span class="text-stone-500">|</span>
+                  <span class="text-emerald-300">연승/연패 보너스</span>
+                  <span class="text-stone-500">|</span>
+                  <span class="text-sky-300">레벨업 = 전설 출현↑</span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 text-stone-300 text-xs leading-relaxed">
+                <div class="flex items-start gap-1.5">
+                  <span class="text-emerald-400 font-black shrink-0">·</span>
+                  <span>골드를 모으면 10G 단위마다 <b>+1G의 이자(최대 +5G)</b>와 연승/연패 추가 보너스가 지급됩니다.</span>
+                </div>
+                <div class="flex items-start gap-1.5">
+                  <span class="text-emerald-400 font-black shrink-0">·</span>
+                  <span><b>[XP 구매(4G)]</b>로 레벨을 올려 전장 배치 인원을 늘리고 <b>5코스트 전설 피규어 확률</b>을 높이세요!</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 슬라이드 4: 조작 가이드 -->
+          <div class="guide-slide hidden" data-slide="3">
+            <div class="rule-cardboard border-rose-500/60 bg-gradient-to-br from-rose-950/50 via-stone-900 to-stone-950 flex flex-col justify-between min-h-[265px] p-4">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="rule-step-badge bg-rose-500/20 text-rose-300 border border-rose-500/40">STEP 4 · 조작법</span>
+                  <span class="text-[10px] font-black text-rose-300 bg-rose-950/90 px-2 py-0.5 rounded-full border border-rose-500/30">직관적 제어</span>
+                </div>
+                <div class="font-black text-rose-200 text-base flex items-center gap-1.5 mb-2.5">
+                  <span id="guide-card-icon-4" class="flex items-center text-rose-400"></span>
+                  <span>직관적인 터치 조작법</span>
+                </div>
+              </div>
+
+              <!-- 3대 터치 컨트롤 카드 -->
+              <div class="space-y-2 mb-1">
+                <div class="p-2 rounded-xl bg-stone-950/80 border border-stone-800 flex items-center justify-between">
+                  <span class="text-amber-300 font-black text-xs">드래그 & 드롭</span>
+                  <span class="text-stone-300 text-[11px]">대기석 ↔ 전장 자유 배치 & 맞교환(스왑)</span>
+                </div>
+                <div class="p-2 rounded-xl bg-stone-950/80 border border-stone-800 flex items-center justify-between">
+                  <span class="text-sky-300 font-black text-xs">더블 탭</span>
+                  <span class="text-stone-300 text-[11px]">대기석 피규어 터치 시 전장 빈자리 즉시 출격</span>
+                </div>
+                <div class="p-2 rounded-xl bg-stone-950/80 border border-stone-800 flex items-center justify-between">
+                  <span class="text-rose-300 font-black text-xs">상점 판매 드래그</span>
+                  <span class="text-stone-300 text-[11px]">하단 상점으로 끌어놓으면 즉시 골드 환급</span>
+                </div>
+              </div>
+
+              <p class="text-stone-400 text-[10.5px] text-center pt-1">
+                언제든 좌우로 스와이프하거나 하단 버튼으로 카드를 넘길 수 있습니다.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 슬라이드 내비게이션 툴바 (이전 / 도트 인디케이터 / 다음) -->
+        <div class="px-4 py-2.5 bg-stone-950 border-t border-stone-800 flex items-center justify-between shrink-0">
+          <button id="btn-guide-prev" type="button" class="px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-black text-xs flex items-center gap-1 transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none">
+            <span id="guide-prev-icon"></span>
+            <span>이전</span>
+          </button>
+
+          <!-- 4개 슬라이드 도트 인디케이터 -->
+          <div id="guide-dots-container" class="flex items-center gap-1.5">
+            <button type="button" class="guide-dot active w-5 h-2 rounded-full bg-amber-400 transition-all" data-dot="0"></button>
+            <button type="button" class="guide-dot w-2 h-2 rounded-full bg-stone-700 hover:bg-stone-600 transition-all" data-dot="1"></button>
+            <button type="button" class="guide-dot w-2 h-2 rounded-full bg-stone-700 hover:bg-stone-600 transition-all" data-dot="2"></button>
+            <button type="button" class="guide-dot w-2 h-2 rounded-full bg-stone-700 hover:bg-stone-600 transition-all" data-dot="3"></button>
+          </div>
+
+          <button id="btn-guide-next" type="button" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs flex items-center gap-1 transition-all active:scale-95 shadow">
+            <span id="guide-next-text">다음</span>
+            <span id="guide-next-icon"></span>
+          </button>
+        </div>
+
+        <!-- 하단 바로 게임 시작 버튼 -->
+        <div class="px-4 pb-3 pt-1 bg-stone-950 shrink-0">
+          <button id="btn-guide-confirm" type="button" class="w-full py-2.5 rounded-xl font-black text-xs text-stone-300 hover:text-white bg-stone-900 hover:bg-stone-850 border border-stone-700/80 transition-all active:scale-95 flex items-center justify-center gap-1.5">
+            <span>가이드 닫기 & 바로 시작</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 5. 인게임 일시정지 & 설정 모달 (모바일 전용 리디자인) ==================== -->
+    <div id="settings-modal" class="modal-backdrop hidden">
+      <div class="settings-modal-card w-full max-w-[340px] text-stone-100 flex flex-col">
+        <!-- 모달 상단 헤더 -->
+        <div class="px-4 py-3 bg-stone-950/90 border-b border-amber-500/40 flex items-center justify-between">
+          <h2 class="font-black text-sm text-amber-300 flex items-center gap-2">
+            <span id="settings-header-icon" class="flex items-center text-amber-400"></span>
+            <span>게임 설정 & 메뉴</span>
+          </h2>
+          <button id="btn-close-settings" type="button" class="w-7 h-7 rounded-lg bg-stone-800/90 hover:bg-stone-700 text-stone-300 flex items-center justify-center transition-all active:scale-95">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="p-4 space-y-3.5 text-xs">
+          <!-- 1) 현재 원정 상태 요약 & 상점 확률표 카드 -->
+          <div class="bg-black/60 rounded-2xl p-3 border border-amber-500/30 space-y-2.5 shadow-inner">
+            <div class="text-[10.5px] font-black text-amber-300/90 flex items-center justify-between border-b border-stone-800/80 pb-1.5">
+              <span>현재 전투 원정 상태</span>
+              <span class="text-[9.5px] font-bold text-stone-400">SESSION HUD</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-stone-300">
+              <div class="settings-stat-box flex items-center justify-between">
+                <span class="text-[10px] text-stone-400">진행 스테이지</span>
+                <span id="settings-stat-stage" class="font-black text-amber-300 text-xs">STAGE 1</span>
+              </div>
+              <div class="settings-stat-box flex items-center justify-between">
+                <span class="text-[10px] text-stone-400">수호 체력</span>
+                <span id="settings-stat-hp" class="font-black text-rose-400 text-xs">100</span>
+              </div>
+              <div class="settings-stat-box flex items-center justify-between">
+                <span class="text-[10px] text-stone-400">보유 골드</span>
+                <span id="settings-stat-gold" class="font-black text-amber-300 text-xs">10G</span>
+              </div>
+              <div class="settings-stat-box flex items-center justify-between">
+                <span class="text-[10px] text-stone-400">부대 레벨</span>
+                <span id="settings-stat-level" class="font-black text-sky-300 text-xs">Lv.3</span>
+              </div>
+            </div>
+
+            <!-- 현재 레벨 상점 코스트별 등장 확률표 -->
+            <div class="mt-2 pt-2 border-t border-amber-500/25 space-y-1.5">
+              <div class="flex items-center justify-between text-[10px] font-bold text-stone-300">
+                <span class="flex items-center gap-1.5">
+                  <span id="settings-odds-icon" class="flex items-center text-amber-400"></span>
+                  <span>상점 코스트별 등장 확률</span>
+                </span>
+                <span id="settings-odds-level-badge" class="text-sky-300 font-black text-[9.5px] px-1.5 py-0.5 rounded bg-sky-950/80 border border-sky-500/40">Lv.3 기준</span>
+              </div>
+              <div id="settings-odds-bar" class="grid grid-cols-5 gap-1.5 text-center pt-0.5"></div>
+            </div>
+          </div>
+
+          <!-- 2) 설정 제어 액션 목록 -->
+          <div class="space-y-2">
+            <!-- 효과음 토글 -->
+            <button id="btn-settings-sound" type="button" class="settings-action-btn bg-stone-900/95 hover:bg-stone-850 border border-stone-700/80 text-stone-200">
+              <span class="flex items-center gap-2.5">
+                <span id="settings-sound-icon" class="flex items-center text-amber-400"></span>
+                <span>효과음 사운드</span>
+              </span>
+              <span id="settings-sound-status" class="sound-toggle-badge is-on">켜짐</span>
+            </button>
+
+            <!-- 게임 가이드 & 룰북 -->
+            <button id="btn-settings-guide" type="button" class="settings-action-btn bg-stone-900/95 hover:bg-stone-850 border border-stone-700/80 text-stone-200">
+              <span class="flex items-center gap-2.5">
+                <span id="settings-guide-icon" class="flex items-center text-amber-400"></span>
+                <span>게임 룰 & 도움말 확인</span>
+              </span>
+              <span class="text-amber-300/80 text-[11px] font-black">열기 &gt;</span>
+            </button>
+
+            <!-- 새 게임 재시작 -->
+            <button id="btn-settings-restart" type="button" class="settings-action-btn bg-sky-950/70 hover:bg-sky-900/80 border border-sky-500/40 text-sky-200">
+              <span class="flex items-center gap-2.5">
+                <span id="settings-restart-icon" class="flex items-center text-sky-400"></span>
+                <span>새 게임으로 재시작</span>
+              </span>
+              <span class="text-sky-300 text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-900/80 border border-sky-400/30">STAGE 1</span>
+            </button>
+
+            <!-- 타이틀 화면으로 나가기 -->
+            <button id="btn-settings-title" type="button" class="settings-action-btn bg-rose-950/70 hover:bg-rose-900/80 border border-rose-500/40 text-rose-200">
+              <span class="flex items-center gap-2.5">
+                <span id="settings-title-icon" class="flex items-center text-rose-400"></span>
+                <span>게임 중단 및 타이틀 이동</span>
+              </span>
+              <span class="text-rose-300 text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-900/80 border border-rose-400/30">나가기</span>
+            </button>
+          </div>
+
+          <!-- 3) 하단 게임 복귀 메인 버튼 -->
+          <button id="btn-settings-resume" type="button" class="btn-3d btn-3d-gold w-full py-3 rounded-2xl font-black text-sm text-stone-950 flex items-center justify-center gap-2 shadow-lg">
+            <span>게임으로 돌아가기</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 6. 라운드 정산 & 클리어 / 게임오버 모달 ==================== -->
+    <div id="settle-modal" class="modal-backdrop hidden">
+      <div class="w-full bg-stone-900 text-stone-100 rounded-2xl shadow-2xl border-2 border-amber-400/70 overflow-hidden">
+        <div id="settle-header" class="px-4 py-3 text-center text-white font-black text-base bg-emerald-700 flex items-center justify-center gap-2">
+          라운드 승리
+        </div>
+        <div id="settle-body" class="p-4 space-y-3 text-xs"></div>
+        <div class="p-3 bg-stone-950 border-t border-stone-800">
+          <button id="btn-next-round" type="button" class="btn-3d btn-3d-gold w-full py-2.5 rounded-xl text-sm font-black">
+            다음 스테이지 준비
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 정적 모듈 스크립트 순차 로드 -->
+  <script src="db.js"></script>
+  <script src="ui_icons.js"></script>
+  <script src="shop.js"></script>
+  <script src="combat.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

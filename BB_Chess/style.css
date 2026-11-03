@@ -1,0 +1,714 @@
+/* ============================================================================
+   『쁘니토체스 (BB Chess)』 - 상용 게임풍 3D 토이 디오라마 UI & 컬렉터 카드 스타일시트
+   ============================================================================ */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+:root {
+  --frame-w: 390px;
+  --frame-h: 844px;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Pretendard', 'Malgun Gothic', -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at 50% 18%, #4a3525 0%, #231812 52%, #0f0a08 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.font-display {
+  font-family: 'Jua', 'Pretendard', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* PC 화면 중앙 모바일 베젤 컨테이너 */
+#device-wrapper {
+  position: relative;
+  width: var(--frame-w);
+  height: var(--frame-h);
+  background: linear-gradient(180deg, #f6e7d2 0%, #edd7bc 55%, #241914 55.1%, #17100d 100%);
+  border-radius: 36px;
+  border: 7px solid #1e1612;
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.78),
+    0 0 0 2px rgba(251, 191, 36, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform-origin: center center;
+}
+
+/* 모바일 접속 시 PC용 베젤 프레임/그림자/외곽선 완전 제거 및 전체화면(Full Screen) 밀착 */
+@media (max-width: 640px), (hover: none) and (pointer: coarse) {
+  #device-wrapper {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* 상단 월넛 & 브라스 게임 헤더 */
+.game-header {
+  background: linear-gradient(180deg, #322018 0%, #1f140f 100%);
+  border-bottom: 2px solid #b45309;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 235, 200, 0.14);
+}
+
+/* 글로시 리소스 캡슐 (체력 · 골드) */
+.resource-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px 3px 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #160f0c 0%, #291d17 100%);
+  border: 1.5px solid rgba(251, 191, 36, 0.45);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.icon-square-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #473226 0%, #2b1d16 100%);
+  border: 1.5px solid #78533a;
+  box-shadow: 0 2px 0 #140d0a, inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.icon-square-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #140d0a;
+}
+
+/* 레벨 & 시너지 전술 바 */
+.tactical-strip {
+  background: linear-gradient(180deg, #efe0c9 0%, #e4ceb0 100%);
+  border-bottom: 1.5px solid #c5a47e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  min-height: 48px;
+}
+
+.level-status-pill {
+  background: linear-gradient(180deg, #241a15 0%, #150f0c 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.55);
+  border-radius: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* 전장 캔버스 래퍼 */
+#arena-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+#battle-canvas {
+  width: 356px;
+  height: 428px;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 18px rgba(45, 26, 12, 0.32),
+    0 0 0 2.5px #6b462b,
+    inset 0 0 0 1.5px rgba(255, 232, 195, 0.5);
+  touch-action: none;
+  cursor: pointer;
+}
+
+/* 7칸 원목 피규어 진열대 대기석 (3D Collector Shelf) */
+.bench-shelf {
+  background: linear-gradient(180deg, #6e482d 0%, #4b2f1c 75%, #362012 100%);
+  border-top: 2px solid #9a6b47;
+  border-bottom: 3px solid #1d110a;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.bench-slot {
+  position: relative;
+  width: 49px;
+  height: 68px;
+  border-radius: 9px;
+  background: radial-gradient(circle at 50% 75%, rgba(255, 238, 212, 0.15) 0%, rgba(24, 14, 8, 0.5) 100%);
+  border: 1.5px solid rgba(196, 148, 102, 0.38);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.bench-slot-header {
+  width: 100%;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3.5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+.bench-stage-body {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 빈 슬롯 내 미니 원형 받침 홈 */
+.bench-slot::before {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  width: 32px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(15, 10, 6, 0.42);
+  border: 1px solid rgba(255, 224, 180, 0.18);
+  pointer-events: none;
+}
+
+.bench-slot.occupied {
+  background: radial-gradient(circle at 50% 45%, rgba(255, 247, 230, 0.25) 0%, rgba(28, 18, 12, 0.55) 100%);
+  border-width: 1.8px;
+}
+.bench-slot.occupied::before {
+  display: none;
+}
+
+/* 대기석 피규어 입체 받침대 */
+.bench-pedestal {
+  position: absolute;
+  bottom: 2px;
+  width: 38px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.bench-figurine-img {
+  position: relative;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+  margin-bottom: 2px;
+}
+
+.bench-slot-footer {
+  width: 100%;
+  height: 14px;
+  background: rgba(15, 23, 42, 0.94);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3px;
+  z-index: 5;
+}
+
+.bench-name-text {
+  font-size: 8px;
+  font-weight: 900;
+  color: #fef08a;
+  line-height: 1;
+  max-width: 25px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bench-syn-icon {
+  width: 10px;
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bench-slot.selected {
+  transform: translateY(-4px) scale(1.04);
+  border-color: #facc15 !important;
+  box-shadow: 0 0 0 2px #facc15, 0 6px 14px rgba(250, 204, 21, 0.4);
+}
+
+.bench-slot.drop-hover {
+  border-color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.25) !important;
+  transform: scale(1.05);
+}
+
+/* 하단 상점 커맨드 데크 */
+.shop-deck {
+  background: linear-gradient(180deg, #241914 0%, #150e0b 100%);
+}
+
+/* 상점 부티크 쇼케이스 프레임 & 어닝 차양막 */
+.shop-boutique-wrapper {
+  background: radial-gradient(circle at 50% 15%, rgba(245, 158, 11, 0.1) 0%, rgba(20, 13, 8, 0.95) 100%);
+  border: 1.5px solid rgba(217, 119, 6, 0.4);
+  border-radius: 14px;
+  padding: 3px 6px 6px 6px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7), 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.shop-awning-header {
+  margin-bottom: 3px;
+}
+
+.shop-awning-beam {
+  height: 15px;
+  background: linear-gradient(180deg, #854d0e 0%, #5c2c0f 50%, #3e1b08 100%);
+  border-top: 1.2px solid #fbbf24;
+  border-bottom: 1.2px solid #220f04;
+  border-radius: 9px 9px 0 0;
+  box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.6);
+  position: relative;
+  z-index: 10;
+}
+
+.shop-signboard {
+  font-size: 9px;
+  font-weight: 900;
+  color: #fef08a;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.6px;
+  padding: 0 8px;
+  background: rgba(18, 9, 4, 0.75);
+  border-radius: 999px;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.shop-awning-svg {
+  height: 16px;
+  filter: drop-shadow(0 3.5px 3.5px rgba(0, 0, 0, 0.65));
+  position: relative;
+  z-index: 8;
+  margin-top: -1px;
+}
+
+/* 3D 베벨 아케이드 게임 버튼 */
+.btn-3d {
+  position: relative;
+  border-radius: 11px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease, box-shadow 0.08s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+.btn-3d:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.btn-3d:active:not(:disabled) {
+  transform: translateY(3px);
+}
+
+.btn-3d-blue {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border: 1.5px solid #bae6fd;
+  box-shadow: 0 3.5px 0 #075985, 0 5px 10px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+}
+.btn-3d-blue:active:not(:disabled) { box-shadow: 0 0.5px 0 #075985; }
+
+.btn-3d-gold {
+  background: linear-gradient(180deg, #fde047 0%, #eab308 55%, #ca8a04 100%);
+  border: 1.5px solid #fef9c3;
+  box-shadow: 0 3.5px 0 #854d0e, 0 5px 10px rgba(0, 0, 0, 0.4);
+  color: #291805;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.btn-3d-gold:active:not(:disabled) { box-shadow: 0 0.5px 0 #854d0e; }
+
+.btn-3d-slate {
+  background: linear-gradient(180deg, #475569 0%, #334155 100%);
+  border: 1.5px solid #94a3b8;
+  box-shadow: 0 3.5px 0 #0f172a, 0 5px 10px rgba(0, 0, 0, 0.4);
+  color: #f1f5f9;
+}
+.btn-3d-slate.locked {
+  background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
+  border-color: #fde68a;
+  box-shadow: 0 3.5px 0 #451a03;
+  color: #fef9c3;
+}
+
+.btn-3d-battle {
+  background: linear-gradient(180deg, #fb7185 0%, #e11d48 52%, #be123c 100%);
+  border: 1.5px solid #fecdd3;
+  box-shadow: 0 3.5px 0 #881337, 0 5px 14px rgba(225, 29, 72, 0.45);
+  color: #ffffff;
+}
+.btn-3d-battle:active:not(:disabled) { box-shadow: 0 0.5px 0 #881337; }
+
+/* 5칸 상점 3D 피규어 컬렉터 블리스터 카드 */
+.shop-card {
+  position: relative;
+  flex: 1 1 0%;
+  min-width: 0;
+  height: 132px;
+  border-radius: 12px;
+  background: #1e293b;
+  border: 2px solid #64748b;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.14s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+.shop-card:hover:not(.empty) {
+  transform: translateY(-4px);
+}
+.shop-card:active:not(.empty) {
+  transform: scale(0.96);
+}
+
+.shop-card.empty {
+  background: rgba(30, 41, 59, 0.32);
+  border: 1.5px dashed rgba(100, 116, 139, 0.35);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  cursor: default;
+}
+
+.shop-stage-box {
+  position: relative;
+  height: 76px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 카드 내 미니 스포트라이트 받침 */
+.shop-stage-disc {
+  position: absolute;
+  bottom: 4px;
+  width: 44px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.shop-figurine-img {
+  position: relative;
+  z-index: 2;
+  width: 58px;
+  height: 70px;
+  margin-bottom: 3px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 4px rgba(15, 23, 42, 0.42));
+  transition: transform 0.18s ease;
+}
+
+.shop-card:hover .shop-figurine-img {
+  transform: scale(1.07) translateY(-2px);
+}
+
+.cost-1 { border-color: #94a3b8; }
+.cost-2 { border-color: #22c55e; }
+.cost-3 { border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25); }
+.cost-4 { border-color: #a855f7; box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35); }
+.cost-5 {
+  border-color: #facc15;
+  box-shadow: 0 0 0 1px #fde047, 0 5px 16px rgba(245, 158, 11, 0.48);
+}
+
+@keyframes mergePulse {
+  0%, 100% { box-shadow: 0 0 0 2px #facc15, 0 4px 12px rgba(250, 204, 21, 0.5); }
+  50% { box-shadow: 0 0 0 3.5px #fef08a, 0 6px 18px rgba(245, 158, 11, 0.85); }
+}
+.shop-card.merge-ready {
+  animation: mergePulse 1.15s infinite ease-in-out;
+}
+
+/* 시너지 메달리온 배지 (영역 이탈 방지 & 축약 지원) */
+.synergy-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  padding: 2px 7px 2px 4px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.synergy-pill:active { transform: scale(0.95); }
+.synergy-pill.active {
+  background: linear-gradient(180deg, #291d17 0%, #17100c 100%);
+  color: #fef08a;
+  border: 1.5px solid #f59e0b;
+  box-shadow: 0 2px 5px rgba(180, 83, 9, 0.35);
+}
+.synergy-pill.inactive {
+  background: rgba(255, 250, 242, 0.9);
+  color: #57534e;
+  border: 1px solid #bca386;
+}
+
+/* 토스트 메시지 */
+@keyframes toastPop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+  14% { opacity: 1; transform: translateY(0) scale(1); }
+  86% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.96); }
+}
+.toast-msg {
+  animation: toastPop 2.1s forwards ease-out;
+}
+
+/* 모달 백드롭 */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 9, 7, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 14px;
+}
+
+/* 모바일 타이틀 스타트 버튼 펄스 효과 */
+@keyframes titlePulse {
+  0%, 100% {
+    box-shadow: 0 4px 0 #78350f, 0 0 0 0 rgba(251, 191, 36, 0.6);
+  }
+  50% {
+    box-shadow: 0 4px 0 #78350f, 0 0 0 8px rgba(251, 191, 36, 0);
+  }
+}
+.btn-title-pulse {
+  animation: titlePulse 2.2s infinite ease-in-out;
+}
+
+/* 도감 캐러셀 스테이지 & 스탯 바 */
+.codex-stage-glow {
+  background: radial-gradient(circle at 50% 65%, rgba(251, 191, 36, 0.18) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 75%);
+}
+
+.stat-bar-track {
+  height: 5px;
+  background: #292524;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease-out;
+}
+
+/* 골드/코스트 수입 정산표 툴팁 팝오버 (100% 불투명 솔리드 다크 배경) */
+#gold-tooltip {
+  background: #14100d !important;
+  border: 2px solid #f59e0b !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.95), 0 0 15px rgba(245, 158, 11, 0.3) !important;
+  z-index: 60 !important;
+}
+
+/* 안내 토스트 팝업 (100% 불투명 솔리드 배경 & 높은 가독성) */
+.toast-msg {
+  position: relative;
+  z-index: 70 !important;
+  background-color: #1c1510 !important;
+  background: linear-gradient(180deg, #2a1f18 0%, #15100c 100%) !important;
+  color: #fef08a !important;
+  border: 1.5px solid #f59e0b !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9), 0 0 12px rgba(245, 158, 11, 0.35) !important;
+  padding: 8px 18px !important;
+  border-radius: 9999px !important;
+  font-size: 11.5px !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  animation: toastPop 2.2s forwards ease-out !important;
+  pointer-events: none;
+  max-width: 90%;
+}
+.toast-msg.toast-warn {
+  background: linear-gradient(180deg, #4c0519 0%, #29040e 100%) !important;
+  color: #ffe4e6 !important;
+  border-color: #f43f5e !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9), 0 0 12px rgba(244, 63, 94, 0.4) !important;
+}
+.toast-msg.toast-success {
+  background: linear-gradient(180deg, #064e3b 0%, #022c22 100%) !important;
+  color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9), 0 0 12px rgba(34, 197, 94, 0.4) !important;
+}
+
+/* 설정 메뉴창 리디자인 (Sleek Obsidian/Gold Mobile Game Modal) */
+.settings-modal-card {
+  background: linear-gradient(180deg, #231913 0%, #17110d 65%, #0f0a07 100%) !important;
+  border: 2px solid #d97706 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 25px rgba(217, 119, 6, 0.25) !important;
+  overflow: hidden;
+}
+
+/* 핵심 가이드 카드보드 스타일 (Boardgame Kraft Cardboard Cards) */
+.rule-cardboard {
+  position: relative;
+  border-width: 1.8px;
+  border-radius: 18px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.15s ease;
+}
+
+.rule-step-badge {
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.rule-formula-box {
+  border-radius: 12px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.65);
+}
+
+/* 슬라이드 카드 애니메이션 & 도트 인디케이터 */
+.guide-slide {
+  animation: guideSlideFade 0.22s ease-out;
+}
+
+@keyframes guideSlideFade {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.guide-dot {
+  cursor: pointer;
+}
+
+.guide-dot.active {
+  width: 20px !important;
+  border-radius: 999px !important;
+  background: #f59e0b !important;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6) !important;
+}
+
+.settings-stat-box {
+  background: rgba(15, 11, 8, 0.95);
+  border: 1.2px solid rgba(217, 119, 6, 0.3);
+  border-radius: 14px;
+  padding: 8px 10px;
+}
+
+.settings-odds-chip {
+  background: rgba(15, 11, 8, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  padding: 5px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.settings-action-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 11.5px;
+  transition: all 0.15s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+.settings-action-btn:active {
+  transform: scale(0.97);
+}
+
+.sound-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  transition: all 0.2s ease;
+}
+.sound-toggle-badge.is-on {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1.2px solid #10b981;
+  color: #6ee7b7;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+.sound-toggle-badge.is-off {
+  background: rgba(120, 113, 108, 0.2);
+  border: 1.2px solid #78716c;
+  color: #a8a29e;
+}
+
+.hidden {
+  display: none !important;
+}
