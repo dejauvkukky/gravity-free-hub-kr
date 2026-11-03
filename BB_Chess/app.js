@@ -150,6 +150,19 @@ const AppController = {
     // 정적 커스텀 SVG 아이콘 주입
     this.mountStaticIcons();
 
+    // 초기 로딩 인디케이터 DOM 참조 & 진행률 핸들러
+    const loadingScreen = document.getElementById('initial-loading-screen');
+    const loadingBarFill = document.getElementById('loading-bar-fill');
+    const loadingStatusText = document.getElementById('loading-status-text');
+    const loadingPercentText = document.getElementById('loading-percent-text');
+
+    const updateProgress = (loaded, total, name) => {
+      const pct = Math.floor((loaded / total) * 100);
+      if (loadingBarFill) loadingBarFill.style.width = `${pct}%`;
+      if (loadingPercentText) loadingPercentText.textContent = `${pct}%`;
+      if (loadingStatusText) loadingStatusText.textContent = `피규어 로딩: ${name} (${loaded}/${total})`;
+    };
+
     ShopSystem.onToastCallback = (msg, type) => this.showToast(msg, type);
     ShopSystem.onSynthesizeCallback = (unitId, newStar, anchor) => {
       const spec = PUNI_MAP[unitId];
@@ -171,8 +184,21 @@ const AppController = {
     const canvas = document.getElementById('battle-canvas');
     CombatSystem.init(canvas);
 
-    // 30종 투명 배경 3D 피규어 에셋 프리로드
-    await this.preloadFigurineSprites();
+    // 30종 투명 배경 3D 피규어 에셋 프리로드 (로딩 인디케이터 진행률 연동)
+    await this.preloadFigurineSprites(updateProgress);
+
+    if (loadingPercentText) loadingPercentText.textContent = '100%';
+    if (loadingStatusText) loadingStatusText.textContent = '말랑쁘니 준비 완료!';
+    if (loadingBarFill) loadingBarFill.style.width = '100%';
+    await new Promise((r) => setTimeout(r, 260));
+
+    // 로딩 완료 후 부드럽게 페이드아웃
+    if (loadingScreen) {
+      loadingScreen.classList.add('fade-out');
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+      }, 350);
+    }
 
     this.startNewGame();
     this.bindEvents();
@@ -182,18 +208,35 @@ const AppController = {
   fitViewport() {
     const wrapper = document.getElementById('device-wrapper');
     if (!wrapper) return;
-    const isMobileDevice = window.innerWidth <= 640 || (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
-    if (isMobileDevice) {
+
+    // 스마트폰 세로 뷰포트 (폭 480px 이하 & 세로 종횡비 1.4 이상)
+    const isMobilePhone = window.innerWidth <= 480 && (window.innerHeight / window.innerWidth) >= 1.4;
+    if (isMobilePhone) {
       wrapper.style.transform = 'none';
       return;
     }
-    const scaleX = (window.innerWidth - 24) / 390;
-    const scaleY = (window.innerHeight - 24) / 844;
-    const scale = Math.min(1, scaleX, scaleY);
-    wrapper.style.transform = `scale(${scale.toFixed(4)})`;
+
+    // 태블릿(iPad, Galaxy Tab 등) 및 PC 모니터:
+    // 화면 높이(H)와 너비(W) 중 작은 축을 기준으로 상하좌우 안전 여백을 고려하여 100% 비율 축척!
+    // -> 절대로 하단(상점, 대기석, 버튼)이 잘리지 않고 화면 중앙에 한눈에 들어옵니다.
+    const paddingX = window.innerWidth < 768 ? 16 : 32;
+    const paddingY = window.innerHeight < 820 ? 16 : 32;
+
+    const scaleX = (window.innerWidth - paddingX) / 390;
+    const scaleY = (window.innerHeight - paddingY) / 844;
+
+    // 태블릿 세로 모드(iPad 등 고해상도 대화면)에서는 최대 1.25배까지 시원하게 확장 렌더링
+    const isTabletPortrait = window.innerWidth >= 600 && window.innerWidth <= 1100 && window.innerHeight >= 900;
+    const maxScale = isTabletPortrait ? 1.25 : 1.0;
+
+    const scale = Math.min(maxScale, scaleX, scaleY);
+    wrapper.style.transform = `scale(${Math.max(0.42, scale).toFixed(4)})`;
   },
 
   mountStaticIcons() {
+    const loadCrown = document.getElementById('loading-crown-icon');
+    if (loadCrown) loadCrown.innerHTML = GameIcons.svg('crown', 28);
+
     document.getElementById('hud-heart-icon').innerHTML = GameIcons.svg('heart', 15);
     document.getElementById('hud-coin-icon').innerHTML = GameIcons.svg('coin', 16);
     document.getElementById('btn-open-codex').innerHTML = GameIcons.svg('book', 17);
@@ -247,18 +290,24 @@ const AppController = {
     return `./assets/figurines/${unitId}.png`;
   },
 
-  async preloadFigurineSprites() {
+  async preloadFigurineSprites(onProgress) {
     const statusEl = document.getElementById('sprite-load-status');
     let loaded = 0;
+    const total = PUNI_LIST.length;
 
     await Promise.all(PUNI_LIST.map((u) => new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         AppState.spriteCache[u.id] = img;
         loaded++;
+        if (onProgress) onProgress(loaded, total, u.name);
         resolve();
       };
-      img.onerror = () => resolve();
+      img.onerror = () => {
+        loaded++;
+        if (onProgress) onProgress(loaded, total, u.name);
+        resolve();
+      };
       img.src = this.getFigurineSrc(u.id);
     })));
 
@@ -1376,7 +1425,29 @@ const AppController = {
     }
   },
 
-  toggleFullscreen() {
+  wakeLockSentinel: null,
+
+  async requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator && !this.wakeLockSentinel) {
+        this.wakeLockSentinel = await navigator.wakeLock.request('screen');
+        this.wakeLockSentinel.addEventListener('release', () => {
+          this.wakeLockSentinel = null;
+        });
+      }
+    } catch (_) {}
+  },
+
+  releaseWakeLock() {
+    try {
+      if (this.wakeLockSentinel) {
+        this.wakeLockSentinel.release();
+        this.wakeLockSentinel = null;
+      }
+    } catch (_) {}
+  },
+
+  async toggleFullscreen() {
     const doc = document;
     const docEl = document.documentElement;
     const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
@@ -1384,13 +1455,46 @@ const AppController = {
     if (!isFs) {
       const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
       if (req) {
-        req.call(docEl).catch(() => {});
+        try {
+          await req.call(docEl, { navigationUI: 'hide' });
+        } catch (_) {
+          try { await req.call(docEl); } catch (e) {}
+        }
       }
+
+      // 1. 세로 화면(Portrait) 강제 잠금 시도
+      try {
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('portrait');
+        } else if (screen.lockOrientation) {
+          screen.lockOrientation('portrait');
+        } else if (screen.webkitLockOrientation) {
+          screen.webkitLockOrientation('portrait');
+        } else if (screen.mozLockOrientation) {
+          screen.mozLockOrientation('portrait');
+        }
+      } catch (_) {}
+
+      // 2. 화면 자동 절전/꺼짐 방지 (Wake Lock) 활성화
+      await this.requestWakeLock();
+      this.showToast('세로 전체화면 및 화면 켜짐 유지 활성화', 'success');
     } else {
       const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
       if (exit) {
-        exit.call(doc).catch(() => {});
+        try {
+          await exit.call(doc);
+        } catch (_) {}
       }
+
+      // 세로 잠금 해제
+      try {
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        } else if (screen.unlockOrientation) {
+          screen.unlockOrientation();
+        }
+      } catch (_) {}
+      this.showToast('전체화면 종료', 'info');
     }
     setTimeout(() => this.updateFullscreenUI(), 100);
   },
@@ -1499,6 +1603,7 @@ const AppController = {
     document.getElementById('btn-enter-game').onclick = async () => {
       await SoundEngine.unlock();
       SoundEngine.play('merge2');
+      await this.requestWakeLock();
       document.getElementById('title-screen').classList.add('hidden');
     };
 
@@ -1681,8 +1786,35 @@ const AppController = {
         this.toggleFullscreen();
       };
     }
-    document.addEventListener('fullscreenchange', () => this.updateFullscreenUI());
-    document.addEventListener('webkitfullscreenchange', () => this.updateFullscreenUI());
+
+    const handleFsChange = async () => {
+      this.updateFullscreenUI();
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+      if (isFs) {
+        try {
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('portrait');
+          }
+        } catch (_) {}
+        await this.requestWakeLock();
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+
+    // 모바일 브라우저 백그라운드 전환 후 복귀 시 화면 켜짐 유지(Wake Lock) 자동 재요청
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible') {
+        await this.requestWakeLock();
+      }
+    });
+
+    // 최초 사용자 터치/클릭 제스처 시 화면 꺼짐 방지 자동 활성화
+    const keepWakeLockOnUserAction = async () => {
+      await this.requestWakeLock();
+    };
+    window.addEventListener('touchstart', keepWakeLockOnUserAction, { passive: true, once: true });
+    window.addEventListener('click', keepWakeLockOnUserAction, { passive: true, once: true });
 
     document.getElementById('synergy-strip').addEventListener('click', (e) => {
       const pill = e.target.closest('[data-synergy]');

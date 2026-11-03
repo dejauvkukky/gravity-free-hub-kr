@@ -54,8 +54,8 @@ html, body {
   transform-origin: center center;
 }
 
-/* 모바일 접속 시 PC용 베젤 프레임/그림자/외곽선 완전 제거 및 전체화면(Full Screen) 밀착 */
-@media (max-width: 640px), (hover: none) and (pointer: coarse) {
+/* 스마트폰 세로 접속 시: 외곽 베젤 프레임 제거 및 화면 100% 밀착 */
+@media screen and (max-width: 480px) and (orientation: portrait) {
   #device-wrapper {
     width: 100vw !important;
     height: 100dvh !important;
@@ -65,6 +65,32 @@ html, body {
     border: none !important;
     box-shadow: none !important;
     transform: none !important;
+  }
+}
+
+/* 태블릿 (iPad, Galaxy Tab) 및 PC: 9:16 종횡비 유지 및 중앙 정렬 (하단 짤림 방지) */
+@media screen and (min-width: 481px) {
+  #device-wrapper {
+    max-height: 100dvh;
+    border: 5px solid #231812;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 0 2px rgba(251, 191, 36, 0.2);
+  }
+}
+
+/* 초기 로딩 인디케이터 스크린 페이드아웃 애니메이션 */
+#initial-loading-screen {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+#initial-loading-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.02);
+  pointer-events: none;
+}
+
+/* 모바일 가로 모드 진입 시 세로 회전 유도 오버레이 노출 */
+@media screen and (orientation: landscape) and (max-height: 520px) {
+  #landscape-blocker {
+    display: flex !important;
   }
 }
 
