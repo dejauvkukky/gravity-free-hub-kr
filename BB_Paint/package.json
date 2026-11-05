@@ -1,0 +1,19 @@
+{
+  "name": "bb-paint",
+  "version": "1.0.0",
+  "description": "쁘니 페인터즈 (Ppeuni Painters) - 모바일 4인 P2P 3D Turf Battle 게임",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve -l 3000"
+  },
+  "keywords": [
+    "threejs",
+    "peerjs",
+    "p2p",
+    "splatoon-lite",
+    "game"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

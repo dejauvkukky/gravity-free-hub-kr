@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>쁘니 페인터즈 (Ppeuni Painters)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+  <!-- Google Fonts: Bagel Fat One, Do Hyeon, Jua & Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Do+Hyeon&family=Jua&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <!-- PeerJS CDN -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- 글로벌 오류 감지 배너 스크립트 -->
+  <script>
+    window.addEventListener('error', function(e) {
+      console.error('글로벌 오류 감지:', e);
+      var banner = document.getElementById('debug-err-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'debug-err-banner';
+        banner.style.cssText = 'position:fixed;bottom:10px;left:10px;right:10px;background:rgba(235,59,90,0.95);color:#fff;padding:12px;border-radius:12px;font-size:13px;z-index:999999;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+        document.body ? document.body.appendChild(banner) : window.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(banner); });
+      }
+      banner.textContent = '⚠️ 오류 발생: ' + (e.message || e);
+    });
+  </script>
+</head>
+<body>
+  <!-- 3D WebGL Canvas Container -->
+  <div id="game-container"></div>
+
+  <!-- HUD 레이어 (게임 중 상시 표시) -->
+  <div id="hud-layer" class="ui-layer hidden">
+    <!-- 상단 점유율 게이지 바 -->
+    <div class="hud-top-bar">
+      <div class="progress-bar-container">
+        <div id="bar-p1" class="bar-segment p1-bg" style="width: 25%;">
+          <span class="bar-label"><span class="char-dot p1-bg"></span><span class="bar-text">말랑쁘니 0%</span></span>
+        </div>
+        <div id="bar-p2" class="bar-segment p2-bg" style="width: 25%;">
+          <span class="bar-label"><span class="char-dot p2-bg"></span><span class="bar-text">강아지쁘니 0%</span></span>
+        </div>
+        <div id="bar-p3" class="bar-segment p3-bg" style="width: 25%;">
+          <span class="bar-label"><span class="char-dot p3-bg"></span><span class="bar-text">시크릿쁘니 0%</span></span>
+        </div>
+        <div id="bar-p4" class="bar-segment p4-bg" style="width: 25%;">
+          <span class="bar-label"><span class="char-dot p4-bg"></span><span class="bar-text">돼지쁘니 0%</span></span>
+        </div>
+      </div>
+
+      <!-- 상단 중앙 타이머 및 상태 -->
+      <div class="timer-badge" id="timer-badge">
+        <svg class="ui-icon icon-timer" viewBox="0 0 24 24" width="22" height="22" fill="none"><circle cx="12" cy="13" r="8" stroke="#FF4757" stroke-width="2.5"/><path d="M12 9v4l2.5 2" stroke="#FF4757" stroke-width="2.5" stroke-linecap="round"/><path d="M12 2v3M9 2h6" stroke="#FF4757" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <span id="timer-text">60</span>
+      </div>
+
+      <div class="hud-buttons">
+        <button id="btn-sound" class="icon-btn sound-btn" aria-label="사운드 토글" title="사운드 켜기/끄기">
+          <svg class="ui-icon icon-speaker" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </button>
+        <button id="btn-ingame-exit" class="icon-btn exit-btn" aria-label="게임 나가기" title="게임 나가기">
+          <svg class="ui-icon icon-exit" viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 17 21 12 16 7" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 내 캐릭터 안내 뱃지 -->
+    <div id="my-player-badge" class="my-badge">
+      <img id="my-badge-img" src="assets/player_1.png" alt="캐릭터">
+      <div class="my-badge-info">
+        <div class="my-badge-tag">MY CHARACTER</div>
+        <div id="my-badge-name" class="my-badge-name">말랑쁘니</div>
+      </div>
+    </div>
+
+    <!-- 룸 코드 워터마크 -->
+    <div id="room-code-tag" class="room-code-tag">
+      ROOM: <span id="hud-room-code">----</span>
+    </div>
+  </div>
+
+  <!-- 가상 조이스틱 터치 영역 -->
+  <div id="joystick-zone">
+    <div id="joystick-base" class="joystick-base hidden">
+      <div id="joystick-stick" class="joystick-stick"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       1. 타이틀 화면 (Title Screen - 상용 게임급 풀 일러스트 배경)
+       ======================================================== -->
+  <div id="title-screen" class="game-screen ui-layer">
+    <!-- 풀스크린 일러스트 배경 아트워크 -->
+    <div class="title-bg-art">
+      <div class="sky-gradient"></div>
+      <div class="sun-rays"></div>
+      <div class="cloud-layer">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+      </div>
+      
+      <!-- 다이내믹 컬러 페인트 스플래시 바닥 -->
+      <div class="paint-splatters">
+        <div class="splat splat-red"></div>
+        <div class="splat splat-blue"></div>
+        <div class="splat splat-yellow"></div>
+        <div class="splat splat-pink"></div>
+      </div>
+
+      <!-- 쁘니 4인방 히어로 일러스트 쇼케이스 -->
+      <div class="hero-char-group">
+        <div class="hero-char char-secret">
+          <img src="assets/player_3.png" alt="시크릿쁘니">
+          <span class="char-tag p3-tag">시크릿쁘니</span>
+        </div>
+        <div class="hero-char char-malang">
+          <img src="assets/player_1.png" alt="말랑쁘니">
+          <span class="char-tag p1-tag">말랑쁘니</span>
+        </div>
+        <div class="hero-char char-dog">
+          <img src="assets/player_2.png" alt="강아지쁘니">
+          <span class="char-tag p2-tag">강아지쁘니</span>
+        </div>
+        <div class="hero-char char-pig">
+          <img src="assets/player_4.png" alt="돼지쁘니">
+          <span class="char-tag p4-tag">돼지쁘니</span>
+        </div>
+      </div>
+
+      <!-- 공중에 떠다니는 컬러 페인트 방울 & 반짝임 -->
+      <div class="paint-bubbles">
+        <span class="bubble b1"></span>
+        <span class="bubble b2"></span>
+        <span class="bubble b3"></span>
+        <span class="bubble b4"></span>
+        <span class="bubble b5"></span>
+      </div>
+    </div>
+
+    <!-- 타이틀 상단 유틸리티 버튼 -->
+    <div class="title-top-bar">
+      <button id="btn-how-to-play" class="btn-pill-icon" title="게임 방법">
+        <svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.2"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2 2-2 3.5m0 3.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span class="pill-text">게임 방법</span>
+      </button>
+      <button id="btn-title-sound" class="btn-pill-icon sound-btn" title="사운드 켜기/끄기">
+        <svg class="ui-icon icon-speaker" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <span class="pill-text">사운드</span>
+      </button>
+    </div>
+
+    <!-- 중앙 타이틀 로고 영역 -->
+    <div class="title-main-content">
+      <div class="title-badge-wrap">
+        <span class="title-badge">3D REALTIME TURF BATTLE</span>
+      </div>
+      <div class="game-main-title">
+        <svg class="title-logo-svg" viewBox="0 0 540 115" width="540" height="115">
+          <defs>
+            <linearGradient id="titleFillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFF066" />
+              <stop offset="42%" stop-color="#FFA000" />
+              <stop offset="100%" stop-color="#EE2737" />
+            </linearGradient>
+            <filter id="title3DDepth" x="-15%" y="-15%" width="130%" height="140%">
+              <feDropShadow dx="0" dy="6" stdDeviation="0" flood-color="#8E0E1B" />
+              <feDropShadow dx="0" dy="12" stdDeviation="5" flood-color="rgba(0,0,0,0.5)" />
+            </filter>
+          </defs>
+          <text x="270" y="80" 
+                text-anchor="middle" 
+                font-family="'Bagel Fat One', 'Do Hyeon', sans-serif" 
+                font-size="78" 
+                font-weight="900" 
+                letter-spacing="4"
+                fill="url(#titleFillGrad)" 
+                stroke="#FFFFFF" 
+                stroke-width="12" 
+                stroke-linejoin="round" 
+                paint-order="stroke fill" 
+                filter="url(#title3DDepth)">쁘니 페인터즈</text>
+        </svg>
+      </div>
+      <p class="title-tagline">3D 경기장을 친구들과 함께 알록달록 칠해보세요!</p>
+
+      <!-- 타이틀 시작 액션 버튼 -->
+      <div class="title-action-wrap">
+        <button id="btn-title-start" class="btn-title-cta">
+          <span class="cta-shine"></span>
+          <svg class="ui-icon" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          <span class="cta-text">터치하여 시작하기</span>
+        </button>
+        <button id="btn-title-quick-join" class="btn-title-sub">
+          <svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M13.13 2.21a1 1 0 00-1.42 0C7.23 6.7 5.6 11.83 6.55 16.5l-3.26 3.26a1 1 0 00.71 1.71h5.83l.89-.89c4.67.95 9.8-1.07 14.29-5.16a1 1 0 000-1.42L13.13 2.21z" fill="#1E90FF"/></svg>
+          <span>4자리 핀코드로 바로 입장</span>
+        </button>
+      </div>
+
+      <div class="title-footer-info">
+        <span>v1.2.0 Commercial Polish • Mobile & PC Compatible</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       2. 대전 모드 & 캐릭터 선택 화면 (Mode / Lobby Screen)
+       ======================================================== -->
+  <div id="mode-screen" class="game-screen ui-layer hidden">
+    <div class="screen-panel glass-panel">
+      <!-- 상단 네비게이션 헤더 -->
+      <div class="panel-header">
+        <button id="btn-mode-back-title" class="btn-back">
+          <span class="back-arrow">‹</span>
+          <span>타이틀로</span>
+        </button>
+        <h2 class="panel-title">대전 모드 & 캐릭터 선택</h2>
+        <div class="panel-header-right">
+          <button id="btn-mode-sound" class="btn-icon-sm sound-btn" title="사운드 토글">
+            <svg class="ui-icon icon-speaker" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-body scrollable-content">
+        <!-- 1) 내 캐릭터 선택 섹션 -->
+        <div class="section-card">
+          <div class="section-title-wrap">
+            <span class="section-title">내 캐릭터 선택</span>
+            <span class="section-subtitle">플레이할 귀여운 쁘니를 골라주세요!</span>
+          </div>
+
+          <div class="char-picker-grid">
+            <div class="picker-item p1-theme selected" data-char-id="1">
+              <div class="picker-check">✓</div>
+              <div class="char-avatar-box">
+                <img src="assets/player_1.png" alt="말랑쁘니">
+              </div>
+              <span class="picker-name">말랑쁘니</span>
+              <span class="picker-color">빨강</span>
+            </div>
+            <div class="picker-item p2-theme" data-char-id="2">
+              <div class="picker-check">✓</div>
+              <div class="char-avatar-box">
+                <img src="assets/player_2.png" alt="강아지쁘니">
+              </div>
+              <span class="picker-name">강아지쁘니</span>
+              <span class="picker-color">파랑</span>
+            </div>
+            <div class="picker-item p3-theme" data-char-id="3">
+              <div class="picker-check">✓</div>
+              <div class="char-avatar-box">
+                <img src="assets/player_3.png" alt="시크릿쁘니">
+              </div>
+              <span class="picker-name">시크릿쁘니</span>
+              <span class="picker-color">노랑</span>
+            </div>
+            <div class="picker-item p4-theme" data-char-id="4">
+              <div class="picker-check">✓</div>
+              <div class="char-avatar-box">
+                <img src="assets/player_4.png" alt="돼지쁘니">
+              </div>
+              <span class="picker-name">돼지쁘니</span>
+              <span class="picker-color">핑크</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) 플레이 방식 선택 카드 섹션 -->
+        <div class="section-card">
+          <div class="section-title-wrap">
+            <span class="section-title">플레이 방식 선택</span>
+            <span class="section-subtitle">친구와 대전하거나 빠른 AI 난투를 즐겨보세요!</span>
+          </div>
+
+          <div class="mode-cards-grid">
+            <!-- 모드 1: 방 만들기 (호스트) -->
+            <div class="mode-card mode-create" id="card-mode-create">
+              <div class="mode-card-badge">RECOMMENDED</div>
+              <div class="mode-card-icon icon-crown-box">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" fill="#FFA502"/></svg>
+              </div>
+              <h3 class="mode-card-title">방 만들기 (호스트)</h3>
+              <p class="mode-card-desc">직접 방장이 되어 4자리 코드를 친구에게 공유하고, 슬롯별 참가원(유저/AI)을 자유롭게 설정합니다.</p>
+              <button id="btn-create-room" class="btn btn-primary btn-block">
+                <span>방 만들기 ➔</span>
+              </button>
+            </div>
+
+            <!-- 모드 2: 방 입장하기 (코드 입력) -->
+            <div class="mode-card mode-join">
+              <div class="mode-card-icon icon-rocket-box">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none"><path d="M13.13 2.21a1 1 0 00-1.42 0C7.23 6.7 5.6 11.83 6.55 16.5l-3.26 3.26a1 1 0 00.71 1.71h5.83l.89-.89c4.67.95 9.8-1.07 14.29-5.16a1 1 0 000-1.42L13.13 2.21z" fill="#2E86DE"/></svg>
+              </div>
+              <h3 class="mode-card-title">방 입장하기</h3>
+              <p class="mode-card-desc">친구가 공유해 준 4자리 핀코드를 입력하여 바로 친구 방에 입장합니다.</p>
+              <div class="join-input-group">
+                <div class="input-wrap">
+                  <span class="input-prefix">TC-</span>
+                  <input type="number" id="input-room-code" placeholder="4자리" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+                </div>
+                <button id="btn-join-room" class="btn btn-secondary">
+                  <span>입장</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 모드 3: 빠른 AI 매치 (원클릭 솔로 난투) -->
+            <div class="mode-card mode-quick-ai" id="card-mode-quick">
+              <div class="mode-card-badge quick-badge">INSTANT PLAY</div>
+              <div class="mode-card-icon icon-bolt-box">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none"><path d="M13 2L3 14h8l-2 8 10-12h-8l2-8z" fill="#FF9F43"/></svg>
+              </div>
+              <h3 class="mode-card-title">빠른 AI 난투</h3>
+              <p class="mode-card-desc">기다릴 필요 없이 똑똑하고 귀여운 AI 쁘니 3명과 즉시 4인 풀배틀을 시작합니다!</p>
+              <button id="btn-quick-ai-play" class="btn btn-accent btn-block">
+                <span>즉시 시작</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 하단 조작법 안내 -->
+        <div class="controls-guide-bar">
+          <svg class="ui-icon" viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="12" r="10" stroke="#747D8C" stroke-width="2"/><path d="M12 16v-4m0-4h.01" stroke="#747D8C" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="guide-text"><strong>조작법:</strong> 모바일은 화면 터치 드래그 가상 조이스틱 / PC는 <strong>W, A, S, D</strong> 또는 <strong>방향키</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       3. 대기실 / 룸 화면 (Room / Waiting Screen)
+       ======================================================== -->
+  <div id="room-screen" class="game-screen ui-layer hidden">
+    <div class="screen-panel glass-panel room-panel">
+      <!-- 상단 네비게이션 헤더 -->
+      <div class="panel-header">
+        <button id="btn-room-back-mode" class="btn-back">
+          <span class="back-arrow">‹</span>
+          <span>나가기</span>
+        </button>
+        <div class="room-title-group">
+          <h2 class="panel-title">대기실</h2>
+          <span id="connection-status-dot" class="status-dot online">방 오픈됨</span>
+        </div>
+        <div class="panel-header-right">
+          <button id="btn-room-sound" class="btn-icon-sm sound-btn" title="사운드 토글">
+            <svg class="ui-icon icon-speaker" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-body scrollable-content">
+        <!-- 룸 코드 & 인원수 설정 상단 바 -->
+        <div class="room-top-info-card">
+          <!-- 룸 코드 표시 영역 -->
+          <div class="room-code-showcase">
+            <span class="showcase-label">ROOM CODE</span>
+            <div class="code-number-wrap">
+              <span id="display-room-code" class="code-number">----</span>
+              <button id="btn-copy-code" class="btn-copy" title="코드 복사">복사</button>
+            </div>
+            <p class="showcase-sub">친구에게 이 4자리 숫자를 알려주세요!</p>
+          </div>
+
+          <!-- 인원수 선택 탭 (방장 전용) -->
+          <div class="player-count-showcase">
+            <span class="showcase-label">게임 인원수</span>
+            <div class="count-btn-group" id="count-btn-group">
+              <button class="btn-count" data-count="2">2인 대전</button>
+              <button class="btn-count" data-count="3">3인 대전</button>
+              <button class="btn-count active" data-count="4">4인 대전</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 슬롯 및 참가자 목록 카드 -->
+        <div class="room-slots-section">
+          <div class="slots-header">
+            <span>참가원 및 슬롯 현황 (<span id="player-count">1</span>/<span id="max-player-display">4</span>명)</span>
+            <span class="slot-tip">슬롯을 AI 또는 플레이어 대기로 설정할 수 있습니다.</span>
+          </div>
+
+          <div class="slots-grid">
+            <!-- 1P (호스트) -->
+            <div class="slot-card p1-theme active" id="slot-1">
+              <div class="slot-badge">HOST (1P)</div>
+              <div class="slot-img-wrap">
+                <img src="assets/player_1.png" class="slot-img" id="slot-img-1" alt="말랑쁘니">
+              </div>
+              <div class="slot-name" id="slot-name-1">말랑쁘니</div>
+              <div class="slot-type-badge user-type">방장 (USER)</div>
+            </div>
+
+            <!-- 2P -->
+            <div class="slot-card p2-theme active" id="slot-2">
+              <div class="slot-badge">2P</div>
+              <div class="slot-img-wrap">
+                <img src="assets/player_2.png" class="slot-img" id="slot-img-2" alt="강아지쁘니">
+              </div>
+              <div class="slot-name" id="slot-name-2">강아지쁘니</div>
+              <button class="slot-toggle-btn btn-ai" id="btn-toggle-slot-2" data-slot="1">
+                AI 쁘니
+              </button>
+              <div class="slot-status" id="slot-status-2">준비됨</div>
+            </div>
+
+            <!-- 3P -->
+            <div class="slot-card p3-theme active" id="slot-3">
+              <div class="slot-badge">3P</div>
+              <div class="slot-img-wrap">
+                <img src="assets/player_3.png" class="slot-img" id="slot-img-3" alt="시크릿쁘니">
+              </div>
+              <div class="slot-name" id="slot-name-3">시크릿쁘니</div>
+              <button class="slot-toggle-btn btn-ai" id="btn-toggle-slot-3" data-slot="2">
+                AI 쁘니
+              </button>
+              <div class="slot-status" id="slot-status-3">준비됨</div>
+            </div>
+
+            <!-- 4P -->
+            <div class="slot-card p4-theme active" id="slot-4">
+              <div class="slot-badge">4P</div>
+              <div class="slot-img-wrap">
+                <img src="assets/player_4.png" class="slot-img" id="slot-img-4" alt="돼지쁘니">
+              </div>
+              <div class="slot-name" id="slot-name-4">돼지쁘니</div>
+              <button class="slot-toggle-btn btn-ai" id="btn-toggle-slot-4" data-slot="3">
+                AI 쁘니
+              </button>
+              <div class="slot-status" id="slot-status-4">준비됨</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 대기실 하단 액션 버튼 바 -->
+      <div class="room-bottom-bar">
+        <button id="btn-leave-room" class="btn btn-outline">
+          <span>나가기</span>
+        </button>
+        <button id="btn-start-game" class="btn btn-primary btn-large btn-start-match">
+          <span class="btn-shine"></span>
+          <svg class="ui-icon" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          <span class="btn-text">게임 시작하기!</span>
+        </button>
+        <p id="guest-waiting-msg" class="waiting-tip hidden">방장님이 게임을 시작하기를 기다리고 있어요...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       4. 게임 방법 팝업 모달
+       ======================================================== -->
+  <div id="howtoplay-modal" class="ui-layer hidden">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3 class="modal-title">쁘니 페인터즈 게임 방법</h3>
+        <button id="btn-close-howtoplay" class="btn-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="rule-item">
+          <div class="rule-icon-box p1-bg">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFF"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2V7h2v5.5z"/></svg>
+          </div>
+          <div class="rule-content">
+            <h4>바닥을 내 색으로 칠하세요!</h4>
+            <p>캐릭터가 지나가는 자리마다 자신의 고유 컬러로 3D 타일이 칠해집니다.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon-box p2-bg">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><circle cx="12" cy="13" r="8" stroke="#FFF" stroke-width="2.2"/><path d="M12 9v4l2.5 2" stroke="#FFF" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="rule-content">
+            <h4>제한 시간은 60초!</h4>
+            <p>60초 동안 가장 많은 면적을 칠한 쁘니가 최종 우승을 차지합니다.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon-box p3-bg">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFF"><path d="M13 2L3 14h8l-2 8 10-12h-8l2-8z"/></svg>
+          </div>
+          <div class="rule-content">
+            <h4>상대방 타일을 뺏어 칠하기!</h4>
+            <p>이미 칠해진 상대방 타일 위를 지나가면 내 색상으로 덮어씌울 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon-box p4-bg">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFF"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2z"/></svg>
+          </div>
+          <div class="rule-content">
+            <h4>직관적인 조작 지원</h4>
+            <p>모바일 터치 조이스틱 또는 PC W,A,S,D / 방향키로 자유롭게 이동하세요.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-confirm-howtoplay" class="btn btn-primary btn-block">알겠어요!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       5. 결과 모달 레이어
+       ======================================================== -->
+  <div id="result-layer" class="ui-layer hidden">
+    <div class="result-card glass-panel">
+      <div class="result-header">
+        <span class="result-badge">TIME UP</span>
+        <h2 class="result-title">경기 결과</h2>
+        <p id="result-winner-text" class="winner-congrats">말랑쁘니 님의 승리!</p>
+      </div>
+
+      <!-- 내 경기 결과 하이라이트 스포트라이트 카드 -->
+      <div id="my-result-banner" class="my-result-banner"></div>
+
+      <!-- 순위 리스트 -->
+      <div class="ranking-list" id="ranking-list">
+        <!-- JS로 동적 생성 -->
+      </div>
+
+      <div class="result-actions">
+        <button id="btn-play-again" class="btn btn-primary btn-large">
+          <svg class="ui-icon" viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M4 12a8 8 0 0114.93-4M20 12a8 8 0 01-14.93 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M19 4v4h-4M5 20v-4h4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span class="btn-text">다시 하기</span>
+        </button>
+        <button id="btn-result-room" class="btn btn-secondary">대기실로</button>
+        <button id="btn-result-lobby" class="btn btn-outline">타이틀로</button>
+      </div>
+      <p id="result-guest-msg" class="waiting-tip hidden">방장님이 다음 게임을 준비 중입니다...</p>
+    </div>
+  </div>
+
+  <!-- 시스템 토스트 알림 -->
+  <div id="toast-msg" class="toast-msg hidden"></div>
+
+  <!-- Three.js ES Modules 및 메인 게임 스크립트 -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
